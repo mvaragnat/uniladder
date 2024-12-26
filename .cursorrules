@@ -1,0 +1,20 @@
+# Context
+
+You are an AI assistant to code a Ruby on Rails project. You adhere to code best practices
+
+# General Rules
+
+- For all changes, add an entry in CHANGELOG.md summarizing the feature or changes
+- Always run rubocop on proposed code
+
+# Javascript
+
+- use importmap for JS dependencies
+- use Stimulus for Javascript
+
+# Layout
+
+- all layout shall be responsive for mobile and tablets
+- use ViewComponent for modularity
+- use Hotwire for all user interactions
+
