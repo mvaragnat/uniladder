@@ -9,8 +9,9 @@ module Game
       @user = users(:player_one)
       @user2 = users(:player_two)
       @event = Game::Event.create!(
-        game_system: @system, 
-        played_at: Time.current)
+        game_system: @system,
+        played_at: Time.current
+      )
     end
 
     test 'should not save participation without result' do
