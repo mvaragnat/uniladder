@@ -2,10 +2,10 @@
 
 module Game
   class Participation < ApplicationRecord
-    belongs_to :event
+    belongs_to :game_event, class_name: 'Game::Event'
     belongs_to :user
 
     validates :result, presence: true
-    validates :user_id, uniqueness: { scope: :event_id }
+    validates :user_id, uniqueness: { scope: :game_event_id }
   end
 end

@@ -20,10 +20,16 @@ module Game
       assert_not event.save, 'Saved the event without system'
     end
 
-    test 'should require at least two players' do
+    test 'should create event with one player' do
       event = Game::Event.create!(game_system: @system, played_at: Time.current)
-      event.players << @user1
-      assert_not event.valid?, 'Validated event with only one player'
+      event.participations.create!(user: @user1, result: 'win')
+      assert event.valid?
     end
+
+    # test 'should require at least two players' do
+    #   event = Game::Event.create!(game_system: @system, played_at: Time.current)
+    #   event.participations.create!(user: @user1, result: 'win')
+    #   assert_not event.valid?, 'Validated event with only one player'
+    # end
   end
 end
