@@ -3,6 +3,10 @@
     <div class="relative px-4 py-10 bg-white shadow-lg sm:rounded-3xl sm:p-20">
       <div class="max-w-md mx-auto">
         <h1 class="text-3xl font-bold text-gray-900 mb-8">Welcome to Uniladder</h1>
+        <div class="mt-6 space-x-4">
+          <%= link_to "Login", new_session_path, class: "text-blue-600 hover:text-blue-800" %>
+          <%= link_to "Sign Up", sign_up_path, class: "text-blue-600 hover:text-blue-800" %>
+        </div>
       </div>
     </div>
   </div>

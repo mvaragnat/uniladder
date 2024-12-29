@@ -22,7 +22,7 @@ module Game
 
     test 'should create event with one player' do
       event = Game::Event.create!(game_system: @system, played_at: Time.current)
-      event.participations.create!(user: @user1, result: 'win')
+      event.game_participations.create!(user: @user1, result: 'win')
       assert event.valid?
     end
 
