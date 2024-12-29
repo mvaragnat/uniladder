@@ -1,0 +1,21 @@
+fr:
+  hello: "Bonjour"
+  welcome: "Bienvenue sur Uniladder"
+  auth:
+    login: "Connexion"
+    signup: "S'inscrire"
+    password:
+      reset_sent: "Instructions de réinitialisation envoyées (si l'utilisateur existe)"
+      reset_success: "Mot de passe réinitialisé"
+      reset_mismatch: "Les mots de passe ne correspondent pas"
+      reset_invalid: "Le lien de réinitialisation est invalide ou a expiré"
+      reset_subject: "Réinitialisez votre mot de passe"
+    sessions:
+      try_later: "Réessayez plus tard"
+      invalid_credentials: "Vérifiez votre email ou mot de passe"
+    registration:
+      welcome: "Bienvenue sur Uniladder !"
+  layouts:
+    language:
+      en: "English"
+      fr: "Français" 

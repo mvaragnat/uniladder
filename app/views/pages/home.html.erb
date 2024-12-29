@@ -2,10 +2,14 @@
   <div class="relative py-3 sm:max-w-xl sm:mx-auto">
     <div class="relative px-4 py-10 bg-white shadow-lg sm:rounded-3xl sm:p-20">
       <div class="max-w-md mx-auto">
-        <h1 class="text-3xl font-bold text-gray-900 mb-8">Welcome to Uniladder</h1>
+        <div class="absolute top-4 right-4 space-x-2">
+          <%= link_to "🇬🇧", root_path(locale: :en), class: "text-2xl" %>
+          <%= link_to "🇫🇷", root_path(locale: :fr), class: "text-2xl" %>
+        </div>
+        <h1 class="text-3xl font-bold text-gray-900 mb-8"><%= t('welcome') %></h1>
         <div class="mt-6 space-x-4">
-          <%= link_to "Login", new_session_path, class: "text-blue-600 hover:text-blue-800" %>
-          <%= link_to "Sign Up", sign_up_path, class: "text-blue-600 hover:text-blue-800" %>
+          <%= link_to t('auth.login'), new_session_path, class: "text-blue-600 hover:text-blue-800" %>
+          <%= link_to t('auth.signup'), sign_up_path, class: "text-blue-600 hover:text-blue-800" %>
         </div>
       </div>
     </div>

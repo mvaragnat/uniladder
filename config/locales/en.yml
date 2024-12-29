@@ -28,4 +28,23 @@
 #       enabled: "ON"
 
 en:
-  hello: "Hello world"
+  hello: "Hello"
+  welcome: "Welcome to Uniladder"
+  auth:
+    login: "Login"
+    signup: "Sign Up"
+    password:
+      reset_sent: "Password reset instructions sent (if user with that email address exists)"
+      reset_success: "Password has been reset"
+      reset_mismatch: "Passwords did not match"
+      reset_invalid: "Password reset link is invalid or has expired"
+      reset_subject: "Reset your password"
+    sessions:
+      try_later: "Try again later"
+      invalid_credentials: "Try another email address or password"
+    registration:
+      welcome: "Welcome to Uniladder!"
+  layouts:
+    language:
+      en: "English"
+      fr: "Français"
