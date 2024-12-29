@@ -1,11 +1,11 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-one:
-  system: one
-  played_at: 2024-12-27 17:48:40
-  metadata: 
+chess_game:
+  id: 1
+  game_system_id: 1
+  played_at: <%= Time.current %>
 
-two:
-  system: two
-  played_at: 2024-12-27 17:48:40
-  metadata: 
+go_game:
+  id: 2
+  game_system_id: 2
+  played_at: <%= Time.current %>

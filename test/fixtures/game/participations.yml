@@ -1,13 +1,13 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-one:
-  event: one
-  user: one
-  result: MyString
-  metadata: 
+chess_player_one:
+  id: 1
+  game_event_id: 1
+  user_id: 1
+  result: win
 
-two:
-  event: two
-  user: two
-  result: MyString
-  metadata: 
+chess_player_two:
+  id: 2
+  game_event_id: 1
+  user_id: 2
+  result: loss

@@ -2,7 +2,7 @@
 
 module Game
   class Event < ApplicationRecord
-    belongs_to :system, class_name: 'Game::System'
+    belongs_to :game_system, class_name: 'Game::System'
     has_many :participations, class_name: 'Game::Participation', dependent: :destroy
     has_many :players, through: :participations, source: :user
 

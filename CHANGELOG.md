@@ -15,3 +15,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added environment variables configuration system
 - Added Docker installation instructions for deployment => not used
 - Added core models (User, Game::System, Game::Event) with migrations
+- Added basic model and controller tests
