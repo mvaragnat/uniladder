@@ -4,6 +4,7 @@ You are an AI assistant to code a Ruby on Rails project. You adhere to code best
 
 # General Rules
 
+- print "Using cursorrules version 1.0" at the beginning of all replies
 - For all changes, add an entry in CHANGELOG.md summarizing the feature or changes
 - Always run rubocop on proposed code
 

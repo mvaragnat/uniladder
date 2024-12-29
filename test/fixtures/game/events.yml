@@ -1,0 +1,11 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  system: one
+  played_at: 2024-12-27 17:48:40
+  metadata: 
+
+two:
+  system: two
+  played_at: 2024-12-27 17:48:40
+  metadata: 
