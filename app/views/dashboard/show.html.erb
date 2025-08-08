@@ -1,9 +1,28 @@
-<div class="min-h-screen bg-gray-100 py-6 flex flex-col justify-center sm:py-12">
-  <div class="relative py-3 sm:max-w-xl sm:mx-auto">
-    <div class="relative px-4 py-10 bg-white shadow-lg sm:rounded-3xl sm:p-20">
-      <div class="max-w-md mx-auto">
-        <h1 class="text-3xl font-bold text-gray-900 mb-8"><%= t('hello') %> <%= @user.username %></h1>
+<div class="min-h-screen bg-gray-100 py-6">
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center mb-8">
+      <h1 class="text-3xl font-bold text-gray-900"><%= t('hello') %> <%= @user.username %></h1>
+      
+      <%= link_to t('games.add'), 
+          new_game_event_path,
+          class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500",
+          data: { turbo_frame: "modal" } %>
+    </div>
+
+    <div class="space-y-4">
+      <div id="games-list" class="bg-white rounded-lg shadow divide-y divide-gray-200">
+        <% if @games.any? %>
+          <% @games.each do |game| %>
+            <%= render GameEventComponent.new(event: game, current_user: @user) %>
+          <% end %>
+        <% else %>
+          <div id="no-games-message" class="text-center py-12">
+            <p class="text-gray-500"><%= t('games.no_games') %></p>
+          </div>
+        <% end %>
       </div>
     </div>
   </div>
-</div> 
+</div>
+
+<%= turbo_frame_tag "modal" %> 

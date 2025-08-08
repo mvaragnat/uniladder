@@ -48,3 +48,23 @@ en:
     language:
       en: "English"
       fr: "Français"
+    shared:
+      cancel: "Cancel"
+  games:
+    add: "Add a game"
+    new:
+      title: "New Game"
+      system: "Game System"
+      select_system: "Select a game system"
+      your_score: "Your score"
+      opponent_score: "Opponent score"
+      participants: "Add participants"
+      search_placeholder: "Search players by username"
+      submit: "Create game"
+    participants: "Participants"
+    no_games: "No games played yet"
+    create:
+      success: "Game created successfully"
+    errors:
+      exactly_two_players: "You must select exactly two players (you and one opponent)"
+      both_scores_required: "Both scores are required"

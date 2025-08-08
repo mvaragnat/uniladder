@@ -18,3 +18,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added basic model and controller tests
 - Added authentication system with login functionality
 - Added user registration functionality
+- Added game creation functionality with player search and modal form
+- Added game history display on dashboard with ViewComponent
+- Added ViewComponent gem for modular view components
+
+### Changed
+- Enforced presence validation for `Game::Participation.result` to prevent saving participations without a result and align with tests
+- Updated `Game::EventsController` strong params to require `:event` (was `:game_event`) to match controller tests
+- Enforced exactly two players per game at the model level; added distinct-players validation and auto-completion of opponent result
+- Added Stimulus `game-form` validation to block submission unless exactly one opponent is selected; added localized error message in EN/FR
+- Updated controller and system tests to cover no-players and exactly-two-players scenarios; added i18n messages for success and errors

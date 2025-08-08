@@ -3,5 +3,7 @@
 class PagesController < ApplicationController
   allow_unauthenticated_access
 
-  def home; end
+  def home
+    redirect_to dashboard_path if authenticated?
+  end
 end

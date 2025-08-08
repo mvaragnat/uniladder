@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2024_12_29_121059) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_08_160000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -27,10 +27,10 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_29_121059) do
   create_table "game_participations", force: :cascade do |t|
     t.bigint "game_event_id", null: false
     t.bigint "user_id", null: false
-    t.string "result", null: false
     t.jsonb "metadata", default: {}
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "score"
     t.index ["game_event_id", "user_id"], name: "index_game_participations_on_game_event_id_and_user_id", unique: true
     t.index ["game_event_id"], name: "index_game_participations_on_game_event_id"
     t.index ["user_id"], name: "index_game_participations_on_user_id"

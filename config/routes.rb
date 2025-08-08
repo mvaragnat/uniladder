@@ -6,5 +6,10 @@ Rails.application.routes.draw do
   get  'sign_up', to: 'registrations#new'
   post 'sign_up', to: 'registrations#create'
   
+  namespace :game do
+    resources :events, only: [:new, :create]
+  end
+  get 'users/search', to: 'users#search'
+  
   root 'pages#home'
 end

@@ -1,0 +1,27 @@
+<div class="bg-white rounded-lg shadow p-4 mb-4 <%= card_accent_classes %>">
+  <div class="flex justify-between items-start">
+    <div>
+      <h3 class="text-lg font-medium text-gray-900">
+        <%= @event.game_system.name %>
+      </h3>
+      <p class="text-sm text-gray-500">
+        <%= l(@event.played_at, format: :long) %>
+      </p>
+    </div>
+  </div>
+  
+  <div class="mt-3 text-sm text-gray-800">
+    <% my = @participation %>
+    <% opp = opponent_participation %>
+    <div class="flex justify-between">
+      <div class="flex items-center gap-2">
+        <span class="font-semibold"><%= @current_user.username %></span>
+        <span><%= my&.score %></span>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="font-semibold"><%= opp&.user&.username %></span>
+        <span><%= opp&.score %></span>
+      </div>
+    </div>
+  </div>
+</div> 

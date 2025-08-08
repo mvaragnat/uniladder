@@ -18,4 +18,27 @@ fr:
   layouts:
     language:
       en: "English"
-      fr: "Français" 
+      fr: "Français"
+    shared:
+      cancel: "Annuler"
+  games:
+    add: "Ajouter une partie"
+    new:
+      title: "Nouvelle Partie"
+      system: "Système de jeu"
+      select_system: "Sélectionner un système de jeu"
+      your_score: "Votre score"
+      opponent_score: "Score de l'adversaire"
+      participants: "Ajouter des participants"
+      search_placeholder: "Rechercher des joueurs par nom"
+      submit: "Créer la partie"
+    participants: "Participants"
+    no_games: "Aucune partie jouée" 
+    create:
+      success: "Partie créée avec succès"
+    errors:
+      exactly_two_players: "Vous devez sélectionner exactement deux joueurs (vous et un adversaire)"
+      both_scores_required: "Les deux scores sont requis"
+  time:
+    formats:
+      long: "%Y-%m-%d %H:%M:%S"

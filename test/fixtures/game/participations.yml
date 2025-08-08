@@ -4,10 +4,10 @@ chess_player_one:
   id: 1
   game_event_id: 1
   user_id: 1
-  result: win
+  score: 21
 
 chess_player_two:
   id: 2
   game_event_id: 1
   user_id: 2
-  result: loss
+  score: 18
