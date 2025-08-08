@@ -31,6 +31,13 @@ class GamesTest < ApplicationSystemTestCase
     assert_text I18n.t('games.create.success')
   end
 
+  test 'new game modal is shown when clicking add a game' do
+    visit dashboard_path
+    click_on I18n.t('games.add')
+    assert_selector 'turbo-frame#modal' # modal frame exists
+    assert_selector 'h2', text: I18n.t('games.new.title')
+  end
+
   test 'cannot submit without selecting exactly one opponent' do
     visit dashboard_path
 

@@ -17,7 +17,7 @@ class GameEventComponentTest < ViewComponent::TestCase
 
   test 'renders game date' do
     render_inline(@component)
-    assert_text I18n.l(@game.played_at, format: :long)
+    assert_text I18n.l(@game.played_at, format: :card)
   end
 
   test 'renders both players and their scores' do

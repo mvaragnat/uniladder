@@ -52,6 +52,7 @@ en:
       cancel: "Cancel"
   games:
     add: "Add a game"
+    game_of: "Game of"
     new:
       title: "New Game"
       system: "Game System"
@@ -68,3 +69,6 @@ en:
     errors:
       exactly_two_players: "You must select exactly two players (you and one opponent)"
       both_scores_required: "Both scores are required"
+  time:
+    formats:
+      card: "%d/%m/%Y"

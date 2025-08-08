@@ -14,10 +14,10 @@ module Game
       respond_to do |format|
         if @game.save
           format.turbo_stream do
+            component_html = view_context.render(GameEventComponent.new(event: @game, current_user: Current.user))
             render turbo_stream: [
               turbo_stream.remove('no-games-message'),
-              turbo_stream.prepend('games-list',
-                                   render(GameEventComponent.new(event: @game, current_user: Current.user))),
+              turbo_stream.prepend('games-list', component_html),
               turbo_stream.replace('modal', '')
             ]
           end

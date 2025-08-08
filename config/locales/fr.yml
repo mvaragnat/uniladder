@@ -23,6 +23,7 @@ fr:
       cancel: "Annuler"
   games:
     add: "Ajouter une partie"
+    game_of: "Partie de"
     new:
       title: "Nouvelle Partie"
       system: "Système de jeu"
@@ -42,3 +43,4 @@ fr:
   time:
     formats:
       long: "%Y-%m-%d %H:%M:%S"
+      card: "%d/%m/%Y"

@@ -23,8 +23,8 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
   test 'should show game history' do
     get dashboard_path
     assert_response :success
-    assert_select '.bg-white.rounded-lg.shadow'
-    assert_select 'h3', game_events(:chess_game).game_system.name
+    assert_select '#games-list'
+    assert_select 'h3', /Game of\s*#{Regexp.escape(game_events(:chess_game).game_system.name)}/
   end
 
   test 'should show dashboard in French when authenticated' do

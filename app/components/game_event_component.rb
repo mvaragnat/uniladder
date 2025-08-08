@@ -19,9 +19,10 @@ class GameEventComponent < ViewComponent::Base
   end
 
   def card_accent_classes
+    base = 'rounded-lg border-4'
     winner = @event.winner_user
-    return 'border-l-4 border-gray-300' if winner.nil?
+    return "#{base} border-blue-500" if winner.nil?
 
-    winner.id == @current_user.id ? 'border-l-4 border-green-500' : 'border-l-4 border-red-500'
+    winner.id == @current_user.id ? "#{base} border-green-500" : "#{base} border-red-500"
   end
 end
