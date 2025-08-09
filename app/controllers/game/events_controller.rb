@@ -8,24 +8,10 @@ module Game
     end
 
     def create
-      @game = Event.new(game_params)
-      @game.played_at = Time.current
+      @game = Event.new(game_params.merge(played_at: Time.current))
 
       respond_to do |format|
-        if @game.save
-          format.turbo_stream do
-            component_html = view_context.render(GameEventComponent.new(event: @game, current_user: Current.user))
-            render turbo_stream: [
-              turbo_stream.remove('no-games-message'),
-              turbo_stream.prepend('games-list', component_html),
-              turbo_stream.replace('modal', '')
-            ]
-          end
-          format.html { redirect_to dashboard_path, notice: t('.success') }
-        else
-          format.turbo_stream { render :new, status: :unprocessable_entity }
-          format.html { render :new, status: :unprocessable_entity }
-        end
+        @game.save ? respond_with_create_success(format) : respond_with_create_failure(format)
       end
     end
 
@@ -37,6 +23,28 @@ module Game
         :game_system_id,
         game_participations_attributes: %i[user_id score]
       )
+    end
+
+    def render_component_html
+      view_context.render(
+        GameEventComponent.new(event: @game, current_user: Current.user)
+      )
+    end
+
+    def respond_with_create_success(format)
+      format.turbo_stream do
+        render turbo_stream: [
+          turbo_stream.remove('no-games-message'),
+          turbo_stream.prepend('games-list', render_component_html),
+          turbo_stream.replace('modal', '')
+        ]
+      end
+      format.html { redirect_to dashboard_path, notice: t('.success') }
+    end
+
+    def respond_with_create_failure(format)
+      format.turbo_stream { render :new, status: :unprocessable_entity }
+      format.html { render :new, status: :unprocessable_entity }
     end
   end
 end
