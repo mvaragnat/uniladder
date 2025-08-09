@@ -31,14 +31,14 @@ module Tournament
     end
 
     test 'invalid with unknown format' do
-      t = ::Tournament::Tournament.new(
-        name: 'X',
-        creator: @creator,
-        game_system: @system,
-        format: 'league'
-      )
-      assert_not t.valid?
-      assert t.errors[:format].present?
+      assert_raises ArgumentError do
+        ::Tournament::Tournament.new(
+          name: 'X',
+          creator: @creator,
+          game_system: @system,
+          format: 'league'
+        )
+      end
     end
 
     test 'rounds_count must be positive when provided' do

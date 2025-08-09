@@ -15,7 +15,7 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'should show dashboard when authenticated' do
-    get dashboard_path(locale: I18n.locale)
+    get dashboard_path(locale: :en)
     assert_response :success
     assert_select 'h1', "Hello #{@user.username}"
   end

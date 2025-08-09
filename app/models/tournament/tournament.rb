@@ -4,7 +4,7 @@ module Tournament
   class Tournament < ApplicationRecord
     self.table_name = 'tournaments'
 
-    FORMATS = %w[open swiss elimination].freeze
+    enum :format, { open: 0, swiss: 1, elimination: 2 }
 
     belongs_to :creator, class_name: 'User'
     belongs_to :game_system, class_name: 'Game::System'
@@ -26,7 +26,7 @@ module Tournament
              dependent: :destroy
 
     validates :name, presence: true
-    validates :format, inclusion: { in: FORMATS }
+    validates :format, presence: true
     validates :rounds_count, numericality: { greater_than: 0 }, allow_nil: true
   end
 end

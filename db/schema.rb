@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_09_120100) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_09_123000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -136,7 +136,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_09_120100) do
     t.text "description"
     t.bigint "creator_id", null: false
     t.bigint "game_system_id", null: false
-    t.string "format", null: false
+    t.integer "format", default: 0, null: false
     t.integer "rounds_count"
     t.datetime "starts_at"
     t.datetime "ends_at"
@@ -146,6 +146,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_09_120100) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["creator_id"], name: "index_tournaments_on_creator_id"
+    t.index ["format"], name: "index_tournaments_on_format"
     t.index ["game_system_id"], name: "index_tournaments_on_game_system_id"
     t.index ["slug"], name: "index_tournaments_on_slug", unique: true
   end

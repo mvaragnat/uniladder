@@ -3,7 +3,9 @@
   <p class="card-date"><%= @tournament.game_system.name %> · <%= @tournament.format %></p>
 
   <div style="margin:1rem 0; display:flex; gap:0.5rem; flex-wrap:wrap;">
-    <%= link_to 'Rounds', tournament_tournament_rounds_path(@tournament), class: 'btn' %>
+    <% unless @tournament.open? %>
+      <%= link_to 'Rounds', tournament_tournament_rounds_path(@tournament), class: 'btn' %>
+    <% end %>
     <%= link_to 'Matches', tournament_tournament_matches_path(@tournament), class: 'btn' %>
   </div>
 
@@ -23,8 +25,10 @@
       </div>
       <div class="card-body" style="display:flex; gap:0.5rem; flex-wrap:wrap;">
         <%= button_to t('tournaments.show.lock_registration'), lock_registration_tournament_path(@tournament), method: :post, class: 'btn' %>
-        <%= button_to t('tournaments.show.generate_pairings'), generate_pairings_tournament_path(@tournament), method: :post, class: 'btn' %>
-        <%= button_to t('tournaments.show.close_round'), close_round_tournament_path(@tournament), method: :post, class: 'btn' %>
+        <% unless @tournament.open? %>
+          <%= button_to t('tournaments.show.generate_pairings'), generate_pairings_tournament_path(@tournament), method: :post, class: 'btn' %>
+          <%= button_to t('tournaments.show.close_round'), close_round_tournament_path(@tournament), method: :post, class: 'btn' %>
+        <% end %>
         <%= button_to t('tournaments.show.finalize'), finalize_tournament_path(@tournament), method: :post, class: 'btn' %>
       </div>
     </div>

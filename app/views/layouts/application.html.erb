@@ -34,6 +34,9 @@
         <%= link_to t('auth.login', default: 'Sign in'), new_session_path, class: "brand" %>
         <%= link_to t('auth.signup', default: 'Sign up'), sign_up_path, class: "brand" %>
       <% end %>
+      <span style="margin-left:0.75rem;"></span>
+      <%= link_to "🇬🇧", url_for(locale: :en), class: "brand" %>
+      <%= link_to "🇫🇷", url_for(locale: :fr), class: "brand" %>
     </nav>
     <main>
       <%= yield %>
