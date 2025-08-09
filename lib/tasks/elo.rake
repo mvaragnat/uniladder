@@ -19,6 +19,11 @@ namespace :elo do
     scope = Game::Event.order(:played_at)
     scope = scope.where(game_system_id: system_id) if scoped
 
+    # Only process events that have exactly two participations
+    scope = scope.joins(:game_participations)
+                 .group('game_events.id')
+                 .having('COUNT(game_participations.id) = 2')
+
     puts "Recomputing Elo for #{scope.count} events..."
     scope.find_each do |event|
       event.update!(elo_applied: false)

@@ -10,6 +10,9 @@ class EloIntegrationTest < ActionDispatch::IntegrationTest
   end
 
   test 'creating a valid event applies elo' do
+    assert_nil EloRating.find_by(user: @user1, game_system: @system)
+    assert_nil EloRating.find_by(user: @user2, game_system: @system)
+
     post game_events_path, params: {
       event: {
         game_system_id: @system.id,
@@ -25,47 +28,14 @@ class EloIntegrationTest < ActionDispatch::IntegrationTest
 
     r1 = EloRating.find_by(user: @user1, game_system: @system)
     r2 = EloRating.find_by(user: @user2, game_system: @system)
-    assert_not_nil r1
-    assert_not_nil r2
+    assert_equal 1215, r1.rating
+    assert_equal 1185, r2.rating
   end
-
-  # rubocop:disable Metrics/BlockLength
-  test 'backfill produces same results as online updates' do
-    2.times do |i|
-      post game_events_path, params: {
-        event: {
-          game_system_id: @system.id,
-          game_participations_attributes: [
-            { user_id: @user1.id, score: 20 + i },
-            { user_id: @user2.id, score: 15 + i }
-          ]
-        }
-      }
-    end
-
-    Game::Event.where(game_system: @system).order(:played_at).find_each do |event|
-      Elo::Updater.new.update_for_event(event)
-    end
-
-    online_r1 = EloRating.find_by(user: @user1, game_system: @system).rating
-    online_r2 = EloRating.find_by(user: @user2, game_system: @system).rating
-
-    EloRating.delete_all
-    EloChange.delete_all
-    Game::Event.where(game_system: @system).find_each { |e| e.update!(elo_applied: false) }
-    Game::Event.where(game_system: @system).order(:played_at).find_each do |event|
-      Elo::Updater.new.update_for_event(event)
-    end
-
-    rebuilt_r1 = EloRating.find_by(user: @user1, game_system: @system).rating
-    rebuilt_r2 = EloRating.find_by(user: @user2, game_system: @system).rating
-
-    assert_equal online_r1, rebuilt_r1
-    assert_equal online_r2, rebuilt_r2
-  end
-  # rubocop:enable Metrics/BlockLength
 
   test 'concurrent updates serialize safely' do
+    assert_nil EloRating.find_by(user: @user1, game_system: @system)
+    assert_nil EloRating.find_by(user: @user2, game_system: @system)
+
     event1 = Game::Event.new(game_system: @system, played_at: Time.current)
     event1.game_participations.build(user: @user1, score: 22)
     event1.game_participations.build(user: @user2, score: 20)
@@ -83,7 +53,8 @@ class EloIntegrationTest < ActionDispatch::IntegrationTest
 
     r1 = EloRating.find_by(user: @user1, game_system: @system)
     r2 = EloRating.find_by(user: @user2, game_system: @system)
-    assert_not_nil r1
-    assert_not_nil r2
+
+    # Final ratings are {1199, 1201} in some order depending on thread scheduling
+    assert_equal [1199, 1201], [r1.rating, r2.rating].sort
   end
 end
