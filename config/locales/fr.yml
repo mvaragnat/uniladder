@@ -4,6 +4,7 @@ fr:
   auth:
     login: "Connexion"
     signup: "S'inscrire"
+    logout: "Se déconnecter"
     password:
       reset_sent: "Instructions de réinitialisation envoyées (si l'utilisateur existe)"
       reset_success: "Mot de passe réinitialisé"
@@ -40,6 +41,37 @@ fr:
     errors:
       exactly_two_players: "Vous devez sélectionner exactement deux joueurs (vous et un adversaire)"
       both_scores_required: "Les deux scores sont requis"
+  tournaments:
+    index_title: "Tournois"
+    create_new: "Créer un nouveau tournoi"
+    open: "Ouvrir"
+    show:
+      registrations: "Inscriptions"
+      recent_matches: "Matchs récents"
+      register: "S'inscrire"
+      unregister: "Se désinscrire"
+      check_in: "Check-in"
+      admin: "Administration"
+      lock_registration: "Fermer les inscriptions"
+      generate_pairings: "Générer les appariements"
+      close_round: "Clore la ronde"
+      finalize: "Finaliser"
+    new:
+      title: "Nouveau Tournoi"
+      name: "Nom"
+      description: "Description"
+      game_system: "Système de jeu"
+      format: "Format"
+      rounds_count: "Rondes (seulement pour le suisse)"
+      starts_at: "Début"
+      ends_at: "Fin"
+      create: "Créer"
+  elo:
+    title: "ELO"
+    standings: "Classement"
+    player: "Joueur"
+    rating: "Cote"
+    select_system: "Sélectionner un système"
   time:
     formats:
       long: "%Y-%m-%d %H:%M:%S"

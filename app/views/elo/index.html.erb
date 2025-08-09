@@ -1,6 +1,6 @@
 <div class="games-container">
   <div class="page-header">
-    <h1>ELO</h1>
+    <h1><%= t('elo.title') %></h1>
   </div>
 
   <div class="card">
@@ -8,7 +8,7 @@
       <%= form_with url: elo_path, method: :get, local: true do %>
         <%= select_tag :game_system_id,
                        options_from_collection_for_select(@systems, :id, :name, @system&.id),
-                       include_blank: 'Select a system',
+                       include_blank: t('elo.select_system'),
                        onchange: 'this.form.submit()' %>
       <% end %>
     </div>
@@ -17,7 +17,7 @@
   <% if @standings.present? %>
     <div class="card">
       <div class="card-header">
-        <h3>Standings</h3>
+        <h3><%= t('elo.standings') %></h3>
         <p class="card-date"><%= @system&.name %></p>
       </div>
       <div class="card-body">
@@ -25,8 +25,8 @@
           <thead>
             <tr>
               <th style="text-align:left; padding:0.25rem 0;">#</th>
-              <th style="text-align:left; padding:0.25rem 0;">Player</th>
-              <th style="text-align:right; padding:0.25rem 0;">Rating</th>
+              <th style="text-align:left; padding:0.25rem 0;"><%= t('elo.player') %></th>
+              <th style="text-align:right; padding:0.25rem 0;"><%= t('elo.rating') %></th>
             </tr>
           </thead>
           <tbody>

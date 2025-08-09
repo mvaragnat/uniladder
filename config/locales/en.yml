@@ -33,6 +33,7 @@ en:
   auth:
     login: "Login"
     signup: "Sign Up"
+    logout: "Logout"
     password:
       reset_sent: "Password reset instructions sent (if user with that email address exists)"
       reset_success: "Password has been reset"
@@ -69,6 +70,37 @@ en:
     errors:
       exactly_two_players: "You must select exactly two players (you and one opponent)"
       both_scores_required: "Both scores are required"
+  tournaments:
+    index_title: "Tournaments"
+    create_new: "Create new tournament"
+    open: "Open"
+    show:
+      registrations: "Registrations"
+      recent_matches: "Recent matches"
+      register: "Register"
+      unregister: "Unregister"
+      check_in: "Check-in"
+      admin: "Admin"
+      lock_registration: "Lock registration"
+      generate_pairings: "Generate pairings"
+      close_round: "Close round"
+      finalize: "Finalize"
+    new:
+      title: "New Tournament"
+      name: "Name"
+      description: "Description"
+      game_system: "Game System"
+      format: "Format"
+      rounds_count: "Rounds (Swiss only)"
+      starts_at: "Starts at"
+      ends_at: "Ends at"
+      create: "Create"
+  elo:
+    title: "ELO"
+    standings: "Standings"
+    player: "Player"
+    rating: "Rating"
+    select_system: "Select a system"
   time:
     formats:
       card: "%d/%m/%Y"

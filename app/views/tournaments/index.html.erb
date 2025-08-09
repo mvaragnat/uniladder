@@ -1,7 +1,7 @@
 <div class="games-container">
-  <h1>Tournaments</h1>
+  <h1><%= t('tournaments.index_title') %></h1>
   <div style="margin: 1rem 0; display:flex; gap:0.5rem;">
-    <%= link_to 'Create new tournament', new_tournament_path, class: 'btn btn-primary' %>
+    <%= link_to t('tournaments.create_new'), new_tournament_path, class: 'btn btn-primary' %>
   </div>
 
   <% @tournaments.each do |t| %>
@@ -11,7 +11,7 @@
         <p class="card-date"><%= t.game_system.name %> · <%= t.format %></p>
       </div>
       <div class="card-body">
-        <%= link_to 'Open', tournament_path(t), class: 'btn' %>
+        <%= link_to t('tournaments.open'), tournament_path(t), class: 'btn' %>
       </div>
     </div>
   <% end %>
