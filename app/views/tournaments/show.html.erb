@@ -1,0 +1,39 @@
+<div class="games-container">
+  <h1><%= @tournament.name %></h1>
+  <p class="card-date"><%= @tournament.game_system.name %> · <%= @tournament.format %></p>
+
+  <div style="margin:1rem 0;">
+    <% if @tournament.registrations.exists?(user: Current.user) %>
+      <%= button_to 'Unregister', unregister_tournament_path(@tournament), method: :delete, class: 'btn' %>
+      <%= button_to 'Check-in', check_in_tournament_path(@tournament), method: :post, class: 'btn' %>
+    <% else %>
+      <%= button_to 'Register', register_tournament_path(@tournament), method: :post, class: 'btn btn-primary' %>
+    <% end %>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h3>Registrations</h3>
+    </div>
+    <div class="card-body">
+      <ul style="list-style:none; padding:0;">
+        <% @registrations.each do |r| %>
+          <li><%= r.user.username %> (<%= r.status %>)</li>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h3>Recent matches</h3>
+    </div>
+    <div class="card-body">
+      <ul style="list-style:none; padding:0;">
+        <% @matches.each do |m| %>
+          <li><%= m.a_user.username %> vs <%= m.b_user.username %> — <%= m.result %></li>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+</div> 
