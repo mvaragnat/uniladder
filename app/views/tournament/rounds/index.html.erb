@@ -7,7 +7,7 @@
     <% @rounds.each do |r| %>
       <li class="card" style="margin-bottom:0.5rem;">
         <div class="card-body">
-          <%= link_to "Round #{r.number}", tournament_round_path(@tournament, r) %>
+          <%= link_to "Round #{r.number}", tournament_tournament_round_path(@tournament, r) %>
         </div>
       </li>
     <% end %>

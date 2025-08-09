@@ -18,19 +18,20 @@
     <link rel="apple-touch-icon" href="/icon.png">
 
     <%= stylesheet_link_tag :application, "data-turbo-track": "reload" %>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css">
     <%= javascript_importmap_tags %>
   </head>
 
   <body>
-    <nav style="display:flex; gap:1rem; padding:0.75rem; border-bottom:1px solid var(--gray-300);">
-      <%= link_to "Uniladder", root_path %>
-      <%= link_to "Tournaments", tournaments_path %>
-      <span style="margin-left:auto;"></span>
+    <nav class="site-nav">
+      <%= link_to "My Dashboard", dashboard_path, class: "brand" %>
+      <%= link_to "Tournaments", tournaments_path, class: "brand" %>
+      <span class="spacer"></span>
       <% if authenticated? %>
-        <%= link_to t('auth.logout', default: 'Logout'), session_path, data: { turbo_method: :delete } %>
+        <%= link_to t('auth.logout', default: 'Logout'), session_path, data: { turbo_method: :delete }, class: "brand" %>
       <% else %>
-        <%= link_to t('auth.login', default: 'Sign in'), new_session_path %>
-        <%= link_to t('auth.signup', default: 'Sign up'), sign_up_path %>
+        <%= link_to t('auth.login', default: 'Sign in'), new_session_path, class: "brand" %>
+        <%= link_to t('auth.signup', default: 'Sign up'), sign_up_path, class: "brand" %>
       <% end %>
     </nav>
     <main>

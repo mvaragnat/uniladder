@@ -1,7 +1,7 @@
 <div class="games-container">
   <h1>Round <%= @round.number %> — <%= @tournament.name %></h1>
   <div style="margin: 0.5rem 0; display:flex; gap:0.5rem;">
-    <%= link_to 'All rounds', tournament_rounds_path(@tournament), class: 'btn' %>
+    <%= link_to 'All rounds', tournament_tournament_rounds_path(@tournament), class: 'btn' %>
     <%= link_to 'Tournament', tournament_path(@tournament), class: 'btn' %>
   </div>
 

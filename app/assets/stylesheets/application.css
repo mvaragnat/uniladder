@@ -32,15 +32,33 @@ body {
 }
 
 h1, h2, h3 { color: var(--text-strong); margin: 0 0 0.5rem 0; }
-h1 { font-size: 2rem; font-weight: 700; }
+h1 { font-size: 2.25rem; font-weight: 700; }
 h2 { font-size: 1.5rem; font-weight: 700; }
 h3 { font-size: 1.25rem; font-weight: 600; }
 
 p { margin: 0 0 0.5rem 0; }
 label { display: block; margin: 0.5rem 0 0.25rem; color: var(--text-strong); }
 
+/***** Site Nav *****/
+.site-nav {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--gray-300);
+  background: #fff;
+}
+.site-nav .brand {
+  font-weight: 800;
+  font-size: 1.25rem;
+  letter-spacing: 0.2px;
+  text-decoration: none;
+  color: var(--text-strong);
+}
+.site-nav .spacer { margin-left: auto; }
+
 /***** Form Controls *****/
-input[type="text"], input[type="email"], input[type="password"], input[type="number"], select {
+input[type="text"], input[type="email"], input[type="password"], input[type="number"], select, textarea {
   width: 100%;
   appearance: none;
   background: #fff;
@@ -54,7 +72,7 @@ input[type="text"], input[type="email"], input[type="password"], input[type="num
 
 select { background-image: linear-gradient(45deg, transparent 50%, var(--text-muted) 50%), linear-gradient(135deg, var(--text-muted) 50%, transparent 50%); background-position: calc(100% - 18px) calc(1em + 2px), calc(100% - 13px) calc(1em + 2px); background-size: 5px 5px, 5px 5px; background-repeat: no-repeat; }
 
-input:focus, select:focus {
+input:focus, select:focus, textarea:focus {
   border-color: var(--blue-500);
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
 }
@@ -83,7 +101,7 @@ input:focus, select:focus {
 }
 
 /***** Layout helpers *****/
-.page-header { text-align: center; margin: 2rem 0 1rem; }
+.page-header { text-align: center; margin: 2.75rem 0 1.25rem; }
 .page-header h1 { color: var(--text-strong); }
 .games-container { width: 100%; max-width: 720px; margin: 0 auto; padding: 0 1rem; }
 
