@@ -41,6 +41,6 @@ class RegistrationsControllerTest < ActionDispatch::IntegrationTest
     }
 
     assert_response :unprocessable_entity
-    assert_select 'div.bg-red-50' # Error messages container
+    assert_select 'div.form-errors' # Error messages container
   end
 end
