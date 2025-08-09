@@ -3,6 +3,8 @@ when nil then 'card--draw'
 when @current_user.id then 'card--win'
 else 'card--loss'
 end %>
+<% my_change = EloChange.find_by(game_event: @event, user: @current_user) %>
+<% opp_change = EloChange.find_by(game_event: @event, user: opponent_participation&.user) %>
 <div class="card <%= outcome_class %>">
   <div class="card-header">
     <h3><%= t('games.game_of') %> <%= @event.game_system.name %></h3>
@@ -13,9 +15,19 @@ end %>
     <% my = @participation %>
     <% opp = opponent_participation %>
     <div class="card-row">
-      <div class="player"><%= @current_user.username %></div>
+      <div class="player">
+        <%= @current_user.username %>
+        <% if my_change %>
+          <div class="card-date">(<%= my_change.rating_before %> → <%= my_change.rating_after %>)</div>
+        <% end %>
+      </div>
       <div class="score"><%= [my&.score, opp&.score].compact.join(' - ') %></div>
-      <div class="player" style="text-align: right;"><%= opp&.user&.username %></div>
+      <div class="player" style="text-align: right;">
+        <%= opp&.user&.username %>
+        <% if opp_change %>
+          <div class="card-date">(<%= opp_change.rating_before %> → <%= opp_change.rating_after %>)</div>
+        <% end %>
+      </div>
     </div>
   </div>
 </div> 

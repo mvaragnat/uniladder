@@ -15,5 +15,20 @@ module ActiveSupport
 
     # Add more helper methods to be used by all tests here...
     include ViewComponent::TestHelpers
+    include ActiveJob::TestHelper
+
+    setup do
+      ActiveJob::Base.queue_adapter = :test
+    end
+  end
+end
+
+module ActionDispatch
+  class IntegrationTest
+    include ActiveJob::TestHelper
+
+    setup do
+      ActiveJob::Base.queue_adapter = :test
+    end
   end
 end

@@ -4,13 +4,20 @@ namespace :elo do
   desc 'Rebuild Elo ratings from all events (optionally for a system: SYSTEM_ID=ID)'
   task rebuild: :environment do
     system_id = ENV['SYSTEM_ID']&.to_i
+    scoped = system_id.present? && system_id.positive?
 
-    puts 'Resetting Elo tables...'
-    EloRating.delete_all
-    EloChange.delete_all
+    if scoped
+      puts "Scoped rebuild for game_system_id=#{system_id}"
+      EloRating.where(game_system_id: system_id).delete_all
+      EloChange.where(game_system_id: system_id).delete_all
+    else
+      puts 'Global rebuild for all systems'
+      EloRating.delete_all
+      EloChange.delete_all
+    end
 
     scope = Game::Event.order(:played_at)
-    scope = scope.where(game_system_id: system_id) if system_id.present? && system_id.positive?
+    scope = scope.where(game_system_id: system_id) if scoped
 
     puts "Recomputing Elo for #{scope.count} events..."
     scope.find_each do |event|

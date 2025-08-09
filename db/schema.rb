@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_09_110200) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_09_110300) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -25,6 +25,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_09_110200) do
     t.integer "k_factor", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["game_event_id", "user_id"], name: "index_elo_changes_on_game_event_id_and_user_id", unique: true
     t.index ["game_event_id"], name: "index_elo_changes_on_game_event_id"
     t.index ["game_system_id"], name: "index_elo_changes_on_game_system_id"
     t.index ["user_id", "game_system_id"], name: "index_elo_changes_on_user_id_and_game_system_id"
