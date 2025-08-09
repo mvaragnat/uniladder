@@ -16,6 +16,8 @@ module Game
     validate :players_must_be_distinct
     validate :both_scores_present
 
+    after_commit :enqueue_elo_update, on: :create
+
     def winner_user
       participations = game_participations.to_a
       return nil unless participations.size == 2
@@ -51,6 +53,10 @@ module Game
       return unless participations.any? { |p| p.score.blank? }
 
       errors.add(:players, I18n.t('games.errors.both_scores_required'))
+    end
+
+    def enqueue_elo_update
+      EloUpdateJob.perform_later(id)
     end
   end
 end
