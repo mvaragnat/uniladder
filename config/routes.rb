@@ -14,6 +14,9 @@ Rails.application.routes.draw do
     # Password reset
     resources :passwords, only: %i[new create edit update], param: :token
 
+    # Elo
+    get 'elo', to: 'elo#index', as: :elo
+
     # Dashboard
     resource :dashboard, only: :show
 

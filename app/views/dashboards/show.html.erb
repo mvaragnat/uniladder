@@ -3,8 +3,6 @@
     <h1><%= t('hello') %> <%= @user.username %></h1>
     <div style="margin-top: 1rem; display:flex; gap:0.5rem;">
       <%= link_to t('games.add'), new_game_event_path, class: "btn btn-primary", data: { turbo_frame: "modal" } %>
-      <%= link_to 'Tournaments', tournaments_path, class: "btn" %>
-      <%= link_to 'New Tournament', new_tournament_path, class: "btn" %>
     </div>
   </div>
 
