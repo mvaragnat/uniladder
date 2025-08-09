@@ -31,11 +31,25 @@ class TournamentsController < ApplicationController
   end
 
   def register
+    unless can_register?
+      return redirect_back(
+        fallback_location: tournament_path(@tournament),
+        alert: t('tournaments.closed', default: 'Registration closed')
+      )
+    end
+
     @tournament.registrations.find_or_create_by!(user: Current.user)
     redirect_to tournament_path(@tournament), notice: t('tournaments.registered', default: 'Registered')
   end
 
   def unregister
+    unless can_register?
+      return redirect_back(
+        fallback_location: tournament_path(@tournament),
+        alert: t('tournaments.closed', default: 'Registration closed')
+      )
+    end
+
     @tournament.registrations.where(user: Current.user).destroy_all
     redirect_to tournament_path(@tournament), notice: t('tournaments.unregistered', default: 'Unregistered')
   end
@@ -53,11 +67,29 @@ class TournamentsController < ApplicationController
   end
 
   def generate_pairings
-    # Placeholder for Swiss/Elim generation
+    unless @tournament.open?
+      round = @tournament.rounds.order(:number).last || @tournament.rounds.create!(number: 1, state: 'pending')
+      players = @tournament.registrations.where(status: 'checked_in').includes(:user).map(&:user)
+      players = @tournament.registrations.includes(:user).map(&:user) if players.size < 2
+      players = players.sort_by(&:id)
+
+      # Avoid duplicating matches for an existing round
+      if round.matches.count.zero?
+        players.each_slice(2) do |a, b|
+          break unless b
+
+          @tournament.matches.create!(round: round, a_user: a, b_user: b)
+        end
+      end
+    end
+
     redirect_to tournament_path(@tournament), notice: t('tournaments.pairings_generated', default: 'Pairings generated')
   end
 
   def close_round
+    if (round = @tournament.rounds.order(:number).last)
+      round.update!(state: 'closed')
+    end
     redirect_to tournament_path(@tournament), notice: t('tournaments.round_closed', default: 'Round closed')
   end
 
@@ -79,5 +111,9 @@ class TournamentsController < ApplicationController
   def tournament_params
     params.require(:tournament).permit(:name, :description, :game_system_id, :format, :rounds_count, :starts_at,
                                        :ends_at)
+  end
+
+  def can_register?
+    @tournament.state.in?(%w[draft registration])
   end
 end

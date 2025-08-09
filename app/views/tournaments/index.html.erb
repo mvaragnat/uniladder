@@ -8,7 +8,7 @@
     <div class="card">
       <div class="card-header">
         <h3><%= t.name %></h3>
-        <p class="card-date"><%= t.game_system.name %> · <%= t.format %></p>
+        <p class="card-date"><%= t.game_system.name %> · <%= t.format %> · <strong><%= t.state_label %></strong></p>
       </div>
       <div class="card-body">
         <%= link_to t('tournaments.open'), tournament_path(t), class: 'btn' %>

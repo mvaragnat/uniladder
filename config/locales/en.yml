@@ -95,6 +95,11 @@ en:
       starts_at: "Starts at"
       ends_at: "Ends at"
       create: "Create"
+    state:
+      draft: "Draft"
+      registration: "Registration"
+      running: "Running"
+      completed: "Completed"
   elo:
     title: "ELO"
     standings: "Standings"

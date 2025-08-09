@@ -66,6 +66,11 @@ fr:
       starts_at: "Début"
       ends_at: "Fin"
       create: "Créer"
+    state:
+      draft: "Brouillon"
+      registration: "Inscriptions"
+      running: "En cours"
+      completed: "Terminé"
   elo:
     title: "ELO"
     standings: "Classement"

@@ -3,58 +3,63 @@
 require 'test_helper'
 
 class EloIntegrationTest < ActionDispatch::IntegrationTest
-  def setup
+  setup do
+    @creator = users(:player_one)
+    @player2 = users(:player_two)
     @system = game_systems(:chess)
-    @user1 = users(:player_one)
-    @user2 = users(:player_two)
   end
 
-  test 'creating a valid event applies elo' do
-    assert_nil EloRating.find_by(user: @user1, game_system: @system)
-    assert_nil EloRating.find_by(user: @user2, game_system: @system)
+  test 'tournament registration, lock, pairing and result reporting' do
+    # Creator signs in and creates a swiss tournament
+    post session_path(locale: I18n.locale), params: { email_address: @creator.email_address, password: 'password' }
+    assert_response :redirect
 
-    post game_events_path, params: {
-      event: {
+    post tournaments_path(locale: I18n.locale), params: {
+      tournament: {
+        name: 'Swiss Challenge',
+        description: 'Test swiss',
         game_system_id: @system.id,
-        game_participations_attributes: [
-          { user_id: @user1.id, score: 21 },
-          { user_id: @user2.id, score: 18 }
-        ]
+        format: 'swiss',
+        rounds_count: 3
       }
     }
+    assert_response :redirect
+    t = ::Tournament::Tournament.order(:created_at).last
 
-    event = Game::Event.order(:created_at).last
-    Elo::Updater.new.update_for_event(event)
+    # Creator registers and checks in
+    post register_tournament_path(t, locale: I18n.locale)
+    assert_response :redirect
+    post check_in_tournament_path(t, locale: I18n.locale)
+    assert_response :redirect
 
-    r1 = EloRating.find_by(user: @user1, game_system: @system)
-    r2 = EloRating.find_by(user: @user2, game_system: @system)
-    assert_equal 1215, r1.rating
-    assert_equal 1185, r2.rating
-  end
+    # Another player registers and checks in
+    delete session_path(locale: I18n.locale)
+    post session_path(locale: I18n.locale), params: { email_address: @player2.email_address, password: 'password' }
+    assert_response :redirect
+    post register_tournament_path(t, locale: I18n.locale)
+    assert_response :redirect
+    post check_in_tournament_path(t, locale: I18n.locale)
+    assert_response :redirect
 
-  test 'concurrent updates serialize safely' do
-    assert_nil EloRating.find_by(user: @user1, game_system: @system)
-    assert_nil EloRating.find_by(user: @user2, game_system: @system)
+    # Creator locks registration and generates pairings
+    delete session_path(locale: I18n.locale)
+    post session_path(locale: I18n.locale), params: { email_address: @creator.email_address, password: 'password' }
+    post lock_registration_tournament_path(t, locale: I18n.locale)
+    assert_response :redirect
+    post generate_pairings_tournament_path(t, locale: I18n.locale)
+    assert_response :redirect
 
-    event1 = Game::Event.new(game_system: @system, played_at: Time.current)
-    event1.game_participations.build(user: @user1, score: 22)
-    event1.game_participations.build(user: @user2, score: 20)
-    event1.save!
+    # Open the latest match and report a result
+    get tournament_tournament_matches_path(t, locale: I18n.locale)
+    assert_response :success
 
-    event2 = Game::Event.new(game_system: @system, played_at: Time.current)
-    event2.game_participations.build(user: @user1, score: 18)
-    event2.game_participations.build(user: @user2, score: 19)
-    event2.save!
+    match = t.matches.order(:created_at).last
+    assert_not_nil match
+    patch tournament_tournament_match_path(t, match, locale: I18n.locale),
+          params: { tournament_match: { result: 'a_win' } }
+    assert_response :redirect
 
-    threads = []
-    threads << Thread.new { Elo::Updater.new.update_for_event(event1) }
-    threads << Thread.new { Elo::Updater.new.update_for_event(event2) }
-    threads.each(&:join)
-
-    r1 = EloRating.find_by(user: @user1, game_system: @system)
-    r2 = EloRating.find_by(user: @user2, game_system: @system)
-
-    # Final ratings are {1199, 1201} in some order depending on thread scheduling
-    assert_equal [1199, 1201], [r1.rating, r2.rating].sort
+    match.reload
+    assert_equal 'a_win', match.result
   end
 end

@@ -1,6 +1,6 @@
 <div class="games-container">
   <h1><%= @tournament.name %></h1>
-  <p class="card-date"><%= @tournament.game_system.name %> · <%= @tournament.format %></p>
+  <p class="card-date"><%= @tournament.game_system.name %> · <%= @tournament.format %> · <strong><%= @tournament.state_label %></strong></p>
 
   <div style="margin:1rem 0; display:flex; gap:0.5rem; flex-wrap:wrap;">
     <% unless @tournament.open? %>
@@ -13,7 +13,7 @@
     <% if @tournament.registrations.exists?(user: Current.user) %>
       <%= button_to t('tournaments.show.unregister'), unregister_tournament_path(@tournament), method: :delete, class: 'btn' %>
       <%= button_to t('tournaments.show.check_in'), check_in_tournament_path(@tournament), method: :post, class: 'btn' %>
-    <% else %>
+    <% elsif @tournament.registrations_open? %>
       <%= button_to t('tournaments.show.register'), register_tournament_path(@tournament), method: :post, class: 'btn btn-primary' %>
     <% end %>
   </div>
@@ -24,7 +24,9 @@
         <h3><%= t('tournaments.show.admin') %></h3>
       </div>
       <div class="card-body" style="display:flex; gap:0.5rem; flex-wrap:wrap;">
-        <%= button_to t('tournaments.show.lock_registration'), lock_registration_tournament_path(@tournament), method: :post, class: 'btn' %>
+        <% if @tournament.registrations_open? %>
+          <%= button_to t('tournaments.show.lock_registration'), lock_registration_tournament_path(@tournament), method: :post, class: 'btn' %>
+        <% end %>
         <% unless @tournament.open? %>
           <%= button_to t('tournaments.show.generate_pairings'), generate_pairings_tournament_path(@tournament), method: :post, class: 'btn' %>
           <%= button_to t('tournaments.show.close_round'), close_round_tournament_path(@tournament), method: :post, class: 'btn' %>

@@ -28,5 +28,13 @@ module Tournament
     validates :name, presence: true
     validates :format, presence: true
     validates :rounds_count, numericality: { greater_than: 0 }, allow_nil: true
+
+    def registrations_open?
+      state.in?(%w[draft registration])
+    end
+
+    def state_label
+      I18n.t("tournaments.state.#{state}", default: state.to_s.humanize)
+    end
   end
 end
