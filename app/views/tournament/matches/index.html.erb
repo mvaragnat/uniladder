@@ -1,0 +1,17 @@
+<div class="games-container">
+  <h1>Matches — <%= @tournament.name %></h1>
+  <div style="margin: 0.5rem 0;">
+    <%= link_to 'Back to tournament', tournament_path(@tournament), class: 'btn' %>
+  </div>
+  <ul style="list-style:none; padding:0;">
+    <% @matches.each do |m| %>
+      <li class="card" style="margin-bottom:0.5rem;">
+        <div class="card-body" style="display:flex; justify-content:space-between;">
+          <span><%= m.a_user.username %> vs <%= m.b_user.username %></span>
+          <span><%= m.result %></span>
+          <%= link_to 'Open', tournament_tournament_match_path(@tournament, m), class: 'btn' %>
+        </div>
+      </li>
+    <% end %>
+  </ul>
+</div> 

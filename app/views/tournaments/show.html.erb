@@ -2,6 +2,11 @@
   <h1><%= @tournament.name %></h1>
   <p class="card-date"><%= @tournament.game_system.name %> · <%= @tournament.format %></p>
 
+  <div style="margin:1rem 0; display:flex; gap:0.5rem; flex-wrap:wrap;">
+    <%= link_to 'Rounds', tournament_rounds_path(@tournament), class: 'btn' %>
+    <%= link_to 'Matches', tournament_tournament_matches_path(@tournament), class: 'btn' %>
+  </div>
+
   <div style="margin:1rem 0;">
     <% if @tournament.registrations.exists?(user: Current.user) %>
       <%= button_to 'Unregister', unregister_tournament_path(@tournament), method: :delete, class: 'btn' %>
@@ -11,7 +16,21 @@
     <% end %>
   </div>
 
-  <div class="card">
+  <% if @tournament.creator == Current.user %>
+    <div class="card">
+      <div class="card-header">
+        <h3>Admin</h3>
+      </div>
+      <div class="card-body" style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+        <%= button_to 'Lock registration', lock_registration_tournament_path(@tournament), method: :post, class: 'btn' %>
+        <%= button_to 'Generate pairings', generate_pairings_tournament_path(@tournament), method: :post, class: 'btn' %>
+        <%= button_to 'Close round', close_round_tournament_path(@tournament), method: :post, class: 'btn' %>
+        <%= button_to 'Finalize', finalize_tournament_path(@tournament), method: :post, class: 'btn' %>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="card" style="margin-top:1rem;">
     <div class="card-header">
       <h3>Registrations</h3>
     </div>
@@ -24,7 +43,7 @@
     </div>
   </div>
 
-  <div class="card">
+  <div class="card" style="margin-top:1rem;">
     <div class="card-header">
       <h3>Recent matches</h3>
     </div>

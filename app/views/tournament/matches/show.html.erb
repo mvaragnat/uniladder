@@ -1,0 +1,24 @@
+<div class="games-container">
+  <h1>Match — <%= @tournament.name %></h1>
+  <div style="margin: 0.5rem 0; display:flex; gap:0.5rem;">
+    <%= link_to 'All matches', tournament_tournament_matches_path(@tournament), class: 'btn' %>
+    <%= link_to 'Tournament', tournament_path(@tournament), class: 'btn' %>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h3><%= @match.a_user.username %> vs <%= @match.b_user.username %></h3>
+    </div>
+    <div class="card-body">
+      <%= form_with model: @match, url: tournament_tournament_match_path(@tournament, @match), method: :patch do |f| %>
+        <div>
+          <%= f.label :result, 'Result' %>
+          <%= f.select :result, [['A wins', 'a_win'], ['B wins', 'b_win'], ['Draw', 'draw'], ['Pending', 'pending']] %>
+        </div>
+        <div style="margin-top:0.5rem;">
+          <%= f.submit 'Save', class: 'btn btn-primary' %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div> 

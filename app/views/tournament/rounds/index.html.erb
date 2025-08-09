@@ -1,0 +1,15 @@
+<div class="games-container">
+  <h1>Rounds for <%= @tournament.name %></h1>
+  <div style="margin: 0.5rem 0;">
+    <%= link_to 'Back to tournament', tournament_path(@tournament), class: 'btn' %>
+  </div>
+  <ul style="list-style:none; padding:0;">
+    <% @rounds.each do |r| %>
+      <li class="card" style="margin-bottom:0.5rem;">
+        <div class="card-body">
+          <%= link_to "Round #{r.number}", tournament_round_path(@tournament, r) %>
+        </div>
+      </li>
+    <% end %>
+  </ul>
+</div> 

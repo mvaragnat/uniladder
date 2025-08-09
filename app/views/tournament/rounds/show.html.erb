@@ -1,0 +1,22 @@
+<div class="games-container">
+  <h1>Round <%= @round.number %> — <%= @tournament.name %></h1>
+  <div style="margin: 0.5rem 0; display:flex; gap:0.5rem;">
+    <%= link_to 'All rounds', tournament_rounds_path(@tournament), class: 'btn' %>
+    <%= link_to 'Tournament', tournament_path(@tournament), class: 'btn' %>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h3>Matches</h3>
+    </div>
+    <div class="card-body">
+      <ul style="list-style:none; padding:0;">
+        <% @matches.each do |m| %>
+          <li style="padding:0.25rem 0;">
+            <%= link_to "#{m.a_user.username} vs #{m.b_user.username}", tournament_tournament_match_path(@tournament, m) %>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+</div> 

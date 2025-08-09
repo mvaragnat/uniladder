@@ -37,6 +37,13 @@ Uniladder is a game tracking and ranking app. Players can track their games and 
 - Use ViewComponent for modular game display
 - Exactly two players are required for each game (current user + one opponent). Front-end prevents submission and back-end validates this rule.
 
+### Tournaments
+- Create and browse tournaments by game system and format (open, swiss, elimination)
+- Register/unregister and check-in to tournaments
+- View tournament rounds and matches; update match results
+- Admin actions for the tournament creator: lock registration, generate pairings, close round, finalize
+- Tournament games integrate with Elo the same way as casual games
+
 ### Internationalization
 - Full support for multiple languages
 - English and French translations available

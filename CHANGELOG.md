@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2025-08-09]
+
+### Added
+- Tournament feature (MVP):
+  - Tournaments browsing (`tournaments#index`) and details page (`tournaments#show`)
+  - Tournament creation form (`tournaments#new`, `#create`)
+  - Player registration, unregister and check-in actions on tournament page
+  - Rounds and Matches pages (index/show) under `tournament/` namespace
+  - Basic navigation links to access tournaments from home, dashboard and global nav
+
 ## [Unreleased] 
 
 ### Added
