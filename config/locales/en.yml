@@ -111,6 +111,7 @@ en:
       completed: "Completed"
     unauthorized: "Not authorized"
     not_allowed_state: "Not allowed in current state"
+    draw_not_allowed: "Draw is not allowed in elimination"
   elo:
     title: "ELO"
     standings: "Standings"

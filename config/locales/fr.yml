@@ -35,7 +35,7 @@ fr:
       search_placeholder: "Rechercher des joueurs par nom"
       submit: "Créer la partie"
     participants: "Participants"
-    no_games: "Aucune partie jouée" 
+    no_games: "Aucune partie jouée"
     create:
       success: "Partie créée avec succès"
     errors:
@@ -62,6 +62,9 @@ fr:
       close_round: "Clore la ronde"
       finalize: "Finaliser"
       organizer: "Organisateur"
+      pending: "En attente"
+      round_label: "Ronde %{n}"
+      lock_warning: "La fermeture des inscriptions empêchera également les check-ins."
     new:
       title: "Nouveau Tournoi"
       name: "Nom"
@@ -77,6 +80,10 @@ fr:
       registration: "Inscriptions"
       running: "En cours"
       completed: "Terminé"
+    unauthorized: "Non autorisé"
+    not_allowed_state: "Action non autorisée dans l'état actuel"
+    draw_not_allowed: "Match nul interdit en élimination"
+    score_required: "Les deux scores sont requis"
   elo:
     title: "ELO"
     standings: "Classement"
