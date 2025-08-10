@@ -1,76 +1,69 @@
-<div class="games-container">
+<div class="games-container" data-controller="tabs">
   <h1><%= t('tournaments.index_title') %></h1>
   <div style="margin: 1rem 0; display:flex; gap:0.5rem;">
     <%= link_to t('tournaments.create_new'), new_tournament_path, class: 'btn btn-primary' %>
   </div>
 
-  <div class="card">
-    <div class="card-header"><h3><%= t('tournaments.index.accepting', default: 'Accepting signups') %></h3></div>
-    <div class="card-body">
-      <% @accepting_tournaments.each do |t| %>
-        <div class="card" style="margin-bottom:0.75rem;">
-          <div class="card-header">
-            <h3><%= t.name %></h3>
-            <p class="card-date"><%= t.game_system.name %> · <%= t.format %> · <strong><%= t.state_label %></strong></p>
-          </div>
-          <div class="card-body">
-            <%= link_to t('tournaments.open'), tournament_path(t), class: 'btn' %>
-          </div>
-        </div>
-      <% end %>
-    </div>
+  <div style="display:flex; gap:0.5rem; margin-bottom:0.75rem; flex-wrap:wrap;">
+    <a href="#" data-action="click->tabs#select" data-index="0" data-tabs-target="tab" class="btn btn-primary" aria-selected="true"><%= t('tournaments.index.accepting') %></a>
+    <a href="#" data-action="click->tabs#select" data-index="1" data-tabs-target="tab" class="btn" aria-selected="false"><%= t('tournaments.index.ongoing') %></a>
+    <a href="#" data-action="click->tabs#select" data-index="2" data-tabs-target="tab" class="btn" aria-selected="false"><%= t('tournaments.index.closed') %></a>
+    <a href="#" data-action="click->tabs#select" data-index="3" data-tabs-target="tab" class="btn" aria-selected="false"><%= t('tournaments.index.mine') %></a>
   </div>
 
-  <div class="card">
-    <div class="card-header"><h3><%= t('tournaments.index.ongoing', default: 'Ongoing') %></h3></div>
-    <div class="card-body">
-      <% @ongoing_tournaments.each do |t| %>
-        <div class="card" style="margin-bottom:0.75rem;">
-          <div class="card-header">
-            <h3><%= t.name %></h3>
-            <p class="card-date"><%= t.game_system.name %> · <%= t.format %> · <strong><%= t.state_label %></strong></p>
-          </div>
-          <div class="card-body">
-            <%= link_to t('tournaments.open'), tournament_path(t), class: 'btn' %>
-          </div>
+  <div data-tabs-target="panel">
+    <% @accepting_tournaments.each do |t| %>
+      <div class="card" style="margin-bottom:0.75rem;">
+        <div class="card-header">
+          <h3><%= t.name %></h3>
+          <p class="card-date"><%= t.game_system.name %> · <%= t.format %> · <strong><%= t.state_label %></strong></p>
         </div>
-      <% end %>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-header"><h3><%= t('tournaments.index.closed', default: 'Closed') %></h3></div>
-    <div class="card-body">
-      <% @closed_tournaments.each do |t| %>
-        <div class="card" style="margin-bottom:0.75rem;">
-          <div class="card-header">
-            <h3><%= t.name %></h3>
-            <p class="card-date"><%= t.game_system.name %> · <%= t.format %> · <strong><%= t.state_label %></strong></p>
-          </div>
-          <div class="card-body">
-            <%= link_to t('tournaments.open'), tournament_path(t), class: 'btn' %>
-          </div>
+        <div class="card-body">
+          <%= link_to t('tournaments.open'), tournament_path(t), class: 'btn' %>
         </div>
-      <% end %>
-    </div>
-  </div>
-
-  <% if @my_tournaments.any? %>
-    <div class="card">
-      <div class="card-header"><h3><%= t('tournaments.index.mine', default: 'My tournaments') %></h3></div>
-      <div class="card-body">
-        <% @my_tournaments.each do |t| %>
-          <div class="card" style="margin-bottom:0.75rem;">
-            <div class="card-header">
-              <h3><%= t.name %></h3>
-              <p class="card-date"><%= t.game_system.name %> · <%= t.format %> · <strong><%= t.state_label %></strong></p>
-            </div>
-            <div class="card-body">
-              <%= link_to t('tournaments.open'), tournament_path(t), class: 'btn' %>
-            </div>
-          </div>
-        <% end %>
       </div>
-    </div>
-  <% end %>
+    <% end %>
+  </div>
+
+  <div data-tabs-target="panel" style="display:none;">
+    <% @ongoing_tournaments.each do |t| %>
+      <div class="card" style="margin-bottom:0.75rem;">
+        <div class="card-header">
+          <h3><%= t.name %></h3>
+          <p class="card-date"><%= t.game_system.name %> · <%= t.format %> · <strong><%= t.state_label %></strong></p>
+        </div>
+        <div class="card-body">
+          <%= link_to t('tournaments.open'), tournament_path(t), class: 'btn' %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <div data-tabs-target="panel" style="display:none;">
+    <% @closed_tournaments.each do |t| %>
+      <div class="card" style="margin-bottom:0.75rem;">
+        <div class="card-header">
+          <h3><%= t.name %></h3>
+          <p class="card-date"><%= t.game_system.name %> · <%= t.format %> · <strong><%= t.state_label %></strong></p>
+        </div>
+        <div class="card-body">
+          <%= link_to t('tournaments.open'), tournament_path(t), class: 'btn' %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <div data-tabs-target="panel" style="display:none;">
+    <% @my_tournaments.each do |t| %>
+      <div class="card" style="margin-bottom:0.75rem;">
+        <div class="card-header">
+          <h3><%= t.name %></h3>
+          <p class="card-date"><%= t.game_system.name %> · <%= t.format %> · <strong><%= t.state_label %></strong></p>
+        </div>
+        <div class="card-body">
+          <%= link_to t('tournaments.open'), tournament_path(t), class: 'btn' %>
+        </div>
+      </div>
+    <% end %>
+  </div>
 </div> 
