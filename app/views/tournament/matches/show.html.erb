@@ -10,21 +10,31 @@
       <h3><%= @match.a_user.username %> vs <%= @match.b_user.username %></h3>
     </div>
     <div class="card-body">
-      <%= form_with model: @match, url: tournament_tournament_match_path(@tournament, @match), method: :patch do |f| %>
-        <div style="display:grid; grid-template-columns: 1fr auto 1fr; gap:0.5rem; align-items: end;">
-          <div>
-            <label><%= @match.a_user.username %></label>
-            <%= number_field_tag 'tournament_match[a_score]', nil, min: 0, step: 1, required: true %>
-          </div>
-          <div style="text-align:center; font-weight:600;">:</div>
-          <div>
-            <label><%= @match.b_user.username %></label>
-            <%= number_field_tag 'tournament_match[b_score]', nil, min: 0, step: 1, required: true %>
-          </div>
+      <% if @match.game_event.present? %>
+        <% a = @match.game_event.game_participations.find_by(user: @match.a_user) %>
+        <% b = @match.game_event.game_participations.find_by(user: @match.b_user) %>
+        <div class="card-row">
+          <div class="player" style="<%= a.score > b.score ? 'color: var(--green-500); font-weight:700;' : '' %>"><%= @match.a_user.username %></div>
+          <div class="score"><%= a.score %> - <%= b.score %></div>
+          <div class="player" style="text-align:right; <%= b.score > a.score ? 'color: var(--green-500); font-weight:700;' : '' %>"><%= @match.b_user.username %></div>
         </div>
-        <div style="margin-top:0.5rem;">
-          <%= f.submit 'Save', class: 'btn btn-primary' %>
-        </div>
+      <% else %>
+        <%= form_with model: @match, url: tournament_tournament_match_path(@tournament, @match), method: :patch do |f| %>
+          <div style="display:grid; grid-template-columns: 1fr auto 1fr; gap:0.5rem; align-items: end;">
+            <div>
+              <label><%= @match.a_user.username %></label>
+              <%= number_field_tag 'tournament_match[a_score]', nil, min: 0, step: 1, required: true %>
+            </div>
+            <div style="text-align:center; font-weight:600;">:</div>
+            <div>
+              <label><%= @match.b_user.username %></label>
+              <%= number_field_tag 'tournament_match[b_score]', nil, min: 0, step: 1, required: true %>
+            </div>
+          </div>
+          <div style="margin-top:0.5rem;">
+            <%= f.submit 'Save', class: 'btn btn-primary' %>
+          </div>
+        <% end %>
       <% end %>
     </div>
   </div>

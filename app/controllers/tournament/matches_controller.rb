@@ -4,18 +4,16 @@ module Tournament
   class MatchesController < ApplicationController
     before_action :authenticate!
     before_action :set_tournament
+    before_action :set_match, only: %i[show update]
+    before_action :authorize_update!, only: %i[update]
 
     def index
       @matches = @tournament.matches.order(created_at: :desc)
     end
 
-    def show
-      @match = @tournament.matches.find(params[:id])
-    end
+    def show; end
 
     def update
-      @match = @tournament.matches.find(params[:id])
-
       a_score = params.dig(:tournament_match, :a_score)
       b_score = params.dig(:tournament_match, :b_score)
 
@@ -60,6 +58,10 @@ module Tournament
       @tournament = ::Tournament::Tournament.find(params[:tournament_id])
     end
 
+    def set_match
+      @match = @tournament.matches.find(params[:id])
+    end
+
     def match_params
       params.require(:tournament_match).permit(:result)
     end
@@ -68,6 +70,21 @@ module Tournament
       return 'draw' if a_score == b_score
 
       a_score > b_score ? 'a_win' : 'b_win'
+    end
+
+    def authorize_update!
+      # If already reported, only organizer/admin may change
+      if @match.game_event.present? && @tournament.creator != Current.user
+        redirect_to tournament_tournament_match_path(@tournament, @match),
+                    alert: t('tournaments.unauthorized', default: 'Not authorized') and return
+      end
+
+      # For first report, only participants or organizer
+      return if [@match.a_user_id, @match.b_user_id].include?(Current.user.id)
+      return if @tournament.creator == Current.user
+
+      redirect_to tournament_tournament_match_path(@tournament, @match),
+                  alert: t('tournaments.unauthorized', default: 'Not authorized')
     end
   end
 end
