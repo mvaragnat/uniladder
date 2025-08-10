@@ -91,6 +91,9 @@ en:
       close_round: "Close round"
       finalize: "Finalize"
       organizer: "Organizer"
+      pending: "Pending"
+      round_label: "Round %{n}"
+      lock_warning: "Locking registrations will also prevent further check-ins."
     new:
       title: "New Tournament"
       name: "Name"
@@ -106,6 +109,8 @@ en:
       registration: "Registration"
       running: "Running"
       completed: "Completed"
+    unauthorized: "Not authorized"
+    not_allowed_state: "Not allowed in current state"
   elo:
     title: "ELO"
     standings: "Standings"

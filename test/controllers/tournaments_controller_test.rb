@@ -56,6 +56,65 @@ class TournamentsControllerTest < ActionDispatch::IntegrationTest
     assert_equal 'elimination', tournament.format
   end
 
+  test 'check_in is blocked once registration is locked' do
+    post session_path(locale: I18n.locale), params: { email_address: @user.email_address, password: 'password' }
+    post tournaments_path(locale: I18n.locale),
+         params: { tournament: { name: 'X', description: 'Y', game_system_id: game_systems(:chess).id,
+                                 format: 'open' } }
+    t = Tournament::Tournament.order(:created_at).last
+
+    post register_tournament_path(t, locale: I18n.locale)
+    post lock_registration_tournament_path(t, locale: I18n.locale)
+
+    post check_in_tournament_path(t, locale: I18n.locale)
+    assert_redirected_to tournament_path(t, locale: I18n.locale)
+  end
+
+  test 'admin-only and state guards on admin actions' do
+    # Creator
+    post session_path(locale: I18n.locale), params: { email_address: @user.email_address, password: 'password' }
+    post tournaments_path(locale: I18n.locale),
+         params: { tournament: { name: 'X', description: 'Y', game_system_id: game_systems(:chess).id,
+                                 format: 'elimination' } }
+    t = Tournament::Tournament.order(:created_at).last
+
+    # Not allowed before running
+    post generate_pairings_tournament_path(t, locale: I18n.locale)
+    assert_redirected_to tournament_path(t, locale: I18n.locale)
+
+    # Lock to running then generate is allowed
+    post lock_registration_tournament_path(t, locale: I18n.locale)
+    assert_redirected_to tournament_path(t, locale: I18n.locale)
+    post generate_pairings_tournament_path(t, locale: I18n.locale)
+    assert_redirected_to tournament_path(t, locale: I18n.locale)
+
+    # Non-admin cannot close or finalize
+    delete session_path(locale: I18n.locale)
+    post session_path(locale: I18n.locale),
+         params: { email_address: users(:player_two).email_address, password: 'password' }
+    post close_round_tournament_path(t, locale: I18n.locale)
+    assert_redirected_to tournament_path(t, locale: I18n.locale)
+    post finalize_tournament_path(t, locale: I18n.locale)
+    assert_redirected_to tournament_path(t, locale: I18n.locale)
+  end
+
+  test 'non-admin cannot lock registration' do
+    # Creator creates tournament
+    post session_path(locale: I18n.locale), params: { email_address: @user.email_address, password: 'password' }
+    post tournaments_path(locale: I18n.locale),
+         params: { tournament: { name: 'X', description: 'Y', game_system_id: game_systems(:chess).id,
+                                 format: 'elimination' } }
+    t = Tournament::Tournament.order(:created_at).last
+
+    # Switch to different user
+    delete session_path(locale: I18n.locale)
+    post session_path(locale: I18n.locale),
+         params: { email_address: users(:player_two).email_address, password: 'password' }
+
+    post lock_registration_tournament_path(t, locale: I18n.locale)
+    assert_redirected_to tournament_path(t, locale: I18n.locale)
+  end
+
   test 'requires authentication' do
     post tournaments_path(locale: I18n.locale), params: { tournament: { name: 'Nope' } }
     assert_redirected_to new_session_path(locale: I18n.locale)

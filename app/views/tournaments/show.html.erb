@@ -6,7 +6,9 @@
   <div style="margin:1rem 0;">
     <% if @tournament.registrations.exists?(user: Current.user) %>
       <%= button_to t('tournaments.show.unregister'), unregister_tournament_path(@tournament), method: :delete, class: 'btn' %>
-      <%= button_to t('tournaments.show.check_in'), check_in_tournament_path(@tournament), method: :post, class: 'btn' %>
+      <% if @tournament.registrations_open? %>
+        <%= button_to t('tournaments.show.check_in'), check_in_tournament_path(@tournament), method: :post, class: 'btn' %>
+      <% end %>
     <% elsif @tournament.registrations_open? %>
       <%= button_to t('tournaments.show.register'), register_tournament_path(@tournament), method: :post, class: 'btn btn-primary' %>
     <% end %>
@@ -22,46 +24,13 @@
         <% end %>
       </div>
 
-      <!-- Bracket panel: rounds as nested tabs -->
+      <!-- Bracket panel: only SVG -->
       <div data-tabs-target="panel">
-        <% if @rounds.any? %>
-          <div data-controller="tabs">
-            <div style="display:flex; gap:0.5rem; margin-bottom:0.75rem; flex-wrap:wrap;">
-              <% @rounds.each_with_index do |r, i| %>
-                <a href="#" data-action="click->tabs#select" data-index="<%= i %>" data-tabs-target="tab" class="btn <%= i.zero? ? 'btn-primary' : '' %>" aria-selected="<%= i.zero? %>"><%= t('tournaments.show.round_label', default: 'Round %{n}', n: r.number) %></a>
-              <% end %>
-            </div>
-            <% @rounds.each_with_index do |r, i| %>
-              <div data-tabs-target="panel" style="<%= i.zero? ? '' : 'display:none;' %>">
-                <% if r.matches.any? %>
-                  <ul style="list-style:none; padding:0;">
-                    <% r.matches.includes(:a_user, :b_user).each do |m| %>
-                      <li class="card" style="margin-bottom:0.5rem;">
-                        <div class="card-body" style="display:flex; justify-content:space-between; align-items:center; width:100%;">
-                          <% if m.game_event_id.present? %>
-                            <% pa = m.game_event.game_participations.find_by(user: m.a_user) %>
-                            <% pb = m.game_event.game_participations.find_by(user: m.b_user) %>
-                            <div class="player" style="<%= pa.score.to_i > pb.score.to_i ? 'color: var(--green-500); font-weight:700;' : '' %>"><%= m.a_user.username %></div>
-                            <div class="score"><%= pa&.score %> - <%= pb&.score %></div>
-                            <div class="player" style="text-align:right; <%= pb.score.to_i > pa.score.to_i ? 'color: var(--green-500); font-weight:700;' : '' %>"><%= m.b_user.username %></div>
-                          <% else %>
-                            <span><%= m.a_user.username %> vs <%= m.b_user.username %></span>
-                            <span class="card-date"><%= t('tournaments.show.pending', default: 'Pending') %></span>
-                            <%= link_to t('tournaments.open'), tournament_tournament_match_path(@tournament, m), class: 'btn' %>
-                          <% end %>
-                        </div>
-                      </li>
-                    <% end %>
-                  </ul>
-                <% else %>
-                  <p class="card-date"><%= t('tournaments.show.no_matches', default: 'No matches yet') %></p>
-                <% end %>
-              </div>
-            <% end %>
+        <div class="card" style="margin-bottom:0.75rem;">
+          <div class="card-body">
+            <%= render_svg_bracket(@tournament, @rounds) %>
           </div>
-        <% else %>
-          <p class="card-date"><%= t('tournaments.show.no_rounds', default: 'No rounds yet') %></p>
-        <% end %>
+        </div>
       </div>
 
       <!-- Participants panel -->
@@ -87,13 +56,16 @@
             <div class="card-header">
               <h3><%= t('tournaments.show.admin') %></h3>
             </div>
-            <div class="card-body" style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+            <div class="card-body" style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
               <% if @tournament.registrations_open? %>
+                <span class="card-date"><%= t('tournaments.show.lock_warning') %></span>
                 <%= button_to t('tournaments.show.lock_registration'), lock_registration_tournament_path(@tournament), method: :post, class: 'btn' %>
               <% end %>
-              <%= button_to t('tournaments.show.generate_pairings'), generate_pairings_tournament_path(@tournament), method: :post, class: 'btn' %>
-              <%= button_to t('tournaments.show.close_round'), close_round_tournament_path(@tournament), method: :post, class: 'btn' %>
-              <%= button_to t('tournaments.show.finalize'), finalize_tournament_path(@tournament), method: :post, class: 'btn' %>
+              <% if @tournament.running? %>
+                <%= button_to t('tournaments.show.generate_pairings'), generate_pairings_tournament_path(@tournament), method: :post, class: 'btn' %>
+                <%= button_to t('tournaments.show.close_round'), close_round_tournament_path(@tournament), method: :post, class: 'btn' %>
+                <%= button_to t('tournaments.show.finalize'), finalize_tournament_path(@tournament), method: :post, class: 'btn' %>
+              <% end %>
             </div>
           </div>
         </div>
@@ -113,15 +85,16 @@
         <div class="card-header">
           <h3><%= t('tournaments.show.admin') %></h3>
         </div>
-        <div class="card-body" style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+        <div class="card-body" style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
           <% if @tournament.registrations_open? %>
+            <span class="card-date"><%= t('tournaments.show.lock_warning') %></span>
             <%= button_to t('tournaments.show.lock_registration'), lock_registration_tournament_path(@tournament), method: :post, class: 'btn' %>
           <% end %>
-          <% unless @tournament.open? %>
+          <% if @tournament.running? %>
             <%= button_to t('tournaments.show.generate_pairings'), generate_pairings_tournament_path(@tournament), method: :post, class: 'btn' %>
             <%= button_to t('tournaments.show.close_round'), close_round_tournament_path(@tournament), method: :post, class: 'btn' %>
+            <%= button_to t('tournaments.show.finalize'), finalize_tournament_path(@tournament), method: :post, class: 'btn' %>
           <% end %>
-          <%= button_to t('tournaments.show.finalize'), finalize_tournament_path(@tournament), method: :post, class: 'btn' %>
         </div>
       </div>
 
@@ -133,29 +106,6 @@
           <ul style="list-style:none; padding:0;">
             <% @registrations.each do |r| %>
               <li><%= r.user.username %> (<%= r.status %>)</li>
-            <% end %>
-          </ul>
-        </div>
-      </div>
-
-      <div class="card" style="margin-top:1rem;">
-        <div class="card-header">
-          <h3><%= t('tournaments.show.recent_matches') %></h3>
-        </div>
-        <div class="card-body">
-          <ul style="list-style:none; padding:0;">
-            <% @matches.each do |m| %>
-              <% if m.game_event_id.present? %>
-                <% pa = m.game_event.game_participations.find_by(user: m.a_user) %>
-                <% pb = m.game_event.game_participations.find_by(user: m.b_user) %>
-                <li class="card-row" style="margin-bottom:0.5rem;">
-                  <div class="player" style="<%= pa.score.to_i > pb.score.to_i ? 'color: var(--green-500); font-weight:700;' : '' %>"><%= m.a_user.username %></div>
-                  <div class="score"><%= pa&.score %> - <%= pb&.score %></div>
-                  <div class="player" style="text-align:right; <%= pb.score.to_i > pa.score.to_i ? 'color: var(--green-500); font-weight:700;' : '' %>"><%= m.b_user.username %></div>
-                </li>
-              <% else %>
-                <li><%= m.a_user.username %> vs <%= m.b_user.username %> — <%= t('tournaments.show.pending', default: 'Pending') %></li>
-              <% end %>
             <% end %>
           </ul>
         </div>
