@@ -1,6 +1,7 @@
 <div class="games-container">
   <h1><%= @tournament.name %></h1>
   <p class="card-date"><%= @tournament.game_system.name %> · <%= @tournament.format %> · <strong><%= @tournament.state_label %></strong></p>
+  <p class="card-date"><%= t('tournaments.show.organizer', default: 'Organizer') %>: <%= @tournament.creator.username %></p>
 
   <div style="margin:1rem 0; display:flex; gap:0.5rem; flex-wrap:wrap;">
     <% unless @tournament.open? %>

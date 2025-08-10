@@ -74,6 +74,11 @@ en:
     index_title: "Tournaments"
     create_new: "Create new tournament"
     open: "Open"
+    index:
+      accepting: "Accepting signups"
+      ongoing: "Ongoing"
+      closed: "Closed"
+      mine: "My tournaments"
     show:
       registrations: "Registrations"
       recent_matches: "Recent matches"
@@ -85,6 +90,7 @@ en:
       generate_pairings: "Generate pairings"
       close_round: "Close round"
       finalize: "Finalize"
+      organizer: "Organizer"
     new:
       title: "New Tournament"
       name: "Name"

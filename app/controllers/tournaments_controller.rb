@@ -6,7 +6,11 @@ class TournamentsController < ApplicationController
                 only: %i[show register unregister check_in lock_registration generate_pairings close_round finalize]
 
   def index
-    @tournaments = ::Tournament::Tournament.order(created_at: :desc).includes(:game_system, :creator)
+    scope = ::Tournament::Tournament.includes(:game_system, :creator).order(created_at: :desc)
+    @my_tournaments = Current.user ? scope.where(creator: Current.user) : scope.none
+    @accepting_tournaments = scope.where(state: %w[draft registration])
+    @ongoing_tournaments = scope.where(state: 'running')
+    @closed_tournaments = scope.where(state: 'completed')
   end
 
   def show

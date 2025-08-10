@@ -45,6 +45,11 @@ fr:
     index_title: "Tournois"
     create_new: "Créer un nouveau tournoi"
     open: "Ouvrir"
+    index:
+      accepting: "Inscriptions ouvertes"
+      ongoing: "En cours"
+      closed: "Terminés"
+      mine: "Mes tournois"
     show:
       registrations: "Inscriptions"
       recent_matches: "Matchs récents"
@@ -56,6 +61,7 @@ fr:
       generate_pairings: "Générer les appariements"
       close_round: "Clore la ronde"
       finalize: "Finaliser"
+      organizer: "Organisateur"
     new:
       title: "Nouveau Tournoi"
       name: "Nom"
