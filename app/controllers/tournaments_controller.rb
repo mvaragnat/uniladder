@@ -81,11 +81,23 @@ class TournamentsController < ApplicationController
       )
     end
 
-    @tournament.update!(state: 'running')
+    ApplicationRecord.transaction do
+      @tournament.update!(state: 'running')
+      @tournament.reload
+      Tournament::BracketBuilder.new(@tournament).call if @tournament.elimination?
+    end
+
     redirect_to tournament_path(@tournament), notice: t('tournaments.locked', default: 'Registration locked')
   end
 
   def generate_pairings
+    if @tournament.elimination?
+      return redirect_back(
+        fallback_location: tournament_path(@tournament),
+        alert: t('tournaments.not_allowed_state', default: 'Not allowed in current state')
+      )
+    end
+
     unless @tournament.running?
       return redirect_back(
         fallback_location: tournament_path(@tournament),
@@ -93,19 +105,17 @@ class TournamentsController < ApplicationController
       )
     end
 
-    unless @tournament.open?
-      round = @tournament.rounds.order(:number).last || @tournament.rounds.create!(number: 1, state: 'pending')
-      players = @tournament.registrations.where(status: 'checked_in').includes(:user).map(&:user)
-      players = @tournament.registrations.includes(:user).map(&:user) if players.size < 2
-      players = players.sort_by(&:id)
+    # Swiss pairing placeholder (not implemented yet)
+    round = @tournament.rounds.order(:number).last || @tournament.rounds.create!(number: 1, state: 'pending')
+    players = @tournament.registrations.where(status: 'checked_in').includes(:user).map(&:user)
+    players = players.presence || @tournament.registrations.includes(:user).map(&:user)
+    players = players.sort_by(&:id)
 
-      # Avoid duplicating matches for an existing round
-      if round.matches.count.zero?
-        players.each_slice(2) do |a, b|
-          break unless b
+    if round.matches.count.zero?
+      players.each_slice(2) do |a, b|
+        break unless b
 
-          @tournament.matches.create!(round: round, a_user: a, b_user: b)
-        end
+        @tournament.matches.create!(round: round, a_user: a, b_user: b)
       end
     end
 
@@ -113,6 +123,13 @@ class TournamentsController < ApplicationController
   end
 
   def close_round
+    if @tournament.elimination?
+      return redirect_back(
+        fallback_location: tournament_path(@tournament),
+        alert: t('tournaments.not_allowed_state', default: 'Not allowed in current state')
+      )
+    end
+
     unless @tournament.running?
       return redirect_back(
         fallback_location: tournament_path(@tournament),

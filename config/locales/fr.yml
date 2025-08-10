@@ -58,6 +58,7 @@ fr:
       check_in: "Check-in"
       admin: "Administration"
       lock_registration: "Fermer les inscriptions"
+      lock_and_generate: "Fermer et générer l'arbre du tournoi"
       generate_pairings: "Générer les appariements"
       close_round: "Clore la ronde"
       finalize: "Finaliser"

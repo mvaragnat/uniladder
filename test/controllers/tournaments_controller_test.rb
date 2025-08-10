@@ -115,6 +115,56 @@ class TournamentsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to tournament_path(t, locale: I18n.locale)
   end
 
+  test 'elimination bracket tree is generated on lock' do
+    creator = users(:player_one)
+    p2 = users(:player_two)
+
+    # Sign in as creator and create an elimination tournament
+    post session_path(locale: I18n.locale), params: { email_address: creator.email_address, password: 'password' }
+    post tournaments_path(locale: I18n.locale), params: {
+      tournament: { name: 'KO', description: 'Tree', game_system_id: game_systems(:chess).id, format: 'elimination' }
+    }
+    t = Tournament::Tournament.order(:created_at).last
+
+    # Creator registers and checks in
+    post register_tournament_path(t, locale: I18n.locale)
+    post check_in_tournament_path(t, locale: I18n.locale)
+
+    # p2 registers and checks in
+    delete session_path(locale: I18n.locale)
+    post session_path(locale: I18n.locale), params: { email_address: p2.email_address, password: 'password' }
+    post register_tournament_path(t, locale: I18n.locale)
+    post check_in_tournament_path(t, locale: I18n.locale)
+
+    # Lock triggers tree generation
+    delete session_path(locale: I18n.locale)
+    post session_path(locale: I18n.locale), params: { email_address: creator.email_address, password: 'password' }
+    post lock_registration_tournament_path(t, locale: I18n.locale)
+    assert_redirected_to tournament_path(t, locale: I18n.locale)
+
+    t.reload
+    matches = t.matches
+    assert_operator matches.count, :>=, 1
+
+    roots = matches.where(parent_match_id: nil)
+    assert_operator roots.count, :>=, 1
+
+    matches.left_outer_joins(:child_matches).where(tournament_matches: { parent_match_id: nil })
+    # alternatively, identify leaves as those without children
+    leaves = matches.select { |m| m.child_matches.empty? }
+    assert_operator leaves.count, :>=, 1
+
+    if matches.count == 1
+      root = roots.first
+      assert root.parent_match.nil?, 'single-match bracket root should have no parent'
+      assert root.a_user_id.present? || root.b_user_id.present?, 'single-match bracket should have players'
+    else
+      first_leaf = leaves.first
+      assert first_leaf.a_user_id.present? || first_leaf.b_user_id.present?, 'leaf should have at least one participant'
+      assert first_leaf.parent_match.present?, 'leaf should have a parent'
+    end
+  end
+
   test 'requires authentication' do
     post tournaments_path(locale: I18n.locale), params: { tournament: { name: 'Nope' } }
     assert_redirected_to new_session_path(locale: I18n.locale)

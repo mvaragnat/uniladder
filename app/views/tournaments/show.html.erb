@@ -59,11 +59,9 @@
             <div class="card-body" style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
               <% if @tournament.registrations_open? %>
                 <span class="card-date"><%= t('tournaments.show.lock_warning') %></span>
-                <%= button_to t('tournaments.show.lock_registration'), lock_registration_tournament_path(@tournament), method: :post, class: 'btn' %>
+                <%= button_to t('tournaments.show.lock_and_generate'), lock_registration_tournament_path(@tournament), method: :post, class: 'btn' %>
               <% end %>
               <% if @tournament.running? %>
-                <%= button_to t('tournaments.show.generate_pairings'), generate_pairings_tournament_path(@tournament), method: :post, class: 'btn' %>
-                <%= button_to t('tournaments.show.close_round'), close_round_tournament_path(@tournament), method: :post, class: 'btn' %>
                 <%= button_to t('tournaments.show.finalize'), finalize_tournament_path(@tournament), method: :post, class: 'btn' %>
               <% end %>
             </div>
@@ -88,7 +86,7 @@
         <div class="card-body" style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
           <% if @tournament.registrations_open? %>
             <span class="card-date"><%= t('tournaments.show.lock_warning') %></span>
-            <%= button_to t('tournaments.show.lock_registration'), lock_registration_tournament_path(@tournament), method: :post, class: 'btn' %>
+            <%= button_to t('tournaments.show.lock_and_generate'), lock_registration_tournament_path(@tournament), method: :post, class: 'btn' %>
           <% end %>
           <% if @tournament.running? %>
             <%= button_to t('tournaments.show.generate_pairings'), generate_pairings_tournament_path(@tournament), method: :post, class: 'btn' %>

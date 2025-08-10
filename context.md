@@ -44,6 +44,11 @@ Uniladder is a game tracking and ranking app. Players can track their games and 
 - Admin actions for the tournament creator: lock registration, generate pairings, close round, finalize
 - Tournament games integrate with Elo the same way as casual games
 
+#### Elimination Bracket (current)
+- On lock, elimination tournaments generate a full bracket tree using `Tournament::BracketBuilder` (Elo-based seeding, power-of-two sizing, byes to top seeds).
+- Tree is modeled via `Tournament::Match` with `parent_match_id` and `child_slot`.
+- Bracket UI renders from the tree; “Open” link appears only when both players are assigned and the viewer is a participant or the organizer.
+
 ### Internationalization
 - Full support for multiple languages
 - English and French translations available
