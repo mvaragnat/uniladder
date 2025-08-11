@@ -5,6 +5,7 @@ module Tournament
     self.table_name = 'tournaments'
 
     enum :format, { open: 0, swiss: 1, elimination: 2 }
+    enum :state, { draft: 'draft', registration: 'registration', running: 'running', completed: 'completed' }
 
     belongs_to :creator, class_name: 'User'
     belongs_to :game_system, class_name: 'Game::System'

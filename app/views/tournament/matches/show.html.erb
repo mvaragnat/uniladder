@@ -5,6 +5,10 @@
     <%= link_to 'Tournament', tournament_path(@tournament), class: 'btn' %>
   </div>
 
+  <% if alert = flash[:alert] %>
+    <p id="alert" style="color:#b91c1c;"><%= alert %></p>
+  <% end %>
+
   <div class="card">
     <div class="card-header">
       <h3><%= @match.a_user.username %> vs <%= @match.b_user.username %></h3>

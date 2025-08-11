@@ -17,33 +17,34 @@ module Tournament
       a_score = params.dig(:tournament_match, :a_score)
       b_score = params.dig(:tournament_match, :b_score)
 
-      if a_score.present? && b_score.present?
-        event = Game::Event.new(
-          game_system: @tournament.game_system,
-          played_at: Time.current
-        )
-        event.game_participations.build(user: @match.a_user, score: a_score)
-        event.game_participations.build(user: @match.b_user, score: b_score)
-
-        if event.save
-          @match.game_event = event
-          @match.result = deduce_result(a_score.to_i, b_score.to_i)
-          @match.save!
-          redirect_to tournament_tournament_match_path(@tournament, @match),
-                      notice: t('tournaments.match_updated', default: 'Match updated')
-          return
-        else
-          flash.now[:alert] = event.errors.full_messages.to_sentence
-          render :show, status: :unprocessable_entity
-          return
-        end
+      unless a_score.present? && b_score.present?
+        flash.now[:alert] = t('tournaments.score_required', default: 'Both scores are required')
+        return render :show, status: :unprocessable_entity
       end
 
-      # Fallback: allow direct result updates (legacy)
-      if @match.update(match_params)
+      if @tournament.elimination? && a_score.to_i == b_score.to_i
+        flash.now[:alert] = t('tournaments.draw_not_allowed', default: 'Draw is not allowed in elimination')
+        return render :show, status: :unprocessable_entity
+      end
+
+      event = Game::Event.new(
+        game_system: @tournament.game_system,
+        played_at: Time.current
+      )
+      event.game_participations.build(user: @match.a_user, score: a_score)
+      event.game_participations.build(user: @match.b_user, score: b_score)
+
+      if event.save
+        @match.game_event = event
+        @match.result = deduce_result(a_score.to_i, b_score.to_i)
+        @match.save!
+
+        propagate_winner_to_parent!(@match)
+
         redirect_to tournament_tournament_match_path(@tournament, @match),
                     notice: t('tournaments.match_updated', default: 'Match updated')
       else
+        flash.now[:alert] = event.errors.full_messages.to_sentence
         render :show, status: :unprocessable_entity
       end
     end
@@ -62,14 +63,24 @@ module Tournament
       @match = @tournament.matches.find(params[:id])
     end
 
-    def match_params
-      params.require(:tournament_match).permit(:result)
-    end
-
     def deduce_result(a_score, b_score)
       return 'draw' if a_score == b_score
 
       a_score > b_score ? 'a_win' : 'b_win'
+    end
+
+    def propagate_winner_to_parent!(match)
+      parent = match.parent_match
+      return unless parent
+
+      winner_user = match.result == 'a_win' ? match.a_user : match.b_user
+      return unless winner_user
+
+      if match.child_slot == 'a'
+        parent.update!(a_user_id: winner_user.id)
+      elsif match.child_slot == 'b'
+        parent.update!(b_user_id: winner_user.id)
+      end
     end
 
     def authorize_update!

@@ -11,7 +11,7 @@ class RegistrationsControllerTest < ActionDispatch::IntegrationTest
 
   test 'should create new user and log in' do
     assert_difference 'User.count' do
-      post sign_up_path(locale: I18n.locale), params: {
+      post sign_up_path(locale: :en), params: {
         user: {
           username: 'newuser',
           email_address: 'new@example.com',
@@ -21,11 +21,11 @@ class RegistrationsControllerTest < ActionDispatch::IntegrationTest
       }
     end
 
-    assert_redirected_to dashboard_path(locale: I18n.locale)
+    assert_redirected_to dashboard_path(locale: :en)
     assert_equal 'Welcome to Uniladder!', flash[:notice]
 
     # Verify we're logged in
-    get dashboard_path(locale: I18n.locale)
+    get dashboard_path(locale: :en)
     assert_response :success
     assert_select 'h1', 'Hello newuser'
   end

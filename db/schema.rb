@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_09_123000) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_09_124000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -91,17 +91,20 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_09_123000) do
   create_table "tournament_matches", force: :cascade do |t|
     t.bigint "tournament_id", null: false
     t.bigint "tournament_round_id"
-    t.bigint "a_user_id", null: false
-    t.bigint "b_user_id", null: false
+    t.bigint "a_user_id"
+    t.bigint "b_user_id"
     t.string "result", default: "pending", null: false
     t.datetime "reported_at"
     t.bigint "game_event_id"
     t.jsonb "metadata", default: {}, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "parent_match_id"
+    t.string "child_slot"
     t.index ["a_user_id"], name: "index_tournament_matches_on_a_user_id"
     t.index ["b_user_id"], name: "index_tournament_matches_on_b_user_id"
     t.index ["game_event_id"], name: "index_tournament_matches_on_game_event_id"
+    t.index ["parent_match_id"], name: "index_tournament_matches_on_parent_match_id"
     t.index ["tournament_id", "tournament_round_id"], name: "idx_on_tournament_id_tournament_round_id_e9fc8dbd6c"
     t.index ["tournament_id"], name: "index_tournament_matches_on_tournament_id"
     t.index ["tournament_round_id"], name: "index_tournament_matches_on_tournament_round_id"
@@ -173,6 +176,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_09_123000) do
   add_foreign_key "game_participations", "users"
   add_foreign_key "sessions", "users"
   add_foreign_key "tournament_matches", "game_events"
+  add_foreign_key "tournament_matches", "tournament_matches", column: "parent_match_id"
   add_foreign_key "tournament_matches", "tournament_rounds"
   add_foreign_key "tournament_matches", "tournaments"
   add_foreign_key "tournament_matches", "users", column: "a_user_id"

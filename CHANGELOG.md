@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2025-08-10]
+
+### Added
+- Elimination bracket generation on lock:
+  - `Tournament::BracketBuilder` service builds the full tree using Elo-based seeding and standard bracket positions.
+  - Byes automatically assigned to top seeds and propagated upward.
+  - SVG bracket renders from the elimination tree (not rounds) and shows scores when present.
+- Tests for bracket builder with 5, 16, and 33 participants (match counts, byes, highest-Elo bye).
+
+### Changed
+- “Lock registration” button now reads “Lock registration and generate tournament tree”.
+- Elimination Admin panel hides “Generate pairings” and “Close round” (no longer applicable).
+- “Open” link on bracket appears only when both players are assigned and the user is eligible.
+
 ## [2025-08-09]
 
 ### Added
