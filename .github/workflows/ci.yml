@@ -31,7 +31,7 @@ jobs:
     env:
       RAILS_ENV: test
       DATABASE_URL: postgres://postgres:postgres@localhost:5432/uniladder_test
-      RAILS_MASTER_KEY: dummy
+      SECRET_KEY_BASE: 7a8e8d4d6b2b2e8a0b7b9f4c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f60718293aa4b5c6d7e8f90123456789abcdef0123456789abcdef0123456789abcdef
 
     steps:
       - name: Checkout
