@@ -149,12 +149,10 @@ class TournamentsControllerTest < ActionDispatch::IntegrationTest
     roots = matches.where(parent_match_id: nil)
     assert_operator roots.count, :>=, 1
 
-    matches.left_outer_joins(:child_matches).where(tournament_matches: { parent_match_id: nil })
-    # alternatively, identify leaves as those without children
     leaves = matches.select { |m| m.child_matches.empty? }
     assert_operator leaves.count, :>=, 1
 
-    if matches.count == 1
+    if matches.one?
       root = roots.first
       assert root.parent_match.nil?, 'single-match bracket root should have no parent'
       assert root.a_user_id.present? || root.b_user_id.present?, 'single-match bracket should have players'

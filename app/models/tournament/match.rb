@@ -13,8 +13,9 @@ module Tournament
     belongs_to :b_user, class_name: 'User', optional: true
     belongs_to :game_event, class_name: 'Game::Event', optional: true
 
-    belongs_to :parent_match, class_name: 'Tournament::Match', optional: true
-    has_many :child_matches, class_name: 'Tournament::Match', foreign_key: 'parent_match_id', dependent: :nullify
+    belongs_to :parent_match, class_name: 'Tournament::Match', optional: true, inverse_of: :child_matches
+    has_many :child_matches, class_name: 'Tournament::Match', foreign_key: 'parent_match_id', dependent: :nullify,
+                             inverse_of: :parent_match
 
     validates :result, inclusion: { in: RESULTS }
     validates :child_slot, inclusion: { in: %w[a b], allow_nil: true }

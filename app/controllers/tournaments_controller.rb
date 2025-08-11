@@ -111,7 +111,7 @@ class TournamentsController < ApplicationController
     players = players.presence || @tournament.registrations.includes(:user).map(&:user)
     players = players.sort_by(&:id)
 
-    if round.matches.count.zero?
+    if round.matches.none?
       players.each_slice(2) do |a, b|
         break unless b
 

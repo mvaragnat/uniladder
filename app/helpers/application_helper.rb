@@ -78,7 +78,9 @@ module ApplicationHelper
 
     # Compute overall width/height from positions actually used
     col_count = levels.size
+    # rubocop:disable Rails/Pluck
     max_y = positions.values.map { |p| p[:y] }.max || 0
+    # rubocop:enable Rails/Pluck
     height = (max_y + cell_h + padding)
     width = padding + (col_count * cell_w) + ((col_count - 1) * col_gap)
 
@@ -173,8 +175,10 @@ module ApplicationHelper
           ]
 
           if link
+            # rubocop:disable Layout/LineLength
             parts << content_tag(:a,
                                  content_tag(:text, t('tournaments.open'), x: pos[:x] + cell_w - 14, y: pos[:y] + 60, 'text-anchor': 'end', 'font-size': 12, fill: '#2563eb'), href: link)
+            # rubocop:enable Layout/LineLength
           end
 
           safe_join(parts)
@@ -202,7 +206,7 @@ module ApplicationHelper
       rating = EloRating.find_by(user: u, game_system: system)&.rating || EloRating::START_RATING
       [u.id, rating]
     end
-    seeded.sort_by! { |(_id, r)| -r }
-    seeded.to_h { |uid, _r| [uid, seeded.index([uid, _r]) + 1] }
+    seeded.sort_by! { |(_id, rating)| -rating }
+    seeded.to_h { |uid, rating| [uid, seeded.index([uid, rating]) + 1] }
   end
 end

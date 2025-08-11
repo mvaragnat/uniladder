@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 namespace :temp do
   desc 'Create 28 users and register them to tournament ID 5'
   task create_users_and_register: :environment do

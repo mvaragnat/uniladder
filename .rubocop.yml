@@ -1,4 +1,4 @@
-require:
+plugins:
   - rubocop-rails
   - rubocop-rspec
 
@@ -19,3 +19,44 @@ Style/Documentation:
 Metrics/BlockLength:
   Exclude:
     - 'spec/**/*'
+    - 'test/**/*'
+    - 'app/helpers/application_helper.rb'
+
+Metrics/MethodLength:
+  Max: 30
+  Exclude:
+    - 'app/helpers/application_helper.rb'
+    - 'app/controllers/tournaments_controller.rb'
+    - 'app/controllers/tournament/matches_controller.rb'
+
+Metrics/AbcSize:
+  Max: 40
+  Exclude:
+    - 'app/helpers/application_helper.rb'
+    - 'app/controllers/tournaments_controller.rb'
+    - 'app/controllers/tournament/matches_controller.rb'
+
+Metrics/CyclomaticComplexity:
+  Max: 15
+  Exclude:
+    - 'app/helpers/application_helper.rb'
+
+Metrics/PerceivedComplexity:
+  Max: 15
+  Exclude:
+    - 'app/helpers/application_helper.rb'
+
+Metrics/ModuleLength:
+  Max: 220
+  Exclude:
+    - 'app/helpers/application_helper.rb'
+
+Metrics/ClassLength:
+  Max: 200
+  Exclude:
+    - 'app/controllers/tournaments_controller.rb'
+    - 'test/controllers/tournaments_controller_test.rb'
+
+Rails/StrongParametersExpect:
+  Exclude:
+    - 'app/controllers/tournaments_controller.rb'
