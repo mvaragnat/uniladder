@@ -17,6 +17,7 @@ module Game
 
     private
 
+    # rubocop:disable Rails/StrongParametersExpect
     def game_params
       key = params.key?(:event) ? :event : :game_event
       params.require(key).permit(
@@ -24,6 +25,7 @@ module Game
         game_participations_attributes: %i[user_id score]
       )
     end
+    # rubocop:enable Rails/StrongParametersExpect
 
     def render_component_html
       view_context.render(
