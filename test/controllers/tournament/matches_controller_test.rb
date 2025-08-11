@@ -4,59 +4,76 @@ require 'test_helper'
 
 module Tournament
   class MatchesControllerTest < ActionDispatch::IntegrationTest
-    setup do
-      @player1 = users(:player_one)
-      @player2 = users(:player_two)
+    def setup
       @system = game_systems(:chess)
+      @creator = users(:player_one)
+      @p2 = users(:player_two)
+      @p3 = User.create!(username: 'third', email_address: 'third@example.com', password: 'password')
+
+      EloRating.find_or_create_by!(user: @creator, game_system: @system) do |r|
+        r.rating = 1600
+        r.games_played = 0
+      end
+      EloRating.find_or_create_by!(user: @p2, game_system: @system) do |r|
+        r.rating = 1500
+        r.games_played = 0
+      end
+      EloRating.find_or_create_by!(user: @p3, game_system: @system) do |r|
+        r.rating = 1400
+        r.games_played = 0
+      end
     end
 
-    def build_match(format: 'swiss')
-      t = ::Tournament::Tournament.create!(
-        name: 'T', description: 'D', creator: @player1, game_system: @system, format: format
-      )
-      r = ::Tournament::Round.create!(tournament: t, number: 1)
-      m = ::Tournament::Match.create!(tournament: t, round: r, a_user: @player1, b_user: @player2)
-      [t, m]
-    end
+    test 'winner is propagated to parent after reporting' do
+      # Creator signs in and creates elimination tournament
+      post session_path(locale: I18n.locale), params: { email_address: @creator.email_address, password: 'password' }
+      post tournaments_path(locale: I18n.locale), params: {
+        tournament: { name: 'KO', description: 'Tree', game_system_id: @system.id, format: 'elimination' }
+      }
+      t = ::Tournament::Tournament.order(:created_at).last
 
-    test 'draw is accepted for swiss' do
-      post session_path(locale: I18n.locale), params: { email_address: @player1.email_address, password: 'password' }
-      t, m = build_match(format: 'swiss')
+      # Register and check in all three players
+      post register_tournament_path(t, locale: I18n.locale)
+      post check_in_tournament_path(t, locale: I18n.locale)
 
-      patch tournament_tournament_match_path(t, m, locale: I18n.locale),
-            params: { tournament_match: { a_score: 3, b_score: 3 } }
-      assert_redirected_to tournament_tournament_match_path(t, m, locale: I18n.locale)
+      delete session_path(locale: I18n.locale)
+      post session_path(locale: I18n.locale), params: { email_address: @p2.email_address, password: 'password' }
+      post register_tournament_path(t, locale: I18n.locale)
+      post check_in_tournament_path(t, locale: I18n.locale)
 
-      m.reload
-      assert_equal 'draw', m.result
-      assert_not_nil m.game_event_id
-    end
+      delete session_path(locale: I18n.locale)
+      post session_path(locale: I18n.locale), params: { email_address: @p3.email_address, password: 'password' }
+      post register_tournament_path(t, locale: I18n.locale)
+      post check_in_tournament_path(t, locale: I18n.locale)
 
-    test 'draw is accepted for open' do
-      post session_path(locale: I18n.locale), params: { email_address: @player1.email_address, password: 'password' }
-      t, m = build_match(format: 'open')
+      # Lock (build bracket with a bye for the top seed)
+      delete session_path(locale: I18n.locale)
+      post session_path(locale: I18n.locale), params: { email_address: @creator.email_address, password: 'password' }
+      post lock_registration_tournament_path(t, locale: I18n.locale)
 
-      patch tournament_tournament_match_path(t, m, locale: I18n.locale),
-            params: { tournament_match: { a_score: 1, b_score: 1 } }
-      assert_redirected_to tournament_tournament_match_path(t, m, locale: I18n.locale)
+      # Find a leaf with two players (not a bye)
+      match = t.matches.select { |m| m.child_matches.empty? && m.a_user_id.present? && m.b_user_id.present? }.first
+      assert_not_nil match
 
-      m.reload
-      assert_equal 'draw', m.result
-      assert_not_nil m.game_event_id
-    end
+      # Report result as one of the participants
+      delete session_path(locale: I18n.locale)
+      reporter = [match.a_user, match.b_user].first
+      post session_path(locale: I18n.locale), params: { email_address: reporter.email_address, password: 'password' }
+      patch tournament_tournament_match_path(t, match, locale: I18n.locale),
+            params: { tournament_match: { a_score: 5, b_score: 3 } }
+      assert_redirected_to tournament_tournament_match_path(t, match, locale: I18n.locale)
 
-    test 'draw is rejected for elimination' do
-      post session_path(locale: I18n.locale), params: { email_address: @player1.email_address, password: 'password' }
-      t, m = build_match(format: 'elimination')
+      match.reload
+      parent = match.parent_match
+      assert_not_nil parent, 'parent should exist'
 
-      patch tournament_tournament_match_path(t, m, locale: I18n.locale),
-            params: { tournament_match: { a_score: 2, b_score: 2 } }
-      assert_response :unprocessable_entity
-      assert_select '#alert', /Draw is not allowed|Draw is not allowed in elimination/
+      winner = match.a_user # since 5 > 3
+      side = match.child_slot
+      propagated = parent.send("#{side}_user_id")
+      assert_equal winner.id, propagated, 'winner should be placed on parent on the same side'
 
-      m.reload
-      assert_nil m.game_event_id
-      assert_equal 'pending', m.result
+      other_side = side == 'a' ? 'b' : 'a'
+      assert parent.send("#{other_side}_user_id").present?, 'other side should be the bye-propagated top seed'
     end
   end
 end

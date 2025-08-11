@@ -13,6 +13,7 @@ module ApplicationHelper
     depth_cache = {}
     compute_depth = lambda do |m|
       return depth_cache[m.id] if depth_cache.key?(m.id)
+
       d = 0
       cur = m
       while cur.parent_match
@@ -87,7 +88,8 @@ module ApplicationHelper
       content_tag(:svg, width: width, height: height + 20, style: 'display:block;') do
         header_labels = levels.each_with_index.map do |_matches, c|
           x = x_for_level.call(c) + (cell_w / 2)
-          content_tag(:text, round_label_for_column(c, col_count), x: x, y: padding - 6, 'text-anchor': 'middle', 'font-size': 12, fill: '#6b7280')
+          content_tag(:text, round_label_for_column(c, col_count), x: x, y: padding - 6, 'text-anchor': 'middle',
+                                                                   'font-size': 12, fill: '#6b7280')
         end
 
         # Elbow connectors
@@ -104,9 +106,12 @@ module ApplicationHelper
             x1 = to[:x] + cell_w
             hx = from[:x] - elbow
             [
-              content_tag(:line, nil, x1: x1, y1: child_center_y, x2: hx, y2: child_center_y, stroke: '#cbd5e1', 'stroke-width': 2),
-              content_tag(:line, nil, x1: hx, y1: child_center_y, x2: hx, y2: parent_center_y, stroke: '#cbd5e1', 'stroke-width': 2),
-              content_tag(:line, nil, x1: hx, y1: parent_center_y, x2: from[:x], y2: parent_center_y, stroke: '#cbd5e1', 'stroke-width': 2)
+              content_tag(:line, nil, x1: x1, y1: child_center_y, x2: hx, y2: child_center_y, stroke: '#cbd5e1',
+                                      'stroke-width': 2),
+              content_tag(:line, nil, x1: hx, y1: child_center_y, x2: hx, y2: parent_center_y, stroke: '#cbd5e1',
+                                      'stroke-width': 2),
+              content_tag(:line, nil, x1: hx, y1: parent_center_y, x2: from[:x], y2: parent_center_y,
+                                      stroke: '#cbd5e1', 'stroke-width': 2)
             ]
           end.compact
         end
@@ -159,8 +164,10 @@ module ApplicationHelper
           parts = [
             content_tag(:rect, nil, x: pos[:x], y: pos[:y], width: cell_w, height: cell_h, rx: 10, ry: 10,
                                     fill: '#ffffff', stroke: '#e5e7eb', 'stroke-width': 3),
-            content_tag(:text, [a_name, a_seed].compact_blank.join(' '), x: pos[:x] + 14, y: pos[:y] + 26, style: a_style, 'font-size': 14),
-            content_tag(:text, [b_name, b_seed].compact_blank.join(' '), x: pos[:x] + 14, y: pos[:y] + 50, style: b_style, 'font-size': 14),
+            content_tag(:text, [a_name, a_seed].compact_blank.join(' '), x: pos[:x] + 14, y: pos[:y] + 26,
+                                                                         style: a_style, 'font-size': 14),
+            content_tag(:text, [b_name, b_seed].compact_blank.join(' '), x: pos[:x] + 14, y: pos[:y] + 50,
+                                                                         style: b_style, 'font-size': 14),
             content_tag(:text, score_text, x: pos[:x] + cell_w - 14, y: pos[:y] + 38, 'text-anchor': 'end',
                                            'font-size': 14, fill: '#6b7280')
           ]
