@@ -19,10 +19,7 @@ module Game
 
     def game_params
       key = params.key?(:event) ? :event : :game_event
-      params.require(key).permit(
-        :game_system_id,
-        game_participations_attributes: %i[user_id score]
-      )
+      params.expect(key => [:game_system_id, { game_participations_attributes: %i[user_id score] }])
     end
 
     def render_component_html
