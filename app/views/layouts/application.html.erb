@@ -24,6 +24,7 @@
 
   <body>
     <nav class="site-nav">
+      <%= link_to "🪜", root_path, class: "brand", title: "Home", aria: { label: "Home" } %>
       <% if authenticated? %>
         <%= link_to "My Dashboard", dashboard_path, class: "brand" %>
       <% end %>
