@@ -18,10 +18,29 @@
     <link rel="apple-touch-icon" href="/icon.png">
 
     <%= stylesheet_link_tag :application, "data-turbo-track": "reload" %>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css">
     <%= javascript_importmap_tags %>
   </head>
 
   <body>
+    <nav class="site-nav">
+      <%= link_to "🪜", root_path, class: "brand", title: "Home", aria: { label: "Home" } %>
+      <% if authenticated? %>
+        <%= link_to "My Dashboard", dashboard_path, class: "brand" %>
+      <% end %>
+      <%= link_to "ELO", elo_path, class: "brand" %>
+      <%= link_to t('tournaments.index_title'), tournaments_path, class: "brand" %>
+      <span class="spacer"></span>
+      <% if authenticated? %>
+        <%= link_to t('auth.logout', default: 'Logout'), session_path, data: { turbo_method: :delete }, class: "brand" %>
+      <% else %>
+        <%= link_to t('auth.login', default: 'Sign in'), new_session_path, class: "brand" %>
+        <%= link_to t('auth.signup', default: 'Sign up'), sign_up_path, class: "brand" %>
+      <% end %>
+      <span style="margin-left:0.75rem;"></span>
+      <%= link_to "🇬🇧", url_for(locale: :en), class: "brand" %>
+      <%= link_to "🇫🇷", url_for(locale: :fr), class: "brand" %>
+    </nav>
     <main>
       <%= yield %>
     </main>

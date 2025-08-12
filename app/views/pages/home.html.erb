@@ -1,13 +1,10 @@
 <div class="page-header">
   <div style="position: relative;">
-    <div style="position:absolute; top:0.5rem; right:0.5rem;">
-      <%= link_to "🇬🇧", root_path(locale: :en) %>
-      <%= link_to "🇫🇷", root_path(locale: :fr) %>
-    </div>
     <h1><%= t('welcome') %></h1>
     <div style="margin-top:1rem;">
       <%= link_to t('auth.login'), new_session_path, class: "btn btn-primary" %>
       <%= link_to t('auth.signup'), sign_up_path, class: "btn" %>
+      <%= link_to 'Browse tournaments', tournaments_path, class: "btn" %>
     </div>
   </div>
 </div> 

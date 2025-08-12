@@ -33,6 +33,7 @@ en:
   auth:
     login: "Login"
     signup: "Sign Up"
+    logout: "Logout"
     password:
       reset_sent: "Password reset instructions sent (if user with that email address exists)"
       reset_success: "Password has been reset"
@@ -51,6 +52,7 @@ en:
     shared:
       cancel: "Cancel"
   games:
+    add_title: "Add a non-Tournament game"
     add: "Add a game"
     game_of: "Game of"
     new:
@@ -69,6 +71,56 @@ en:
     errors:
       exactly_two_players: "You must select exactly two players (you and one opponent)"
       both_scores_required: "Both scores are required"
+  tournaments:
+    index_title: "Tournaments"
+    create_new: "Create new tournament"
+    open: "Open"
+    index:
+      accepting: "Accepting signups"
+      ongoing: "Ongoing"
+      closed: "Closed"
+      mine: "My tournaments"
+    show:
+      registrations: "Registrations"
+      recent_matches: "Recent matches"
+      register: "Register"
+      unregister: "Unregister"
+      check_in: "Check-in"
+      admin: "Admin"
+      lock_registration: "Lock registration"
+      lock_and_generate: "Lock registration and generate tournament tree"
+      generate_pairings: "Generate pairings"
+      close_round: "Close round"
+      finalize: "Finalize"
+      organizer: "Organizer"
+      pending: "Pending"
+      round_label: "Round %{n}"
+      lock_warning: "Locking registrations will also prevent further check-ins."
+    new:
+      title: "New Tournament"
+      name: "Name"
+      description: "Description"
+      game_system: "Game System"
+      format: "Format"
+      rounds_count: "Rounds (Swiss only)"
+      starts_at: "Starts at"
+      ends_at: "Ends at"
+      create: "Create"
+    state:
+      draft: "Draft"
+      registration: "Registration"
+      running: "Running"
+      completed: "Completed"
+    unauthorized: "Not authorized"
+    not_allowed_state: "Not allowed in current state"
+    draw_not_allowed: "Draw is not allowed in elimination"
+  elo:
+    title: "ELO"
+    my_current_rankings: "My current ELO rankings"
+    standings: "Standings"
+    player: "Player"
+    rating: "Rating"
+    select_system: "Select a system"
   time:
     formats:
       card: "%d/%m/%Y"
