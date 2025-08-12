@@ -23,7 +23,8 @@ fr:
     shared:
       cancel: "Annuler"
   games:
-    add: "Ajouter une partie"
+    add_title: "Ajouter une partie hors Tournoi"
+    add: "Ajouter"
     game_of: "Partie de"
     new:
       title: "Nouvelle Partie"
@@ -87,6 +88,7 @@ fr:
     score_required: "Les deux scores sont requis"
   elo:
     title: "ELO"
+    my_current_rankings: "Mes classements ELO actuels"
     standings: "Classement"
     player: "Joueur"
     rating: "Cote"

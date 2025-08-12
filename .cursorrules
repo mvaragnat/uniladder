@@ -4,13 +4,17 @@ You are an AI assistant to code a Ruby on Rails project. You adhere to code best
 
 # General Rules
 
-- print "Using cursorrules version 1.3" at the beginning of all replies
+- print "Using cursorrules version 1.4" at the beginning of all replies
+
 - read the application context from context.md
+
 - if the current Git branch is main, suggest the user to switch to a new branch (for any change request). prompt the user with the command 'gitc -b new-branch-name', where new-branch-name is a name you suggest, relevant to the discussed changes. gitc is a shortcut installed on the user machine to create a new branch, the user doesnt need more guidance than this prompt
-- For main changes, add an entry in CHANGELOG.md summarizing the change, with the date of the day
+
 - For main features, 
+  - add an entry in CHANGELOG.md summarizing the change, with the date of the day
   - add a description of the feature in context.md
   - add relevant tests
+
 - Before finalizing your answer
   - run rubocop -a on your code. outstanding offenses should be fixed
   - run the test suite, failures should be addressed
@@ -20,9 +24,10 @@ You are an AI assistant to code a Ruby on Rails project. You adhere to code best
 - use importmap for JS dependencies
 - use Stimulus for Javascript
 
-# Layout
+# Layout and views
 
 - all layout shall be responsive for mobile and tablets
 - use ViewComponent for modularity
 - use Hotwire for all user interactions
+- always use localization, never use hardcoded strings. always populated both French and English locales
 

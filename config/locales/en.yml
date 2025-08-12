@@ -52,6 +52,7 @@ en:
     shared:
       cancel: "Cancel"
   games:
+    add_title: "Add a non-Tournament game"
     add: "Add a game"
     game_of: "Game of"
     new:
@@ -115,6 +116,7 @@ en:
     draw_not_allowed: "Draw is not allowed in elimination"
   elo:
     title: "ELO"
+    my_current_rankings: "My current ELO rankings"
     standings: "Standings"
     player: "Player"
     rating: "Rating"
