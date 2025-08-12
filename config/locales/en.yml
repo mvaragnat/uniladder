@@ -89,8 +89,6 @@ en:
       admin: "Admin"
       lock_registration: "Lock registration"
       lock_and_generate: "Lock registration and generate tournament tree"
-      generate_pairings: "Generate pairings"
-      close_round: "Close round"
       finalize: "Finalize"
       organizer: "Organizer"
       pending: "Pending"

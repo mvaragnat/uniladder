@@ -94,21 +94,19 @@ class TournamentsControllerTest < ActionDispatch::IntegrationTest
     t = Tournament::Tournament.order(:created_at).last
 
     # Not allowed before running
-    post generate_pairings_tournament_path(t, locale: I18n.locale)
+    post next_round_tournament_path(t, locale: I18n.locale)
     assert_redirected_to tournament_path(t, locale: I18n.locale)
 
-    # Lock to running then generate is allowed
+    # Lock to running then next round is allowed
     post lock_registration_tournament_path(t, locale: I18n.locale)
     assert_redirected_to tournament_path(t, locale: I18n.locale)
-    post generate_pairings_tournament_path(t, locale: I18n.locale)
+    post next_round_tournament_path(t, locale: I18n.locale)
     assert_redirected_to tournament_path(t, locale: I18n.locale)
 
-    # Non-admin cannot close or finalize
+    # Non-admin cannot finalize
     delete session_path(locale: I18n.locale)
     post session_path(locale: I18n.locale),
          params: { email_address: users(:player_two).email_address, password: 'password' }
-    post close_round_tournament_path(t, locale: I18n.locale)
-    assert_redirected_to tournament_path(t, locale: I18n.locale)
     post finalize_tournament_path(t, locale: I18n.locale)
     assert_redirected_to tournament_path(t, locale: I18n.locale)
   end
@@ -208,32 +206,137 @@ class TournamentsControllerTest < ActionDispatch::IntegrationTest
     assert_no_match(/\b#{Regexp.escape(I18n.t('tournaments.show.register'))}\b/, @response.body)
   end
 
-  test 'check-in button styled primary and above unregister when registered but not checked-in' do
-    # Sign in, create tournament, register but do not check in
+  test 'next_round generates pairings and blocks when pending matches exist' do
+    # Sign in and create a swiss tournament
     post session_path(locale: I18n.locale), params: { email_address: @user.email_address, password: 'password' }
     post tournaments_path(locale: I18n.locale), params: {
       tournament: {
-        name: 'Swiss B',
+        name: 'Swiss NR',
         description: 'S',
         game_system_id: game_systems(:chess).id,
         format: 'swiss',
-        rounds_count: 3
+        rounds_count: 2
       }
     }
     t = Tournament::Tournament.order(:created_at).last
 
+    # Register and check in two players
     post register_tournament_path(t, locale: I18n.locale)
+    post check_in_tournament_path(t, locale: I18n.locale)
+    delete session_path(locale: I18n.locale)
+    post session_path(locale: I18n.locale),
+         params: { email_address: users(:player_two).email_address, password: 'password' }
+    post register_tournament_path(t, locale: I18n.locale)
+    post check_in_tournament_path(t, locale: I18n.locale)
 
-    get tournament_path(t, locale: I18n.locale)
-    assert_response :success
+    # Lock and start first round
+    delete session_path(locale: I18n.locale)
+    post session_path(locale: I18n.locale), params: { email_address: @user.email_address, password: 'password' }
+    post lock_registration_tournament_path(t, locale: I18n.locale)
+    post next_round_tournament_path(t, locale: I18n.locale)
 
-    # Check order: check-in should appear before unregister and have btn-primary
-    checkin_index = @response.body.index(I18n.t('tournaments.show.check_in'))
-    unregister_index = @response.body.index(I18n.t('tournaments.show.unregister'))
-    assert checkin_index, 'Check-in button not found'
-    assert unregister_index, 'Unregister button not found'
-    assert checkin_index < unregister_index, 'Check-in should appear before Unregister'
-    assert_includes @response.body, 'btn btn-primary'
+    t.reload
+    round1 = t.rounds.order(:number).last
+    assert_equal 1, round1.number
+    assert_operator round1.matches.count, :>=, 1
+
+    # Attempt to move to next round should fail while match pending
+    post next_round_tournament_path(t, locale: I18n.locale)
+    assert_redirected_to tournament_path(t, locale: I18n.locale)
+
+    # Report result as participant
+    match = round1.matches.first
+    delete session_path(locale: I18n.locale)
+    post session_path(locale: I18n.locale),
+         params: { email_address: users(:player_two).email_address, password: 'password' }
+    patch tournament_tournament_match_path(t, match, locale: I18n.locale),
+          params: { tournament_match: { a_score: 1, b_score: 0 } }
+    assert_redirected_to tournament_tournament_match_path(t, match, locale: I18n.locale)
+
+    # Now moving to next round should work
+    delete session_path(locale: I18n.locale)
+    post session_path(locale: I18n.locale), params: { email_address: @user.email_address, password: 'password' }
+    post next_round_tournament_path(t, locale: I18n.locale)
+    assert_redirected_to tournament_path(t, locale: I18n.locale, tab: 0)
+    assert_equal 2, t.rounds.order(:number).last.number
+  end
+
+  test 'open link visible for swiss matches to participants and organizer' do
+    # Setup swiss tournament with one match
+    post session_path(locale: I18n.locale), params: { email_address: @user.email_address, password: 'password' }
+    post tournaments_path(locale: I18n.locale),
+         params: { tournament: {
+           name: 'Swiss Open',
+           description: 'S',
+           game_system_id: game_systems(:chess).id,
+           format: 'swiss',
+           rounds_count: 1
+         } }
+    t = Tournament::Tournament.order(:created_at).last
+    post register_tournament_path(t, locale: I18n.locale)
+    post check_in_tournament_path(t, locale: I18n.locale)
+
+    delete session_path(locale: I18n.locale)
+    post session_path(locale: I18n.locale),
+         params: { email_address: users(:player_two).email_address, password: 'password' }
+    post register_tournament_path(t, locale: I18n.locale)
+    post check_in_tournament_path(t, locale: I18n.locale)
+
+    delete session_path(locale: I18n.locale)
+    post session_path(locale: I18n.locale), params: { email_address: @user.email_address, password: 'password' }
+    post lock_registration_tournament_path(t, locale: I18n.locale)
+    post next_round_tournament_path(t, locale: I18n.locale)
+
+    # Participants see Open link
+    get tournament_path(t, locale: I18n.locale, tab: 0)
+    assert_includes @response.body, 'Open'
+
+    # Organizer sees Open as well
+    delete session_path(locale: I18n.locale)
+    post session_path(locale: I18n.locale), params: { email_address: @user.email_address, password: 'password' }
+    get tournament_path(t, locale: I18n.locale, tab: 0)
+    assert_includes @response.body, 'Open'
+  end
+
+  test 'reporting swiss match result works like elimination' do
+    # Setup swiss
+    post session_path(locale: I18n.locale), params: { email_address: @user.email_address, password: 'password' }
+    post tournaments_path(locale: I18n.locale),
+         params: { tournament: {
+           name: 'Swiss Report',
+           description: 'S',
+           game_system_id: game_systems(:chess).id,
+           format: 'swiss',
+           rounds_count: 1
+         } }
+    t = Tournament::Tournament.order(:created_at).last
+    post register_tournament_path(t, locale: I18n.locale)
+    post check_in_tournament_path(t, locale: I18n.locale)
+
+    delete session_path(locale: I18n.locale)
+    post session_path(locale: I18n.locale),
+         params: { email_address: users(:player_two).email_address, password: 'password' }
+    post register_tournament_path(t, locale: I18n.locale)
+    post check_in_tournament_path(t, locale: I18n.locale)
+
+    delete session_path(locale: I18n.locale)
+    post session_path(locale: I18n.locale), params: { email_address: @user.email_address, password: 'password' }
+    post lock_registration_tournament_path(t, locale: I18n.locale)
+    post next_round_tournament_path(t, locale: I18n.locale)
+
+    match = t.matches.order(:created_at).first
+
+    # Participant posts result
+    delete session_path(locale: I18n.locale)
+    post session_path(locale: I18n.locale),
+         params: { email_address: users(:player_two).email_address, password: 'password' }
+    patch tournament_tournament_match_path(t, match, locale: I18n.locale),
+          params: { tournament_match: { a_score: 0, b_score: 1 } }
+    assert_redirected_to tournament_tournament_match_path(t, match, locale: I18n.locale)
+
+    match.reload
+    assert_equal 'b_win', match.result
+    assert_not_nil match.game_event_id
   end
 
   test 'my tournaments lists tournaments where I am the creator' do

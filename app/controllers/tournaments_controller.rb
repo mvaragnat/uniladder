@@ -4,9 +4,8 @@ class TournamentsController < ApplicationController
   allow_unauthenticated_access only: %i[index show]
   before_action :authenticate!, except: %i[index show]
   before_action :set_tournament,
-                only: %i[show register unregister check_in lock_registration generate_pairings close_round finalize
-                         next_round]
-  before_action :authorize_admin!, only: %i[lock_registration generate_pairings close_round finalize next_round]
+                only: %i[show register unregister check_in lock_registration finalize next_round]
+  before_action :authorize_admin!, only: %i[lock_registration finalize next_round]
 
   def index
     # Populate Current.session/user even when authentication is not required
@@ -117,38 +116,6 @@ class TournamentsController < ApplicationController
     redirect_to tournament_path(@tournament), notice: t('tournaments.locked', default: 'Registration locked')
   end
 
-  def generate_pairings
-    if @tournament.elimination?
-      return redirect_back(
-        fallback_location: tournament_path(@tournament),
-        alert: t('tournaments.not_allowed_state', default: 'Not allowed in current state')
-      )
-    end
-
-    unless @tournament.running?
-      return redirect_back(
-        fallback_location: tournament_path(@tournament),
-        alert: t('tournaments.not_allowed_state', default: 'Not allowed in current state')
-      )
-    end
-
-    # Swiss pairing placeholder (not implemented yet)
-    round = @tournament.rounds.order(:number).last || @tournament.rounds.create!(number: 1, state: 'pending')
-    players = @tournament.registrations.where(status: 'checked_in').includes(:user).map(&:user)
-    players = players.presence || @tournament.registrations.includes(:user).map(&:user)
-    players = players.sort_by(&:id)
-
-    if round.matches.none?
-      players.each_slice(2) do |a, b|
-        break unless b
-
-        @tournament.matches.create!(round: round, a_user: a, b_user: b)
-      end
-    end
-
-    redirect_to tournament_path(@tournament), notice: t('tournaments.pairings_generated', default: 'Pairings generated')
-  end
-
   def next_round
     if @tournament.elimination?
       return redirect_back(
@@ -193,27 +160,6 @@ class TournamentsController < ApplicationController
 
     redirect_to tournament_path(@tournament, tab: 0),
                 notice: t('tournaments.round_advanced', default: 'Moved to next round')
-  end
-
-  def close_round
-    if @tournament.elimination?
-      return redirect_back(
-        fallback_location: tournament_path(@tournament),
-        alert: t('tournaments.not_allowed_state', default: 'Not allowed in current state')
-      )
-    end
-
-    unless @tournament.running?
-      return redirect_back(
-        fallback_location: tournament_path(@tournament),
-        alert: t('tournaments.not_allowed_state', default: 'Not allowed in current state')
-      )
-    end
-
-    if (round = @tournament.rounds.order(:number).last)
-      round.update!(state: 'closed')
-    end
-    redirect_to tournament_path(@tournament), notice: t('tournaments.round_closed', default: 'Round closed')
   end
 
   def finalize

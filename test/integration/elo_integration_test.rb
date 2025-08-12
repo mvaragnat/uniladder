@@ -41,12 +41,12 @@ class EloIntegrationTest < ActionDispatch::IntegrationTest
     post check_in_tournament_path(t, locale: I18n.locale)
     assert_response :redirect
 
-    # Creator locks registration and generates pairings
+    # Creator locks registration and starts round (pairings)
     delete session_path(locale: I18n.locale)
     post session_path(locale: I18n.locale), params: { email_address: @creator.email_address, password: 'password' }
     post lock_registration_tournament_path(t, locale: I18n.locale)
     assert_response :redirect
-    post generate_pairings_tournament_path(t, locale: I18n.locale)
+    post next_round_tournament_path(t, locale: I18n.locale)
     assert_response :redirect
 
     match = t.matches.order(:created_at).last
