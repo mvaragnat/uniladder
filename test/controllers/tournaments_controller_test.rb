@@ -7,6 +7,21 @@ class TournamentsControllerTest < ActionDispatch::IntegrationTest
     @user = users(:player_one)
   end
 
+  test 'guests can access tournaments index' do
+    get tournaments_path(locale: I18n.locale)
+    assert_response :success
+  end
+
+  test 'guests can access tournaments show' do
+    t = ::Tournament::Tournament.create!(
+      name: 'Public Cup', description: 'Open to all',
+      game_system: game_systems(:chess), format: 'open', creator: @user
+    )
+
+    get tournament_path(t, locale: I18n.locale)
+    assert_response :success
+  end
+
   test 'creates tournament with valid params from form' do
     # Sign in
     post session_path(locale: I18n.locale), params: { email_address: @user.email_address, password: 'password' }

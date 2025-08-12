@@ -24,7 +24,9 @@
 
   <body>
     <nav class="site-nav">
-      <%= link_to "My Dashboard", dashboard_path, class: "brand" %>
+      <% if authenticated? %>
+        <%= link_to "My Dashboard", dashboard_path, class: "brand" %>
+      <% end %>
       <%= link_to "ELO", elo_path, class: "brand" %>
       <%= link_to t('tournaments.index_title'), tournaments_path, class: "brand" %>
       <span class="spacer"></span>

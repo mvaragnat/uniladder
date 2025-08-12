@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 class TournamentsController < ApplicationController
-  before_action :authenticate!
+  allow_unauthenticated_access only: %i[index show]
+  before_action :authenticate!, except: %i[index show]
   before_action :set_tournament,
                 only: %i[show register unregister check_in lock_registration generate_pairings close_round finalize]
   before_action :authorize_admin!, only: %i[lock_registration generate_pairings close_round finalize]
