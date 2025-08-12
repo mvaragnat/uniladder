@@ -39,6 +39,7 @@ Rails.application.routes.draw do
         post :generate_pairings
         post :close_round
         post :finalize
+        post :next_round
       end
 
       namespace :tournament do

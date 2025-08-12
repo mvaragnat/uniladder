@@ -29,10 +29,11 @@
           <a href="#" data-action="click->tabs#select" data-index="2" data-tabs-target="tab" class="btn" aria-selected="false"><%= t('tournaments.show.tabs.admin', default: 'Admin') %></a>
         <% end %>
       <% else %>
-        <a href="#" data-action="click->tabs#select" data-index="0" data-tabs-target="tab" class="btn btn-primary" aria-selected="true"><%= t('tournaments.show.tabs.overview', default: 'Overview') %></a>
+        <a href="#" data-action="click->tabs#select" data-index="0" data-tabs-target="tab" class="btn btn-primary" aria-selected="true"><%= t('tournaments.show.tabs.rounds', default: 'Rounds') %></a>
         <a href="#" data-action="click->tabs#select" data-index="1" data-tabs-target="tab" class="btn" aria-selected="false"><%= t('tournaments.show.tabs.participants', default: 'Participants') %></a>
+        <a href="#" data-action="click->tabs#select" data-index="2" data-tabs-target="tab" class="btn" aria-selected="false"><%= t('tournaments.show.tabs.ranking', default: 'Ranking') %></a>
         <% if @tournament.creator == Current.user %>
-          <a href="#" data-action="click->tabs#select" data-index="2" data-tabs-target="tab" class="btn" aria-selected="false"><%= t('tournaments.show.tabs.admin', default: 'Admin') %></a>
+          <a href="#" data-action="click->tabs#select" data-index="3" data-tabs-target="tab" class="btn" aria-selected="false"><%= t('tournaments.show.tabs.admin', default: 'Admin') %></a>
         <% end %>
       <% end %>
     </div>
@@ -50,9 +51,6 @@
       <!-- Participants panel -->
       <div data-tabs-target="panel" style="display:none;">
         <div class="card">
-          <div class="card-header">
-            <h3><%= t('tournaments.show.registrations') %></h3>
-          </div>
           <div class="card-body">
             <ul style="list-style:none; padding:0;">
               <% @registrations.each do |r| %>
@@ -67,9 +65,6 @@
         <!-- Admin panel -->
         <div data-tabs-target="panel" style="display:none;">
           <div class="card">
-            <div class="card-header">
-              <h3><%= t('tournaments.show.admin') %></h3>
-            </div>
             <div class="card-body" style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
               <% if @tournament.registrations_open? %>
                 <span class="card-date"><%= t('tournaments.show.lock_warning') %></span>
@@ -83,18 +78,36 @@
         </div>
       <% end %>
     <% else %>
-      <!-- Swiss/Open Overview panel -->
+      <!-- Rounds panel -->
       <div data-tabs-target="panel">
         <div class="card">
-          <div class="card-header">
-            <h3><%= t('tournaments.show.recent_matches') %></h3>
-          </div>
           <div class="card-body">
-            <div style="margin:1rem 0; display:flex; gap:0.5rem; flex-wrap:wrap;">
-              <% unless @tournament.open? %>
-                <%= link_to t('tournaments.show.rounds', default: 'Rounds'), tournament_tournament_rounds_path(@tournament), class: 'btn' %>
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 0.75rem;">
+              <% @rounds.each do |round| %>
+                <div class="card">
+                  <div class="card-header">
+                    <h3><%= t('tournaments.show.round_label', n: round.number) %></h3>
+                  </div>
+                  <div class="card-body">
+                    <% if round.matches.any? %>
+                      <ul style="list-style:none; padding:0;">
+                        <% round.matches.each do |m| %>
+                          <li class="card" style="margin-bottom:0.5rem;">
+                            <div class="card-body" style="display:flex; justify-content:space-between;">
+                              <span>
+                                <%= m.a_user&.username || '?' %> vs <%= m.b_user&.username || '?' %>
+                              </span>
+                              <span><%= m.result %></span>
+                            </div>
+                          </li>
+                        <% end %>
+                      </ul>
+                    <% else %>
+                      <p class="card-date"><%= t('tournaments.show.no_matches', default: 'No matches yet') %></p>
+                    <% end %>
+                  </div>
+                </div>
               <% end %>
-              <%= link_to t('tournaments.show.matches', default: 'Matches'), tournament_tournament_matches_path(@tournament), class: 'btn' %>
             </div>
           </div>
         </div>
@@ -103,9 +116,6 @@
       <!-- Participants panel -->
       <div data-tabs-target="panel" style="display:none;">
         <div class="card">
-          <div class="card-header">
-            <h3><%= t('tournaments.show.registrations') %></h3>
-          </div>
           <div class="card-body">
             <ul style="list-style:none; padding:0;">
               <% @registrations.each do |r| %>
@@ -116,21 +126,59 @@
         </div>
       </div>
 
+      <!-- Ranking panel -->
+      <div data-tabs-target="panel" style="display:none;">
+        <div class="card">
+          <div class="card-body">
+            <% if @standings.any? %>
+              <table style="width:100%; border-collapse: collapse;">
+                <thead>
+                  <tr>
+                    <th style="text-align:left; padding:0.25rem 0;">#</th>
+                    <th style="text-align:left; padding:0.25rem 0;"><%= t('elo.player') %></th>
+                    <th style="text-align:right; padding:0.25rem 0;">GP</th>
+                    <th style="text-align:right; padding:0.25rem 0;">Pts</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% @standings.each_with_index do |row, idx| %>
+                    <tr>
+                      <td style="padding:0.25rem 0;"><%= idx + 1 %></td>
+                      <td style="padding:0.25rem 0;"><%= row[:user].username %></td>
+                      <td style="padding:0.25rem 0; text-align:right;"><%= row[:played] %></td>
+                      <td style="padding:0.25rem 0; text-align:right;"><%= row[:points] %></td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            <% else %>
+              <p class="card-date"><%= t('tournaments.show.no_standings', default: 'No results yet') %></p>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
       <% if @tournament.creator == Current.user %>
         <!-- Admin panel -->
         <div data-tabs-target="panel" style="display:none;">
           <div class="card">
-            <div class="card-header">
-              <h3><%= t('tournaments.show.admin') %></h3>
-            </div>
             <div class="card-body" style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
               <% if @tournament.registrations_open? %>
                 <span class="card-date"><%= t('tournaments.show.lock_warning') %></span>
                 <%= button_to t('tournaments.show.lock_and_generate'), lock_registration_tournament_path(@tournament), method: :post, class: 'btn' %>
               <% end %>
+
               <% if @tournament.running? %>
-                <%= button_to t('tournaments.show.generate_pairings'), generate_pairings_tournament_path(@tournament), method: :post, class: 'btn' %>
-                <%= button_to t('tournaments.show.close_round'), close_round_tournament_path(@tournament), method: :post, class: 'btn' %>
+                <%# Move to next round replaces separate generate/close %>
+                <% if @can_move_to_next_round %>
+                  <%= button_to t('tournaments.show.move_to_next_round', default: 'Move to next round'), next_round_tournament_path(@tournament), method: :post, class: 'btn btn-primary' %>
+                <% else %>
+                  <button class="btn" disabled title="<%= @move_block_reason %>"><%= t('tournaments.show.move_to_next_round', default: 'Move to next round') %></button>
+                  <% if @move_block_reason %>
+                    <span class="card-date"><%= @move_block_reason %></span>
+                  <% end %>
+                <% end %>
+
                 <%= button_to t('tournaments.show.finalize'), finalize_tournament_path(@tournament), method: :post, class: 'btn' %>
               <% end %>
             </div>
