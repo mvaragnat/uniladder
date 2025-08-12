@@ -96,6 +96,14 @@ en:
       pending: "Pending"
       round_label: "Round %{n}"
       lock_warning: "Locking registrations will also prevent further check-ins."
+      sign_in_to_register_html: "Please <a href=\"%{url}\">sign in</a> to register."
+      rounds: "Rounds"
+      matches: "Matches"
+      tabs:
+        bracket: "Bracket"
+        participants: "Participants"
+        admin: "Admin"
+        overview: "Overview"
     new:
       title: "New Tournament"
       name: "Name"

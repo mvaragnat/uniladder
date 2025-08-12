@@ -67,6 +67,14 @@ fr:
       pending: "En attente"
       round_label: "Ronde %{n}"
       lock_warning: "La fermeture des inscriptions empêchera également les check-ins."
+      sign_in_to_register_html: "Veuillez vous <a href=\"%{url}\">connecter</a> pour vous inscrire."
+      rounds: "Rondes"
+      matches: "Matchs"
+      tabs:
+        bracket: "Arbre"
+        participants: "Participants"
+        admin: "Administration"
+        overview: "Vue d'ensemble"
     new:
       title: "Nouveau Tournoi"
       name: "Nom"

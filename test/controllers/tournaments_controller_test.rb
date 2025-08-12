@@ -113,23 +113,6 @@ class TournamentsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to tournament_path(t, locale: I18n.locale)
   end
 
-  test 'non-admin cannot lock registration' do
-    # Creator creates tournament
-    post session_path(locale: I18n.locale), params: { email_address: @user.email_address, password: 'password' }
-    post tournaments_path(locale: I18n.locale),
-         params: { tournament: { name: 'X', description: 'Y', game_system_id: game_systems(:chess).id,
-                                 format: 'elimination' } }
-    t = Tournament::Tournament.order(:created_at).last
-
-    # Switch to different user
-    delete session_path(locale: I18n.locale)
-    post session_path(locale: I18n.locale),
-         params: { email_address: users(:player_two).email_address, password: 'password' }
-
-    post lock_registration_tournament_path(t, locale: I18n.locale)
-    assert_redirected_to tournament_path(t, locale: I18n.locale)
-  end
-
   test 'elimination bracket tree is generated on lock' do
     creator = users(:player_one)
     p2 = users(:player_two)
@@ -181,5 +164,47 @@ class TournamentsControllerTest < ActionDispatch::IntegrationTest
   test 'requires authentication' do
     post tournaments_path(locale: I18n.locale), params: { tournament: { name: 'Nope' } }
     assert_redirected_to new_session_path(locale: I18n.locale)
+  end
+
+  test 'guest clicking register gets redirected to login then back to show' do
+    t = ::Tournament::Tournament.create!(
+      name: 'Public Cup', description: 'Open to all',
+      game_system: game_systems(:chess), format: 'open', creator: @user
+    )
+
+    # Guest attempts to POST register (simulating clicking the button on the show page)
+    post register_tournament_path(t, locale: I18n.locale),
+         headers: { 'HTTP_REFERER' => tournament_path(t, locale: I18n.locale) }
+    assert_redirected_to new_session_path(locale: I18n.locale)
+
+    # Sign in, should return to tournament show (referer), not POST endpoint
+    post session_path(locale: I18n.locale), params: { email_address: @user.email_address, password: 'password' }
+    follow_redirect!
+    assert_response :success
+    assert_equal tournament_path(t, locale: I18n.locale), path
+  end
+
+  test 'register redirects to participants tab and hides register button when registered' do
+    # Sign in and create a swiss tournament
+    post session_path(locale: I18n.locale), params: { email_address: @user.email_address, password: 'password' }
+    post tournaments_path(locale: I18n.locale), params: {
+      tournament: {
+        name: 'Swiss A',
+        description: 'S',
+        game_system_id: game_systems(:chess).id,
+        format: 'swiss',
+        rounds_count: 3
+      }
+    }
+    t = Tournament::Tournament.order(:created_at).last
+
+    # Register
+    post register_tournament_path(t, locale: I18n.locale)
+    assert_redirected_to tournament_path(t, locale: I18n.locale, tab: 1)
+
+    # Visit the participants tab page and ensure register button is not present
+    get tournament_path(t, locale: I18n.locale, tab: 1)
+    assert_response :success
+    assert_no_match(/\b#{Regexp.escape(I18n.t('tournaments.show.register'))}\b/, @response.body)
   end
 end

@@ -16,9 +16,14 @@ class TournamentsController < ApplicationController
   end
 
   def show
+    # Populate Current.session/user for guest-access pages
+    authenticated?
+
     @registrations = @tournament.registrations.includes(:user)
     @rounds = @tournament.rounds.order(:number)
     @matches = @tournament.matches.order(created_at: :desc).limit(20)
+    @active_tab_index = (params[:tab].presence || 0).to_i
+    @is_registered = Current.user && @tournament.registrations.exists?(user_id: Current.user.id)
   end
 
   def new
@@ -45,7 +50,7 @@ class TournamentsController < ApplicationController
     end
 
     @tournament.registrations.find_or_create_by!(user: Current.user)
-    redirect_to tournament_path(@tournament), notice: t('tournaments.registered', default: 'Registered')
+    redirect_to tournament_path(@tournament, tab: 1), notice: t('tournaments.registered', default: 'Registered')
   end
 
   def unregister
