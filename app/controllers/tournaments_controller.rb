@@ -8,6 +8,9 @@ class TournamentsController < ApplicationController
   before_action :authorize_admin!, only: %i[lock_registration generate_pairings close_round finalize]
 
   def index
+    # Populate Current.session/user even when authentication is not required
+    authenticated?
+
     scope = ::Tournament::Tournament.includes(:game_system, :creator).order(created_at: :desc)
     @my_tournaments = Current.user ? scope.where(creator: Current.user) : scope.none
     @accepting_tournaments = scope.where(state: %w[draft registration])
@@ -24,6 +27,7 @@ class TournamentsController < ApplicationController
     @matches = @tournament.matches.order(created_at: :desc).limit(20)
     @active_tab_index = (params[:tab].presence || 0).to_i
     @is_registered = Current.user && @tournament.registrations.exists?(user_id: Current.user.id)
+    @my_registration = Current.user && @tournament.registrations.find_by(user_id: Current.user.id)
   end
 
   def new

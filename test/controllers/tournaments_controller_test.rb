@@ -207,4 +207,57 @@ class TournamentsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_no_match(/\b#{Regexp.escape(I18n.t('tournaments.show.register'))}\b/, @response.body)
   end
+
+  test 'check-in button styled primary and above unregister when registered but not checked-in' do
+    # Sign in, create tournament, register but do not check in
+    post session_path(locale: I18n.locale), params: { email_address: @user.email_address, password: 'password' }
+    post tournaments_path(locale: I18n.locale), params: {
+      tournament: {
+        name: 'Swiss B',
+        description: 'S',
+        game_system_id: game_systems(:chess).id,
+        format: 'swiss',
+        rounds_count: 3
+      }
+    }
+    t = Tournament::Tournament.order(:created_at).last
+
+    post register_tournament_path(t, locale: I18n.locale)
+
+    get tournament_path(t, locale: I18n.locale)
+    assert_response :success
+
+    # Check order: check-in should appear before unregister and have btn-primary
+    checkin_index = @response.body.index(I18n.t('tournaments.show.check_in'))
+    unregister_index = @response.body.index(I18n.t('tournaments.show.unregister'))
+    assert checkin_index, 'Check-in button not found'
+    assert unregister_index, 'Unregister button not found'
+    assert checkin_index < unregister_index, 'Check-in should appear before Unregister'
+    assert_includes @response.body, 'btn btn-primary'
+  end
+
+  test 'my tournaments lists tournaments where I am the creator' do
+    # Sign in
+    post session_path(locale: I18n.locale), params: { email_address: @user.email_address, password: 'password' }
+
+    # Create two tournaments by me, one by someone else
+    mine1 = ::Tournament::Tournament.create!(
+      name: 'Mine 1', description: 'A', game_system: game_systems(:chess),
+      format: 'open', creator: @user
+    )
+    mine2 = ::Tournament::Tournament.create!(
+      name: 'Mine 2', description: 'B', game_system: game_systems(:chess),
+      format: 'swiss', rounds_count: 3, creator: @user
+    )
+    ::Tournament::Tournament.create!(
+      name: 'Other', description: 'C', game_system: game_systems(:chess),
+      format: 'open', creator: users(:player_two)
+    )
+
+    get tournaments_path(locale: I18n.locale)
+    assert_response :success
+
+    assert_includes @response.body, mine1.name
+    assert_includes @response.body, mine2.name
+  end
 end
