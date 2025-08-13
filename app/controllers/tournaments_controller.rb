@@ -180,11 +180,23 @@ class TournamentsController < ApplicationController
   def update
     admin_tab_index = @tournament.elimination? ? 2 : 3
     if @tournament.update(tournament_params)
-      redirect_to tournament_path(@tournament, tab: admin_tab_index),
-                  notice: t('tournaments.updated', default: 'Tournament updated')
+      respond_to do |format|
+        format.html do
+          redirect_to tournament_path(@tournament, tab: admin_tab_index),
+                      notice: t('tournaments.updated', default: 'Tournament updated')
+        end
+        format.json { render json: { ok: true, message: t('tournaments.updated', default: 'Tournament updated') } }
+      end
     else
-      redirect_to tournament_path(@tournament, tab: admin_tab_index),
-                  alert: @tournament.errors.full_messages.join(', ')
+      respond_to do |format|
+        format.html do
+          redirect_to tournament_path(@tournament, tab: admin_tab_index),
+                      alert: @tournament.errors.full_messages.join(', ')
+        end
+        format.json do
+          render json: { ok: false, errors: @tournament.errors.full_messages }, status: :unprocessable_entity
+        end
+      end
     end
   end
 

@@ -14,3 +14,6 @@ application.register("datetime-picker", DatetimePickerController)
 
 import TabsController from "controllers/tabs_controller"
 application.register("tabs", TabsController)
+
+import StrategyController from "controllers/strategy_controller"
+application.register("strategy", StrategyController)

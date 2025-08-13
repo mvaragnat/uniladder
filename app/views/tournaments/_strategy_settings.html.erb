@@ -1,0 +1,59 @@
+<%# frozen_string_literal: true %>
+<% show_pairing = local_assigns.fetch(:show_pairing, false) %>
+<% admin_tab_index = @tournament.elimination? ? 2 : 3 %>
+<% pairing_explanations = Tournament::StrategyRegistry.pairing_strategies.transform_values { |v| t("tournaments.show.strategies.explanations.pairing.#{v.last.name.demodulize.underscore}", default: t("tournaments.show.strategies.explanations.pairing.#{v.first.parameterize(separator: '_')}", default: t('tournaments.show.strategies.explanations.pairing.default'))) } %>
+<%# Fallback keys: by_points_random_within_group explicitly %>
+<% pairing_explanations['by_points_random_within_group'] ||= t('tournaments.show.strategies.explanations.pairing.by_points_random_within_group', default: t('tournaments.show.strategies.explanations.pairing.default')) %>
+<% tiebreak_explanations = Tournament::StrategyRegistry.tiebreak_strategies.transform_values { |v| t("tournaments.show.strategies.explanations.tiebreak.#{v.first.parameterize(separator: '_')}", default: t('tournaments.show.strategies.explanations.tiebreak.default')) } %>
+
+<div
+  data-controller="strategy"
+  data-strategy-update-url-value="<%= tournament_path(@tournament, tab: admin_tab_index, locale: I18n.locale) %>"
+  data-strategy-saved-text-value="<%= t('tournaments.show.strategies.saved', default: 'Settings saved') %>"
+  data-strategy-show-pairing-value="<%= show_pairing %>"
+  data-strategy-explain-pairing-value="<%= pairing_explanations.to_json %>"
+  data-strategy-explain-tiebreak-value="<%= tiebreak_explanations.to_json %>"
+>
+  <div style="display:flex; flex-direction:column; gap:0.75rem;">
+    <% if show_pairing %>
+      <div style="display:grid; grid-template-columns: 180px minmax(220px, 1fr) 1.2fr; gap:0.5rem; align-items:center;">
+        <div class="card-date"><%= t('tournaments.show.strategies.pairing_strategy', default: 'Pairing strategy') %></div>
+        <div>
+          <%= select_tag 'tournament[pairing_strategy_key]',
+                          options_for_select(@pairing_strategies.map { |k, v| [v.first, k] }, @tournament.pairing_key),
+                          class: 'input', style: 'width:100%;',
+                          data: { action: 'change->strategy#changed', field: 'pairing_strategy_key' } %>
+        </div>
+        <div class="card-date" id="pairing-explanation" data-strategy-target="pairingExplanation">
+          <%= t("tournaments.show.strategies.explanations.pairing.#{@tournament.pairing_key}", default: t('tournaments.show.strategies.explanations.pairing.default')) %>
+        </div>
+      </div>
+    <% end %>
+
+    <div style="display:grid; grid-template-columns: 180px minmax(220px, 1fr) 1.2fr; gap:0.5rem; align-items:center;">
+      <div class="card-date"><%= t('tournaments.show.strategies.tiebreak1', default: 'Tie-break #1') %></div>
+      <div>
+        <%= select_tag 'tournament[tiebreak1_strategy_key]',
+                        options_for_select(@tiebreak_strategies.map { |k, v| [v.first, k] }, @tournament.tiebreak1_key),
+                        class: 'input', style: 'width:100%;',
+                        data: { action: 'change->strategy#changed', field: 'tiebreak1_strategy_key' } %>
+      </div>
+      <div class="card-date" id="tiebreak1-explanation" data-strategy-target="tiebreak1Explanation">
+        <%= t("tournaments.show.strategies.explanations.tiebreak.#{@tournament.tiebreak1_key}", default: t('tournaments.show.strategies.explanations.tiebreak.default')) %>
+      </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns: 180px minmax(220px, 1fr) 1.2fr; gap:0.5rem; align-items:center;">
+      <div class="card-date"><%= t('tournaments.show.strategies.tiebreak2', default: 'Tie-break #2') %></div>
+      <div>
+        <%= select_tag 'tournament[tiebreak2_strategy_key]',
+                        options_for_select(@tiebreak_strategies.map { |k, v| [v.first, k] }, @tournament.tiebreak2_key),
+                        class: 'input', style: 'width:100%;',
+                        data: { action: 'change->strategy#changed', field: 'tiebreak2_strategy_key' } %>
+      </div>
+      <div class="card-date" id="tiebreak2-explanation" data-strategy-target="tiebreak2Explanation">
+        <%= t("tournaments.show.strategies.explanations.tiebreak.#{@tournament.tiebreak2_key}", default: t('tournaments.show.strategies.explanations.tiebreak.default')) %>
+      </div>
+    </div>
+  </div>
+</div> 

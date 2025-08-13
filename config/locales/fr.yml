@@ -91,6 +91,7 @@ fr:
             none: "Aucun départage appliqué."
             score_sum: "La somme des scores sur les parties jouées départage en cas d'égalité de points."
             default: "Règle de départage appliquée en cas d'égalité de points."
+        saved: "Paramètres enregistrés"
       admin:
         actions: "Actions"
         strategies: "Stratégies"

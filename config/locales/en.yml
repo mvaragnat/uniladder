@@ -120,6 +120,7 @@ en:
             none: "No tie-break applied."
             score_sum: "Higher total score across reported games ranks higher when points are equal."
             default: "Tie-break rule applied when points are equal."
+        saved: "Settings saved"
       admin:
         actions: "Actions"
         strategies: "Strategies"

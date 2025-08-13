@@ -95,46 +95,7 @@
                 <h3 style="margin:0 0 0.25rem 0; font-size:1rem; font-weight:600;">
                   <%= t('tournaments.show.admin.strategies', default: 'Strategies') %>
                 </h3>
-                <%= form_with model: @tournament, url: tournament_path(@tournament, tab: (@tournament.elimination? ? 2 : 3)), method: :patch, local: true do |f| %>
-                  <div style="display:flex; flex-direction:column; gap:0.75rem;">
-                    <!-- Pairing row -->
-                    <div style="display:grid; grid-template-columns: 180px minmax(220px, 1fr) 1.2fr; gap:0.5rem; align-items:center;">
-                      <div class="card-date"><%= t('tournaments.show.strategies.pairing_strategy', default: 'Pairing strategy') %></div>
-                      <div>
-                        <%= f.select :pairing_strategy_key, options_for_select(@pairing_strategies.map { |k, v| [v.first, k] }, @tournament.pairing_key), {}, class: 'input', style: 'width:100%;' %>
-                      </div>
-                      <div class="card-date">
-                        <%= t("tournaments.show.strategies.explanations.pairing.#{@tournament.pairing_key}", default: t('tournaments.show.strategies.explanations.pairing.default', default: 'Pairs by current points; shuffles within tied groups; avoids repeats when possible.')) %>
-                      </div>
-                    </div>
-
-                    <!-- Tie-break #1 row -->
-                    <div style="display:grid; grid-template-columns: 180px minmax(220px, 1fr) 1.2fr; gap:0.5rem; align-items:center;">
-                      <div class="card-date"><%= t('tournaments.show.strategies.tiebreak1', default: 'Tie-break #1') %></div>
-                      <div>
-                        <%= f.select :tiebreak1_strategy_key, options_for_select(@tiebreak_strategies.map { |k, v| [v.first, k] }, @tournament.tiebreak1_key), {}, class: 'input', style: 'width:100%;' %>
-                      </div>
-                      <div class="card-date">
-                        <%= t("tournaments.show.strategies.explanations.tiebreak.#{@tournament.tiebreak1_key}", default: t('tournaments.show.strategies.explanations.tiebreak.default', default: 'Tie-break rule applied when points are equal.')) %>
-                      </div>
-                    </div>
-
-                    <!-- Tie-break #2 row -->
-                    <div style="display:grid; grid-template-columns: 180px minmax(220px, 1fr) 1.2fr; gap:0.5rem; align-items:center;">
-                      <div class="card-date"><%= t('tournaments.show.strategies.tiebreak2', default: 'Tie-break #2') %></div>
-                      <div>
-                        <%= f.select :tiebreak2_strategy_key, options_for_select(@tiebreak_strategies.map { |k, v| [v.first, k] }, @tournament.tiebreak2_key), {}, class: 'input', style: 'width:100%;' %>
-                      </div>
-                      <div class="card-date">
-                        <%= t("tournaments.show.strategies.explanations.tiebreak.#{@tournament.tiebreak2_key}", default: t('tournaments.show.strategies.explanations.tiebreak.default', default: 'Secondary tie-break rule when needed.')) %>
-                      </div>
-                    </div>
-
-                    <div style="display:flex; justify-content:flex-end;">
-                      <%= f.submit t('tournaments.show.strategies.save', default: 'Save settings'), class: 'btn btn-primary' %>
-                    </div>
-                  </div>
-                <% end %>
+                <%= render 'strategy_settings', show_pairing: false %>
               </section>
             </div>
           </div>
@@ -245,34 +206,7 @@
                   <div style="flex-basis:100%; height:1px;"></div>
                   <div style="width:100%;">
                     <p class="card-date"><%= t('tournaments.show.strategies.explanation', default: 'Ranking uses Points, then Tie-break #1, then Tie-break #2. Pairings avoid repeat matches when possible.') %></p>
-                    <%= form_with model: @tournament, url: tournament_path(@tournament, tab: (@tournament.elimination? ? 2 : 3)), method: :patch, local: true do |f| %>
-                      <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; align-items:end;">
-                        <div>
-                          <%= f.label :pairing_strategy_key, t('tournaments.show.strategies.pairing_strategy', default: 'Pairing strategy'), class: 'card-date' %><br>
-                          <%= f.select :pairing_strategy_key,
-                                       options_for_select(@pairing_strategies.map { |k, v| [v.first, k] }, @tournament.pairing_key),
-                                       {},
-                                       class: 'input' %>
-                        </div>
-                        <div>
-                          <%= f.label :tiebreak1_strategy_key, t('tournaments.show.strategies.tiebreak1', default: 'Tie-break #1'), class: 'card-date' %><br>
-                          <%= f.select :tiebreak1_strategy_key,
-                                       options_for_select(@tiebreak_strategies.map { |k, v| [v.first, k] }, @tournament.tiebreak1_key),
-                                       {},
-                                       class: 'input' %>
-                        </div>
-                        <div>
-                          <%= f.label :tiebreak2_strategy_key, t('tournaments.show.strategies.tiebreak2', default: 'Tie-break #2'), class: 'card-date' %><br>
-                          <%= f.select :tiebreak2_strategy_key,
-                                       options_for_select(@tiebreak_strategies.map { |k, v| [v.first, k] }, @tournament.tiebreak2_key),
-                                       {},
-                                       class: 'input' %>
-                        </div>
-                        <div>
-                          <%= f.submit t('tournaments.show.strategies.save', default: 'Save settings'), class: 'btn btn-primary' %>
-                        </div>
-                      </div>
-                    <% end %>
+                    <%= render 'strategy_settings', show_pairing: !@tournament.open? %>
                   </div>
                 </div>
               </section>
