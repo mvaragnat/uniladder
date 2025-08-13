@@ -128,11 +128,12 @@ module ApplicationHelper
 
   # Render a small match box (names, optional score, winner highlighted) as used in elimination bracket.
   # Exposed to reuse in other formats (e.g., swiss/open rounds list) by calling this helper per match.
-  def small_match_box(tournament, match, pos_x, pos_y, width = 240)
+  def small_match_box(tournament, match, pos_x, pos_y, width = 240, show_seeds: nil)
     cell_w = width
     cell_h = 68
     seed_map = build_seed_map_for(tournament)
     admin = Current.user && tournament.creator_id == Current.user.id
+    show_seeds = tournament.elimination? if show_seeds.nil?
 
     a_set = match.a_user_id.present?
     b_set = match.b_user_id.present?
@@ -142,20 +143,28 @@ module ApplicationHelper
     a_name = if a_set
                match.a_user.username
              elsif a_bye
-               'bye'
+               t('tournaments.show.bye', default: 'Bye')
              else
                'TBD'
              end
     b_name = if b_set
                match.b_user.username
              elsif b_bye
-               'bye'
+               t('tournaments.show.bye', default: 'Bye')
              else
                'TBD'
              end
 
-    a_seed = match.a_user_id && seed_map[match.a_user_id] ? "(S#{seed_map[match.a_user_id]})" : ''
-    b_seed = match.b_user_id && seed_map[match.b_user_id] ? "(S#{seed_map[match.b_user_id]})" : ''
+    a_seed = if show_seeds && match.a_user_id && seed_map[match.a_user_id]
+               "(S#{seed_map[match.a_user_id]})"
+             else
+               ''
+             end
+    b_seed = if show_seeds && match.b_user_id && seed_map[match.b_user_id]
+               "(S#{seed_map[match.b_user_id]})"
+             else
+               ''
+             end
 
     if match.game_event_id
       pa = match.game_event.game_participations.find_by(user: match.a_user)
@@ -167,7 +176,13 @@ module ApplicationHelper
     else
       a_style = ''
       b_style = ''
-      score_text = t('tournaments.show.pending', default: 'Pending')
+      # If one-sided bye win, show BYE rather than Pending
+      score_text = if (match.a_user_id && match.b_user_id.nil? && match.result == 'a_win') ||
+                      (match.b_user_id && match.a_user_id.nil? && match.result == 'b_win')
+                     t('tournaments.show.bye', default: 'Bye')
+                   else
+                     t('tournaments.show.pending', default: 'Pending')
+                   end
       both_present = match.a_user_id.present? && match.b_user_id.present?
       allowed = both_present && (admin || [match.a_user_id, match.b_user_id].compact.include?(Current.user&.id))
       link = allowed ? tournament_tournament_match_path(tournament, match) : nil

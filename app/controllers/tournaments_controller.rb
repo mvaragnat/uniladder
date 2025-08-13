@@ -156,9 +156,15 @@ class TournamentsController < ApplicationController
 
     # Generate pairings via registry strategy
     pairing_cls = Tournament::StrategyRegistry.pairing_strategies[@tournament.pairing_key].last
-    pairs = pairing_cls.new(@tournament).call.pairs
+    result = pairing_cls.new(@tournament).call
+    pairs = result.pairs
     pairs.each do |a_user, b_user|
       @tournament.matches.create!(round: new_round, a_user: a_user, b_user: b_user)
+    end
+
+    # If a bye is selected, record it as an immediate win for that player
+    if result.respond_to?(:bye_user) && result.bye_user
+      @tournament.matches.create!(round: new_round, a_user: result.bye_user, b_user: nil, result: 'a_win')
     end
 
     redirect_to tournament_path(@tournament, tab: 0),
@@ -263,31 +269,53 @@ class TournamentsController < ApplicationController
 
   def aggregate_points_and_scores(tournament, points, score_sum)
     tournament.matches.includes(:a_user, :b_user, :game_event).find_each do |m|
+      if bye_win_for_single_participant?(m)
+        apply_bye_points(points, m)
+        next
+      end
+
       next unless m.a_user && m.b_user
 
-      a_score = nil
-      b_score = nil
-      if m.game_event
-        a_part = m.game_event.game_participations.find_by(user: m.a_user)
-        b_part = m.game_event.game_participations.find_by(user: m.b_user)
-        a_score = a_part&.score.to_f
-        b_score = b_part&.score.to_f
-      end
+      apply_normal_result_points(points, m)
 
-      case m.result
-      when 'a_win'
-        points[m.a_user.id] += 1.0
-      when 'b_win'
-        points[m.b_user.id] += 1.0
-      when 'draw'
-        points[m.a_user.id] += 0.5
-        points[m.b_user.id] += 0.5
-      end
-
+      a_score, b_score = extract_scores(m)
       next unless a_score && b_score
 
       score_sum[m.a_user.id] += a_score
       score_sum[m.b_user.id] += b_score
     end
+  end
+
+  def bye_win_for_single_participant?(match)
+    (match.result == 'a_win' && match.a_user && match.b_user.nil?) ||
+      (match.result == 'b_win' && match.b_user && match.a_user.nil?)
+  end
+
+  def apply_bye_points(points, match)
+    if match.result == 'a_win' && match.a_user && match.b_user.nil?
+      points[match.a_user.id] += 1.0
+    elsif match.result == 'b_win' && match.b_user && match.a_user.nil?
+      points[match.b_user.id] += 1.0
+    end
+  end
+
+  def apply_normal_result_points(points, match)
+    case match.result
+    when 'a_win'
+      points[match.a_user.id] += 1.0
+    when 'b_win'
+      points[match.b_user.id] += 1.0
+    when 'draw'
+      points[match.a_user.id] += 0.5
+      points[match.b_user.id] += 0.5
+    end
+  end
+
+  def extract_scores(match)
+    return [nil, nil] unless match.game_event
+
+    a_part = match.game_event.game_participations.find_by(user: match.a_user)
+    b_part = match.game_event.game_participations.find_by(user: match.b_user)
+    [a_part&.score.to_f, b_part&.score.to_f]
   end
 end

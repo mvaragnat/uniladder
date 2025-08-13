@@ -93,6 +93,7 @@ en:
       finalize: "Finalize"
       organizer: "Organizer"
       pending: "Pending"
+      bye: "Bye"
       round_label: "Round %{n}"
       lock_warning: "Locking registrations will also prevent further check-ins."
       sign_in_to_register_html: "Please <a href=\"%{url}\">sign in</a> to register."

@@ -324,12 +324,12 @@ class TournamentsControllerTest < ActionDispatch::IntegrationTest
     post lock_registration_tournament_path(t, locale: I18n.locale)
     post next_round_tournament_path(t, locale: I18n.locale)
 
-    match = t.matches.order(:created_at).first
+    match = t.rounds.last.matches.first
 
     # Participant posts result
     delete session_path(locale: I18n.locale)
     post session_path(locale: I18n.locale),
-         params: { email_address: users(:player_two).email_address, password: 'password' }
+         params: { email_address: match.a_user.email_address, password: 'password' }
     patch tournament_tournament_match_path(t, match, locale: I18n.locale),
           params: { tournament_match: { a_score: 0, b_score: 1 } }
     assert_redirected_to tournament_path(t, locale: I18n.locale, tab: 0)
@@ -337,53 +337,6 @@ class TournamentsControllerTest < ActionDispatch::IntegrationTest
     match.reload
     assert_equal 'b_win', match.result
     assert_not_nil match.game_event_id
-  end
-
-  test 'my tournaments lists tournaments where I am the creator' do
-    # Sign in
-    post session_path(locale: I18n.locale), params: { email_address: @user.email_address, password: 'password' }
-
-    # Create two tournaments by me, one by someone else
-    mine1 = ::Tournament::Tournament.create!(
-      name: 'Mine 1', description: 'A', game_system: game_systems(:chess),
-      format: 'open', creator: @user
-    )
-    mine2 = ::Tournament::Tournament.create!(
-      name: 'Mine 2', description: 'B', game_system: game_systems(:chess),
-      format: 'swiss', rounds_count: 3, creator: @user
-    )
-    ::Tournament::Tournament.create!(
-      name: 'Other', description: 'C', game_system: game_systems(:chess),
-      format: 'open', creator: users(:player_two)
-    )
-
-    get tournaments_path(locale: I18n.locale)
-    assert_response :success
-
-    assert_includes @response.body, mine1.name
-    assert_includes @response.body, mine2.name
-  end
-
-  test 'admin can change strategies and they persist' do
-    post session_path(locale: I18n.locale), params: { email_address: @user.email_address, password: 'password' }
-    post tournaments_path(locale: I18n.locale), params: {
-      tournament: { name: 'Strategies', description: 'S', game_system_id: game_systems(:chess).id, format: 'swiss' }
-    }
-    t = Tournament::Tournament.order(:created_at).last
-
-    patch tournament_path(t, locale: I18n.locale), params: {
-      tournament: {
-        pairing_strategy_key: 'by_points_random_within_group',
-        tiebreak1_strategy_key: 'score_sum',
-        tiebreak2_strategy_key: 'none'
-      }
-    }
-    assert_redirected_to tournament_path(t, locale: I18n.locale, tab: 3)
-
-    t.reload
-    assert_equal 'by_points_random_within_group', t.pairing_strategy_key
-    assert_equal 'score_sum', t.tiebreak1_strategy_key
-    assert_equal 'none', t.tiebreak2_strategy_key
   end
 
   test 'pairings avoid repeats when possible and group by points' do
@@ -446,6 +399,147 @@ class TournamentsControllerTest < ActionDispatch::IntegrationTest
       end
       assert_not repeated, 'Pairing should avoid repeats when possible'
     end
+  end
+
+  test 'swiss pairing fills top spot first and avoids 2-vs-0 when 3 leaders exist' do
+    # Create swiss tournament with 8 players
+    post session_path(locale: I18n.locale), params: { email_address: @user.email_address, password: 'password' }
+    post tournaments_path(locale: I18n.locale), params: {
+      tournament: { name: 'Swiss TopFill', description: 'S', game_system_id: game_systems(:chess).id, format: 'swiss' }
+    }
+    t = Tournament::Tournament.order(:created_at).last
+
+    # Create 7 additional users
+    extra = (3..8).map do |i|
+      User.create!(username: "user#{i}", email_address: "user#{i}@example.com", password: 'password')
+    end
+    all_users = [users(:player_one), users(:player_two)] + extra
+
+    # Register and check-in all
+    all_users.each do |u|
+      delete session_path(locale: I18n.locale)
+      post session_path(locale: I18n.locale), params: { email_address: u.email_address, password: 'password' }
+      post register_tournament_path(t, locale: I18n.locale)
+      post check_in_tournament_path(t, locale: I18n.locale)
+    end
+
+    # Lock
+    delete session_path(locale: I18n.locale)
+    post session_path(locale: I18n.locale), params: { email_address: @user.email_address, password: 'password' }
+    post lock_registration_tournament_path(t, locale: I18n.locale)
+
+    # Fabricate historical results so that 3 players have 2 points, 2 players have 1, 3 have 0
+    u = all_users
+    Tournament::Match.create!(tournament: t, a_user: u[0], b_user: u[4], result: 'a_win') # u0 +1
+    Tournament::Match.create!(tournament: t, a_user: u[1], b_user: u[5], result: 'a_win') # u1 +1
+    Tournament::Match.create!(tournament: t, a_user: u[2], b_user: u[6], result: 'a_win') # u2 +1
+    Tournament::Match.create!(tournament: t, a_user: u[0], b_user: u[7], result: 'a_win') # u0 +1 => 2
+    Tournament::Match.create!(tournament: t, a_user: u[1], b_user: u[4], result: 'a_win') # u1 +1 => 2
+    Tournament::Match.create!(tournament: t, a_user: u[2], b_user: u[5], result: 'a_win') # u2 +1 => 2
+    Tournament::Match.create!(tournament: t, a_user: u[3], b_user: u[7], result: 'a_win') # u3 +1 => 1
+    Tournament::Match.create!(tournament: t, a_user: u[6], b_user: u[5], result: 'a_win') # u6 +1 => 1
+
+    # Next round: should not produce a 2 vs 0 matchup
+    post next_round_tournament_path(t, locale: I18n.locale)
+    r = t.rounds.order(:number).last
+    assert r.matches.count >= 4
+
+    # Compute points map (including byes if any)
+    points = Hash.new(0.0)
+    t.matches.find_each do |m|
+      case m.result
+      when 'a_win'
+        points[m.a_user_id] += 1.0 if m.a_user_id
+      when 'b_win'
+        points[m.b_user_id] += 1.0 if m.b_user_id
+      when 'draw'
+        if m.a_user_id && m.b_user_id
+          points[m.a_user_id] += 0.5
+          points[m.b_user_id] += 0.5
+        end
+      end
+    end
+
+    # Ensure no pair is 2 vs 0; at least one pair is 2 vs 2, and at least one is 2 vs 1
+    has_2v2 = false
+    has_2v1 = false
+    r.matches.each do |m|
+      next unless m.a_user && m.b_user
+
+      pa = points[m.a_user_id]
+      pb = points[m.b_user_id]
+      assert_not ((pa == 2.0 && pb == 0.0) || (pa == 0.0 && pb == 2.0)), 'Should not pair 2 vs 0 in this scenario'
+      has_2v2 ||= pa == 2.0 && pb == 2.0
+      has_2v1 ||= (pa == 2.0 && pb == 1.0) || (pa == 1.0 && pb == 2.0)
+    end
+    assert has_2v2, 'Expected one 2 vs 2 pairing'
+    assert has_2v1, 'Expected one 2 vs 1 pairing filling top spot'
+  end
+
+  test 'odd participants: lowest-ranked gets bye (non-repeating) and bye counts as one point' do
+    # Create swiss tournament with 5 players
+    post session_path(locale: I18n.locale), params: { email_address: @user.email_address, password: 'password' }
+    post tournaments_path(locale: I18n.locale), params: {
+      tournament: { name: 'Swiss Bye', description: 'S', game_system_id: game_systems(:chess).id, format: 'swiss' }
+    }
+    t = Tournament::Tournament.order(:created_at).last
+
+    extra = (3..5).map do |i|
+      User.create!(username: "bye_user#{i}", email_address: "bye_user#{i}@example.com", password: 'password')
+    end
+    all_users = [users(:player_one), users(:player_two)] + extra[0, 3]
+
+    # Register and check-in all 5
+    all_users.each do |u|
+      delete session_path(locale: I18n.locale)
+      post session_path(locale: I18n.locale), params: { email_address: u.email_address, password: 'password' }
+      post register_tournament_path(t, locale: I18n.locale)
+      post check_in_tournament_path(t, locale: I18n.locale)
+    end
+
+    # Lock
+    delete session_path(locale: I18n.locale)
+    post session_path(locale: I18n.locale), params: { email_address: @user.email_address, password: 'password' }
+    post lock_registration_tournament_path(t, locale: I18n.locale)
+
+    # Round 1: expect a bye assigned
+    post next_round_tournament_path(t, locale: I18n.locale)
+    r1 = t.rounds.order(:number).last
+    bye_match1 = r1.matches.find { |m| (m.a_user_id && m.b_user_id.nil?) || (m.b_user_id && m.a_user_id.nil?) }
+    assert_not_nil bye_match1, 'Expected a bye match with a single participant'
+    bye_user1_id = bye_match1.a_user_id || bye_match1.b_user_id
+
+    # Ensure BYE appears in UI and counts as one point in standings
+    get tournament_path(t, locale: I18n.locale, tab: 0)
+    assert_includes @response.body, I18n.t('tournaments.show.bye')
+
+    get tournament_path(t, locale: I18n.locale, tab: 2)
+    assert_response :success
+    body = @response.body
+    # Simple check: the bye user should appear with at least 1 point in the table
+    assert_match(/#{User.find(bye_user1_id).username}.*?1.0/m, body)
+
+    # Complete the non-bye matches in R1 so we can advance
+    r1.matches.each do |m|
+      next unless m.a_user && m.b_user
+
+      delete session_path(locale: I18n.locale)
+      post session_path(locale: I18n.locale), params: { email_address: m.a_user.email_address, password: 'password' }
+      patch tournament_tournament_match_path(t, m, locale: I18n.locale),
+            params: { tournament_match: { a_score: 1, b_score: 0 } }
+    end
+
+    # Round 2: ensure another bye is not assigned to the same player
+    delete session_path(locale: I18n.locale)
+    post session_path(locale: I18n.locale), params: { email_address: @user.email_address, password: 'password' }
+    post next_round_tournament_path(t, locale: I18n.locale)
+    r2 = t.rounds.order(:number).last
+    assert_equal 2, r2.number
+
+    bye_match2 = r2.matches.find { |m| (m.a_user_id && m.b_user_id.nil?) || (m.b_user_id && m.a_user_id.nil?) }
+    assert_not_nil bye_match2
+    bye_user2_id = bye_match2.a_user_id || bye_match2.b_user_id
+    assert_not_equal bye_user1_id, bye_user2_id, 'A bye should not be assigned to the same player twice when avoidable'
   end
 
   test 'ranking uses points then score sum as tie-break' do

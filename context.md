@@ -64,9 +64,15 @@ Uniladder is a game tracking and ranking app. Players can track their games and 
 - Bracket UI renders from the tree; “Open” link appears only when both players are assigned and the viewer is a participant or the organizer.
 
 #### Swiss/Open Tournaments (current)
-- Rounds progress via a single “Move to next round” action that closes the current round, validates all matches are reported, and creates next-round pairings (placeholder pairing: checked-in players or all registrants, deterministic pairing by twos). 
-- Rounds tab lists compact match boxes (same design as elimination); “Open” is visible to organizer and participants. Reporting creates a `Game::Event`, highlights the winner, and redirects back to the Rounds tab.
-- Ranking tab shows simple standings (win=1, draw=0.5); Swiss-specific tie-breakers will be added later (e.g., Buchholz, Sonneborn–Berger).
+- Rounds progress via a single “Move to next round” action that closes the current round, validates all matches are reported, and creates next-round pairings (checked-in players if any, otherwise all registrants).
+- Pairing strategy `by_points_random_within_group`:
+  - Players are grouped by their current points. Within each group, order is randomized but repeat pairings are avoided when possible.
+  - When a group has an odd number of players, we “fill the top spot first”: we pair as many players as possible inside the group and float the leftover down to the next group to be paired there, cascading as needed.
+  - This prevents creating pairings like 2 points vs 0 points when a 2 vs 1 and 1 vs 0 arrangement is possible.
+- Odd number of participants: one player receives a bye for the round.
+  - The bye is randomly picked among the players with the fewest points, avoiding assigning a bye to the same player twice in the same tournament when possible. If all players in the lowest group already received a bye, the selection escalates to the next group above.
+  - A bye is recorded as a one-sided match with an immediate win and counts as 1 point in standings and as a played game.
+- Ranking tab shows standings (win=1, draw=0.5) with tie-breakers (Score Sum, then None).
 
 ### Internationalization
 - Full support for multiple languages

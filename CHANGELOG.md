@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2025-08-13]
+- Swiss: Fix pairing to fill the top spot first when score groups are odd, preventing 2 vs 0 pairings when a 2 vs 1 and 1 vs 0 are possible.
+- Swiss: Implement deterministic bye assignment for odd participant counts (random among lowest points, avoid repeating same player), recorded as a free win and shown in UI.
+- Add tests covering the top-spot fill logic and bye behavior.
+
 ## [2025-08-10]
 
 ### Added

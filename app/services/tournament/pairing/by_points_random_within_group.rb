@@ -3,7 +3,7 @@
 module Tournament
   module Pairing
     class ByPointsRandomWithinGroup
-      Result = Struct.new(:pairs) # pairs: array of [user_a, user_b]
+      Result = Struct.new(:pairs, :bye_user) # pairs: array of [user_a, user_b]
 
       def initialize(tournament)
         @tournament = tournament
@@ -11,30 +11,71 @@ module Tournament
 
       def call
         users = eligible_users
-        return Result.new([]) if users.size < 2
+        return Result.new([], nil) if users.size < 2
 
-        points_map = current_points
-        grouped = users.group_by { |u| points_map[u.id] || 0.0 }
-
-        # Pair each group independently, randomizing order within score group
         rng = Random.new(seed_for_round)
-        pairs = []
-        leftover = []
 
-        grouped.keys.sort.reverse_each do |score|
-          group = grouped[score].shuffle(random: rng)
-          grp_pairs, grp_leftover = pair_group(group, rng)
-          pairs.concat(grp_pairs)
-          leftover.concat(grp_leftover)
+        # Points including previous byes
+        points_map = current_points
+
+        # Optionally pick a bye up-front from the lowest-points group to avoid
+        # breaking already-formed pairs later. Avoid assigning a bye to the same
+        # player twice in the same tournament when possible.
+        bye_user = nil
+        if users.size.odd?
+          bye_user = select_bye_user(users, points_map, rng)
+          users -= [bye_user]
         end
 
-        # Pair any leftover across adjacent groups (randomized)
-        leftover = leftover.shuffle(random: rng)
-        cross_pairs, = pair_group(leftover, rng)
-        pairs.concat(cross_pairs)
+        # Group remaining users by points and pair top-down, floating one player
+        # down when a group is odd so that the "top spot" is always filled first.
+        grouped = users.group_by { |u| points_map[u.id] || 0.0 }
+        scores_desc = grouped.keys.sort.reverse
 
-        # If still one leftover, unavoidable bye (ignore for now)
-        Result.new(pairs)
+        pairs = []
+        # Ensure deterministic shuffle within each group using shared rng
+        scores_desc.each_with_index do |score, idx|
+          group = (grouped[score] || []).shuffle(random: rng)
+
+          # If this is not the last group and the group is odd, pair internally
+          # and float one leftover down to the next group to fill the top spot.
+          if group.size.odd? && idx < (scores_desc.size - 1)
+            grp_pairs, grp_leftover = pair_group(group, rng)
+            pairs.concat(grp_pairs)
+            floater = grp_leftover.first
+
+            # Find a partner in the next groups, prioritizing the immediately
+            # lower score group and avoiding repeats when possible.
+            partner = nil
+            partner_group_score = nil
+            ((idx + 1)...scores_desc.size).each do |j|
+              lower_score = scores_desc[j]
+              lower_group = grouped[lower_score] || []
+              next if lower_group.empty?
+
+              # Prefer a partner not already played; fallback to first
+              cand = lower_group.find { |u| !already_played?(floater, u) }
+              cand ||= lower_group.first
+
+              partner = cand
+              partner_group_score = lower_score
+              break
+            end
+
+            if partner
+              grouped[partner_group_score].delete(partner)
+              pairs << [floater, partner]
+            else
+              # Should not happen given even total after bye removal, but keep safe
+              grouped[score] = [] # prevent infinite loop
+            end
+          else
+            grp_pairs, = pair_group(group, rng)
+            pairs.concat(grp_pairs)
+          end
+        end
+
+        Result.new(pairs, bye_user)
       end
 
       private
@@ -53,20 +94,54 @@ module Tournament
       def current_points
         points = Hash.new(0.0)
         tournament.matches.includes(:a_user, :b_user).find_each do |m|
-          next if m.result == 'pending'
-          next unless m.a_user && m.b_user
-
+          # Count wins including byes (one-sided matches)
           case m.result
           when 'a_win'
-            points[m.a_user.id] += 1.0
+            points[m.a_user_id] += 1.0 if m.a_user_id
           when 'b_win'
-            points[m.b_user.id] += 1.0
+            points[m.b_user_id] += 1.0 if m.b_user_id
           when 'draw'
-            points[m.a_user.id] += 0.5
-            points[m.b_user.id] += 0.5
+            # Only count draw if both players present
+            if m.a_user_id && m.b_user_id
+              points[m.a_user_id] += 0.5
+              points[m.b_user_id] += 0.5
+            end
           end
         end
         points
+      end
+
+      def users_with_bye_ids
+        ids = []
+        tournament.matches.find_each do |m|
+          next unless %w[a_win b_win].include?(m.result)
+
+          ids << m.a_user_id if m.a_user_id && m.b_user_id.nil? && m.result == 'a_win'
+          ids << m.b_user_id if m.b_user_id && m.a_user_id.nil? && m.result == 'b_win'
+        end
+        ids.compact.uniq
+      end
+
+      def select_bye_user(all_users, points_map, rng)
+        bye_already = users_with_bye_ids
+
+        # Build groups ascending by points (lowest rank first)
+        grouped = all_users.group_by { |u| points_map[u.id] || 0.0 }
+        scores_asc = grouped.keys.sort
+
+        candidate = nil
+        scores_asc.each do |score|
+          group = grouped[score]
+          # Prefer those without a previous bye
+          eligible = group.reject { |u| bye_already.include?(u.id) }
+          pool = eligible.any? ? eligible : group
+          next if pool.empty?
+
+          candidate = pool.sample(random: rng)
+          break
+        end
+
+        candidate
       end
 
       def seed_for_round
@@ -79,14 +154,12 @@ module Tournament
         leftover = group_users.dup
 
         # Greedy: try pairing avoiding repeats
-        used = []
         while leftover.size >= 2
           a = leftover.shift
           partner_idx = leftover.find_index { |b| !already_played?(a, b) }
           partner_idx ||= 0 # fallback to first (repeat allowed only if needed)
           b = leftover.delete_at(partner_idx)
           pairs << [a, b]
-          used.push(a, b)
         end
 
         [pairs, leftover]

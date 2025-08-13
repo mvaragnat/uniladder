@@ -64,6 +64,7 @@ fr:
       finalize: "Finaliser"
       organizer: "Organisateur"
       pending: "En attente"
+      bye: "Exempt"
       round_label: "Ronde %{n}"
       lock_warning: "La fermeture des inscriptions empêchera également les check-ins."
       sign_in_to_register_html: "Veuillez vous <a href=\"%{url}\">connecter</a> pour vous inscrire."
