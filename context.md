@@ -20,6 +20,20 @@ Uniladder is a game tracking and ranking app. Players can track their games and 
 - Has many players (through participations)
 - Tracks the outcome of the game
 
+### Tournament Domain
+- `Tournament::Tournament`
+  - Root entity for a competition. Attributes: `name`, `description`, `creator_id`, `game_system_id`, `format` (open|swiss|elimination), `rounds_count` (for Swiss), `starts_at`, `ends_at`, `state` (draft|registration|running|completed), `settings`.
+  - Associations: `has_many :registrations` (participants), `has_many :rounds`, `has_many :matches`.
+- `Tournament::Registration`
+  - Join between a `Tournament::Tournament` and a `User` with optional `seed` (Elo snapshot) and `status` (`pending|approved|checked_in`).
+  - Unique per (tournament, user).
+- `Tournament::Round`
+  - Represents a numbered round within a tournament (`number`, `state`), mainly used by Swiss/Open formats.
+  - `has_many :matches` in that round.
+- `Tournament::Match`
+  - The scheduled pairing inside a tournament; optional link to a `Game::Event` when reported.
+  - Attributes: `a_user_id`, `b_user_id`, `result` (`a_win|b_win|draw|pending`), optional `tournament_round_id` (for Swiss/Open), and for elimination only: `parent_match_id`, `child_slot`.
+
 ## Features
 
 ### Authentication & User Management
@@ -48,6 +62,11 @@ Uniladder is a game tracking and ranking app. Players can track their games and 
 - On lock, elimination tournaments generate a full bracket tree using `Tournament::BracketBuilder` (Elo-based seeding, power-of-two sizing, byes to top seeds).
 - Tree is modeled via `Tournament::Match` with `parent_match_id` and `child_slot`.
 - Bracket UI renders from the tree; “Open” link appears only when both players are assigned and the viewer is a participant or the organizer.
+
+#### Swiss/Open Tournaments (current)
+- Rounds progress via a single “Move to next round” action that closes the current round, validates all matches are reported, and creates next-round pairings (placeholder pairing: checked-in players or all registrants, deterministic pairing by twos). 
+- Rounds tab lists compact match boxes (same design as elimination); “Open” is visible to organizer and participants. Reporting creates a `Game::Event`, highlights the winner, and redirects back to the Rounds tab.
+- Ranking tab shows simple standings (win=1, draw=0.5); Swiss-specific tie-breakers will be added later (e.g., Buchholz, Sonneborn–Berger).
 
 ### Internationalization
 - Full support for multiple languages
