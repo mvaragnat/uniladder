@@ -29,7 +29,10 @@ class TournamentsController < ApplicationController
     @is_registered = Current.user && @tournament.registrations.exists?(user_id: Current.user.id)
     @my_registration = Current.user && @tournament.registrations.find_by(user_id: Current.user.id)
 
-    @standings = compute_simple_standings(@tournament)
+    standings_data = compute_standings_with_tiebreaks(@tournament)
+    @standings = standings_data[:rows]
+    @tiebreak1_label = standings_data[:tiebreak1_label]
+    @tiebreak2_label = standings_data[:tiebreak2_label]
 
     last_round = @rounds.last
     if last_round
@@ -147,15 +150,11 @@ class TournamentsController < ApplicationController
     next_number = (last_round&.number || 0) + 1
     new_round = @tournament.rounds.create!(number: next_number, state: 'pending')
 
-    # Pairings generation (simple placeholder)
-    players = @tournament.registrations.where(status: 'checked_in').includes(:user).map(&:user)
-    players = players.presence || @tournament.registrations.includes(:user).map(&:user)
-    players = players.sort_by(&:id)
-
-    players.each_slice(2) do |a, b|
-      break unless b
-
-      @tournament.matches.create!(round: new_round, a_user: a, b_user: b)
+    # Generate pairings via registry strategy
+    pairing_cls = Tournament::StrategyRegistry.pairing_strategies[Tournament::StrategyRegistry.default_pairing_key].last
+    pairs = pairing_cls.new(@tournament).call.pairs
+    pairs.each do |a_user, b_user|
+      @tournament.matches.create!(round: new_round, a_user: a_user, b_user: b_user)
     end
 
     redirect_to tournament_path(@tournament, tab: 0),
@@ -202,22 +201,28 @@ class TournamentsController < ApplicationController
     @tournament.state.in?(%w[draft registration])
   end
 
-  def compute_simple_standings(tournament)
-    points = Hash.new { |h, k| h[k] = 0.0 }
-    played = Hash.new(0)
+  # Returns rows with points and tiebreak columns and labels
+  def compute_standings_with_tiebreaks(tournament)
+    points = Hash.new(0.0)
+    score_sum = Hash.new(0.0)
 
     users = tournament.registrations.includes(:user).map(&:user)
     users.each do |u|
       points[u.id] ||= 0.0
-      played[u.id] ||= 0
+      score_sum[u.id] ||= 0.0
     end
 
-    tournament.matches.includes(:a_user, :b_user).find_each do |m|
-      next if m.result == 'pending'
+    tournament.matches.includes(:a_user, :b_user, :game_event).find_each do |m|
       next unless m.a_user && m.b_user
 
-      played[m.a_user.id] += 1
-      played[m.b_user.id] += 1
+      a_score = nil
+      b_score = nil
+      if m.game_event
+        a_part = m.game_event.game_participations.find_by(user: m.a_user)
+        b_part = m.game_event.game_participations.find_by(user: m.b_user)
+        a_score = a_part&.score.to_f
+        b_score = b_part&.score.to_f
+      end
 
       case m.result
       when 'a_win'
@@ -228,9 +233,29 @@ class TournamentsController < ApplicationController
         points[m.a_user.id] += 0.5
         points[m.b_user.id] += 0.5
       end
+
+      if a_score && b_score
+        score_sum[m.a_user.id] += a_score
+        score_sum[m.b_user.id] += b_score
+      end
     end
 
-    users.map { |u| { user: u, points: points[u.id], played: played[u.id] } }
-         .sort_by { |h| [-h[:points], h[:user].username] }
+    agg = { score_sum_by_user_id: score_sum }
+
+    t1 = Tournament::StrategyRegistry.tiebreak_strategies[Tournament::StrategyRegistry.default_tiebreak1_key]
+    t2 = Tournament::StrategyRegistry.tiebreak_strategies[Tournament::StrategyRegistry.default_tiebreak2_key]
+
+    rows = users.map do |u|
+      {
+        user: u,
+        points: points[u.id],
+        tiebreak1: t1.last.call(u.id, agg),
+        tiebreak2: t2.last.call(u.id, agg)
+      }
+    end
+
+    rows.sort_by! { |h| [-h[:points], -h[:tiebreak1], -h[:tiebreak2], h[:user].username] }
+
+    { rows: rows, tiebreak1_label: t1.first, tiebreak2_label: t2.first }
   end
 end

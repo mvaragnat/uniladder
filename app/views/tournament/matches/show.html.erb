@@ -1,8 +1,7 @@
 <div class="games-container">
   <h1>Match — <%= @tournament.name %></h1>
   <div style="margin: 0.5rem 0; display:flex; gap:0.5rem;">
-    <%= link_to 'All matches', tournament_tournament_matches_path(@tournament), class: 'btn' %>
-    <%= link_to 'Tournament', tournament_path(@tournament), class: 'btn' %>
+    <%= link_to 'Tournament', tournament_path(@tournament, tab: 0), class: 'btn' %>
   </div>
 
   <% if alert = flash[:alert] %>
