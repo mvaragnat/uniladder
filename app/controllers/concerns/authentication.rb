@@ -33,7 +33,14 @@ module Authentication
   end
 
   def request_authentication
-    session[:return_to_after_authenticating] = request.url
+    # Store a safe URL to return to after login.
+    # For non-GET requests (e.g., POST register), prefer the referrer so we redirect to a valid GET page.
+    session[:return_to_after_authenticating] = if request.get? || request.head?
+                                                 request.url
+                                               else
+                                                 request.referer.presence || root_url
+                                               end
+
     redirect_to new_session_path
   end
 

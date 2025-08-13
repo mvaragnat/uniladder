@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_09_124000) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_13_170000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -148,6 +148,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_09_124000) do
     t.string "slug"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "pairing_strategy_key", default: "by_points_random_within_group", null: false
+    t.string "tiebreak1_strategy_key", default: "score_sum", null: false
+    t.string "tiebreak2_strategy_key", default: "none", null: false
     t.index ["creator_id"], name: "index_tournaments_on_creator_id"
     t.index ["format"], name: "index_tournaments_on_format"
     t.index ["game_system_id"], name: "index_tournaments_on_game_system_id"

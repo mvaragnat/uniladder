@@ -36,8 +36,7 @@ Rails.application.routes.draw do
         delete :unregister
         post :check_in
         post :lock_registration
-        post :generate_pairings
-        post :close_round
+        post :next_round
         post :finalize
       end
 

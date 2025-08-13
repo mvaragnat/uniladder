@@ -33,9 +33,6 @@ module ApplicationHelper
       levels[level] << m
     end
 
-    # Prepare seeding (for debug labels)
-    seed_map = build_seed_map_for(tournament)
-
     # Layout constants
     cell_w = 240
     cell_h = 68
@@ -84,8 +81,6 @@ module ApplicationHelper
     height = (max_y + cell_h + padding)
     width = padding + (col_count * cell_w) + ((col_count - 1) * col_gap)
 
-    admin = Current.user && tournament.creator_id == Current.user.id
-
     content_tag(:div, style: 'overflow-x:auto; -webkit-overflow-scrolling:touch;') do
       content_tag(:svg, width: width, height: height + 20, style: 'display:block;') do
         header_labels = levels.each_with_index.map do |_matches, c|
@@ -123,70 +118,97 @@ module ApplicationHelper
           pos = positions[m.id]
           next nil unless pos
 
-          # Names with BYE logic: if leaf with a single player, display 'bye' instead of 'TBD'
-          a_set = m.a_user_id.present?
-          b_set = m.b_user_id.present?
-          a_bye = !a_set && b_set && m.child_matches.empty?
-          b_bye = a_set && !b_set && m.child_matches.empty?
-
-          a_name = if a_set
-                     m.a_user.username
-                   elsif a_bye
-                     'bye'
-                   else
-                     'TBD'
-                   end
-          b_name = if b_set
-                     m.b_user.username
-                   elsif b_bye
-                     'bye'
-                   else
-                     'TBD'
-                   end
-
-          a_seed = m.a_user_id && seed_map[m.a_user_id] ? "(S#{seed_map[m.a_user_id]})" : ''
-          b_seed = m.b_user_id && seed_map[m.b_user_id] ? "(S#{seed_map[m.b_user_id]})" : ''
-
-          if m.game_event_id
-            pa = m.game_event.game_participations.find_by(user: m.a_user)
-            pb = m.game_event.game_participations.find_by(user: m.b_user)
-            a_style = pa&.score.to_i > pb&.score.to_i ? 'font-weight:700; fill:#16a34a;' : ''
-            b_style = pb&.score.to_i > pa&.score.to_i ? 'font-weight:700; fill:#16a34a;' : ''
-            score_text = "#{pa&.score} - #{pb&.score}"
-            link = nil
-          else
-            a_style = ''
-            b_style = ''
-            score_text = t('tournaments.show.pending', default: 'Pending')
-            both_present = m.a_user_id.present? && m.b_user_id.present?
-            allowed = both_present && (admin || [m.a_user_id, m.b_user_id].compact.include?(Current.user&.id))
-            link = allowed ? tournament_tournament_match_path(tournament, m) : nil
-          end
-
-          parts = [
-            content_tag(:rect, nil, x: pos[:x], y: pos[:y], width: cell_w, height: cell_h, rx: 10, ry: 10,
-                                    fill: '#ffffff', stroke: '#e5e7eb', 'stroke-width': 3),
-            content_tag(:text, [a_name, a_seed].compact_blank.join(' '), x: pos[:x] + 14, y: pos[:y] + 26,
-                                                                         style: a_style, 'font-size': 14),
-            content_tag(:text, [b_name, b_seed].compact_blank.join(' '), x: pos[:x] + 14, y: pos[:y] + 50,
-                                                                         style: b_style, 'font-size': 14),
-            content_tag(:text, score_text, x: pos[:x] + cell_w - 14, y: pos[:y] + 38, 'text-anchor': 'end',
-                                           'font-size': 14, fill: '#6b7280')
-          ]
-
-          if link
-            # rubocop:disable Layout/LineLength
-            parts << content_tag(:a,
-                                 content_tag(:text, t('tournaments.open'), x: pos[:x] + cell_w - 14, y: pos[:y] + 60, 'text-anchor': 'end', 'font-size': 12, fill: '#2563eb'), href: link)
-            # rubocop:enable Layout/LineLength
-          end
-
-          safe_join(parts)
+          small_match_box(tournament, m, pos[:x], pos[:y], width: cell_w)
         end.compact
 
         safe_join([header_labels, elbows, boxes].flatten)
       end
     end
+  end
+
+  # Render a small match box (names, optional score, winner highlighted) as used in elimination bracket.
+  # Exposed to reuse in other formats (e.g., swiss/open rounds list) by calling this helper per match.
+  def small_match_box(tournament, match, pos_x, pos_y, options = {})
+    cell_w = options[:width].presence || 240
+    cell_h = 68
+    seed_map = build_seed_map_for(tournament)
+    admin = Current.user && tournament.creator_id == Current.user.id
+    show_seeds = options.key?(:show_seeds) ? options[:show_seeds] : tournament.elimination?
+
+    a_set = match.a_user_id.present?
+    b_set = match.b_user_id.present?
+    a_bye = !a_set && b_set && match.child_matches.empty?
+    b_bye = a_set && !b_set && match.child_matches.empty?
+
+    a_name = if a_set
+               match.a_user.username
+             elsif a_bye
+               t('tournaments.show.bye', default: 'Bye')
+             else
+               'TBD'
+             end
+    b_name = if b_set
+               match.b_user.username
+             elsif b_bye
+               t('tournaments.show.bye', default: 'Bye')
+             else
+               'TBD'
+             end
+
+    a_seed = if show_seeds && match.a_user_id && seed_map[match.a_user_id]
+               "(S#{seed_map[match.a_user_id]})"
+             else
+               ''
+             end
+    b_seed = if show_seeds && match.b_user_id && seed_map[match.b_user_id]
+               "(S#{seed_map[match.b_user_id]})"
+             else
+               ''
+             end
+
+    if match.game_event_id
+      pa = match.game_event.game_participations.find_by(user: match.a_user)
+      pb = match.game_event.game_participations.find_by(user: match.b_user)
+      a_style = pa&.score.to_i > pb&.score.to_i ? 'font-weight:700; fill:#16a34a;' : ''
+      b_style = pb&.score.to_i > pa&.score.to_i ? 'font-weight:700; fill:#16a34a;' : ''
+      score_text = "#{pa&.score} - #{pb&.score}"
+      link = nil
+    else
+      a_style = ''
+      b_style = ''
+      # If one-sided bye win, show BYE rather than Pending
+      score_text = if (match.a_user_id && match.b_user_id.nil? && match.result == 'a_win') ||
+                      (match.b_user_id && match.a_user_id.nil? && match.result == 'b_win')
+                     t('tournaments.show.bye', default: 'Bye')
+                   else
+                     t('tournaments.show.pending', default: 'Pending')
+                   end
+      both_present = match.a_user_id.present? && match.b_user_id.present?
+      allowed = both_present && (admin || [match.a_user_id, match.b_user_id].compact.include?(Current.user&.id))
+      link = allowed ? tournament_tournament_match_path(tournament, match) : nil
+    end
+
+    parts = [
+      content_tag(:rect, nil, x: pos_x, y: pos_y, width: cell_w, height: cell_h, rx: 10, ry: 10,
+                              fill: '#ffffff', stroke: '#e5e7eb', 'stroke-width': 3),
+      content_tag(:text, [a_name, a_seed].compact_blank.join(' '), x: pos_x + 14, y: pos_y + 26,
+                                                                   style: a_style, 'font-size': 14),
+      content_tag(:text, [b_name, b_seed].compact_blank.join(' '), x: pos_x + 14, y: pos_y + 50,
+                                                                   style: b_style, 'font-size': 14),
+      content_tag(:text, score_text, x: pos_x + cell_w - 14, y: pos_y + 38, 'text-anchor': 'end',
+                                     'font-size': 14, fill: '#6b7280')
+    ]
+
+    if link
+      parts << content_tag(
+        :a,
+        content_tag(:text, t('tournaments.open'), x: pos_x + cell_w - 14, y: pos_y + 60, 'text-anchor': 'end',
+                                                  'font-size': 12, fill: '#2563eb'),
+        href: link
+      )
+    end
+
+    safe_join(parts)
   end
 
   private

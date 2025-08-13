@@ -73,7 +73,8 @@ en:
       both_scores_required: "Both scores are required"
   tournaments:
     index_title: "Tournaments"
-    create_new: "Create new tournament"
+    new: 
+      create: "Create new tournament"
     open: "Open"
     index:
       accepting: "Accepting signups"
@@ -89,23 +90,48 @@ en:
       admin: "Admin"
       lock_registration: "Lock registration"
       lock_and_generate: "Lock registration and generate tournament tree"
-      generate_pairings: "Generate pairings"
-      close_round: "Close round"
       finalize: "Finalize"
       organizer: "Organizer"
       pending: "Pending"
+      bye: "Bye"
       round_label: "Round %{n}"
       lock_warning: "Locking registrations will also prevent further check-ins."
-    new:
-      title: "New Tournament"
-      name: "Name"
-      description: "Description"
-      game_system: "Game System"
-      format: "Format"
-      rounds_count: "Rounds (Swiss only)"
-      starts_at: "Starts at"
-      ends_at: "Ends at"
-      create: "Create"
+      sign_in_to_register_html: "Please <a href=\"%{url}\">sign in</a> to register."
+      rounds: "Rounds"
+      matches: "Matches"
+      no_matches: "No matches yet"
+      ranking: "Ranking"
+      no_standings: "No results yet"
+      move_to_next_round: "Move to next round"
+      standings:
+        games_played: "Games Played"
+        points: "Points"
+        score: "Score"
+      strategies:
+        explanation: "Ranking uses Points, then Tie-break #1, then Tie-break #2. Pairings avoid repeat matches when possible."
+        pairing_strategy: "Pairing strategy"
+        tiebreak1: "Tie-break #1"
+        tiebreak2: "Tie-break #2"
+        save: "Save settings"
+        explanations:
+          pairing:
+            by_points_random_within_group: "Pairs by points; random within ties; avoids repeats when possible."
+            default: "Pairs by current points; shuffles within tied groups; avoids repeats when possible."
+          tiebreak:
+            none: "No tie-break applied."
+            score_sum: "Higher total score across reported games ranks higher when points are equal."
+            default: "Tie-break rule applied when points are equal."
+        saved: "Settings saved"
+      admin:
+        actions: "Actions"
+        strategies: "Strategies"
+      tabs:
+        bracket: "Bracket"
+        participants: "Participants"
+        admin: "Admin"
+        overview: "Overview"
+        rounds: "Rounds"
+        ranking: "Ranking"
     state:
       draft: "Draft"
       registration: "Registration"
@@ -114,6 +140,7 @@ en:
     unauthorized: "Not authorized"
     not_allowed_state: "Not allowed in current state"
     draw_not_allowed: "Draw is not allowed in elimination"
+    cannot_advance_pending: "All matches must be completed to move to the next round"
   elo:
     title: "ELO"
     my_current_rankings: "My current ELO rankings"

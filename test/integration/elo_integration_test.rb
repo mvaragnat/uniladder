@@ -41,20 +41,21 @@ class EloIntegrationTest < ActionDispatch::IntegrationTest
     post check_in_tournament_path(t, locale: I18n.locale)
     assert_response :redirect
 
-    # Creator locks registration and generates pairings
+    # Creator locks registration and starts round (pairings)
     delete session_path(locale: I18n.locale)
     post session_path(locale: I18n.locale), params: { email_address: @creator.email_address, password: 'password' }
     post lock_registration_tournament_path(t, locale: I18n.locale)
     assert_response :redirect
-    post generate_pairings_tournament_path(t, locale: I18n.locale)
+    post next_round_tournament_path(t, locale: I18n.locale)
     assert_response :redirect
 
     match = t.matches.order(:created_at).last
     assert_not_nil match
 
     # Non-participant cannot report
+    stranger = User.create!(username: 'stranger', email_address: 'stranger@example.com', password: 'password')
     delete session_path(locale: I18n.locale)
-    post session_path(locale: I18n.locale), params: { email_address: 'one@example.com', password: 'password' }
+    post session_path(locale: I18n.locale), params: { email_address: stranger.email_address, password: 'password' }
     patch tournament_tournament_match_path(t, match, locale: I18n.locale),
           params: { tournament_match: { a_score: 1, b_score: 0 } }
     assert_redirected_to tournament_tournament_match_path(t, match, locale: I18n.locale)
@@ -64,7 +65,7 @@ class EloIntegrationTest < ActionDispatch::IntegrationTest
     post session_path(locale: I18n.locale), params: { email_address: @player2.email_address, password: 'password' }
     patch tournament_tournament_match_path(t, match, locale: I18n.locale),
           params: { tournament_match: { a_score: 1, b_score: 0 } }
-    assert_redirected_to tournament_tournament_match_path(t, match, locale: I18n.locale)
+    assert_redirected_to tournament_path(t, locale: I18n.locale, tab: 0)
 
     match.reload
     assert_equal 'a_win', match.result
@@ -82,7 +83,7 @@ class EloIntegrationTest < ActionDispatch::IntegrationTest
     post session_path(locale: I18n.locale), params: { email_address: @creator.email_address, password: 'password' }
     patch tournament_tournament_match_path(t, match, locale: I18n.locale),
           params: { tournament_match: { a_score: 0, b_score: 1 } }
-    assert_redirected_to tournament_tournament_match_path(t, match, locale: I18n.locale)
+    assert_redirected_to tournament_path(t, locale: I18n.locale, tab: 0)
     match.reload
     assert_equal 'b_win', match.result
   end

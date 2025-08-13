@@ -5,8 +5,8 @@ namespace :temp do
   task create_users_and_register: :environment do
     tournament = Tournament::Tournament.find(6)
 
-    28.times do |i|
-      user_number = i + 4
+    8.times do |i|
+      user_number = i + 2
 
       # user = User.create!(
       #   username: "user#{user_number}",

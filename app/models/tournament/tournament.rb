@@ -30,12 +30,39 @@ module Tournament
     validates :format, presence: true
     validates :rounds_count, numericality: { greater_than: 0 }, allow_nil: true
 
+    validate :strategy_keys_are_known
+
     def registrations_open?
       state.in?(%w[draft registration])
     end
 
     def state_label
       I18n.t("tournaments.state.#{state}", default: state.to_s.humanize)
+    end
+
+    def pairing_key
+      pairing_strategy_key.presence || ::Tournament::StrategyRegistry.default_pairing_key
+    end
+
+    def tiebreak1_key
+      tiebreak1_strategy_key.presence || ::Tournament::StrategyRegistry.default_tiebreak1_key
+    end
+
+    def tiebreak2_key
+      tiebreak2_strategy_key.presence || ::Tournament::StrategyRegistry.default_tiebreak2_key
+    end
+
+    private
+
+    def strategy_keys_are_known
+      pairings = ::Tournament::StrategyRegistry.pairing_strategies
+      tbs = ::Tournament::StrategyRegistry.tiebreak_strategies
+
+      errors.add(:pairing_strategy_key, 'is not a recognized pairing strategy') unless pairing_key.in?(pairings.keys)
+      errors.add(:tiebreak1_strategy_key, 'is not a recognized tie-break strategy') unless tiebreak1_key.in?(tbs.keys)
+      return if tiebreak2_key.in?(tbs.keys)
+
+      errors.add(:tiebreak2_strategy_key, 'is not a recognized tie-break strategy')
     end
   end
 end

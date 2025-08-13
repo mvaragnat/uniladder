@@ -44,7 +44,8 @@ fr:
       both_scores_required: "Les deux scores sont requis"
   tournaments:
     index_title: "Tournois"
-    create_new: "Créer un nouveau tournoi"
+    new: 
+      create: "Créer un nouveau tournoi"
     open: "Ouvrir"
     index:
       accepting: "Inscriptions ouvertes"
@@ -60,23 +61,48 @@ fr:
       admin: "Administration"
       lock_registration: "Fermer les inscriptions"
       lock_and_generate: "Fermer et générer l'arbre du tournoi"
-      generate_pairings: "Générer les appariements"
-      close_round: "Clore la ronde"
       finalize: "Finaliser"
       organizer: "Organisateur"
       pending: "En attente"
+      bye: "Exempt"
       round_label: "Ronde %{n}"
       lock_warning: "La fermeture des inscriptions empêchera également les check-ins."
-    new:
-      title: "Nouveau Tournoi"
-      name: "Nom"
-      description: "Description"
-      game_system: "Système de jeu"
-      format: "Format"
-      rounds_count: "Rondes (seulement pour le suisse)"
-      starts_at: "Début"
-      ends_at: "Fin"
-      create: "Créer"
+      sign_in_to_register_html: "Veuillez vous <a href=\"%{url}\">connecter</a> pour vous inscrire."
+      rounds: "Rondes"
+      matches: "Matchs"
+      no_matches: "Aucun match pour le moment"
+      ranking: "Classement"
+      no_standings: "Pas encore de résultats"
+      move_to_next_round: "Passer à la ronde suivante"
+      standings:
+        games_played: "Matchs joués"
+        points: "Points"
+        score: "Score"
+      strategies:
+        explanation: "Le classement utilise Points, puis Départage #1, puis Départage #2. Les appariements évitent les re-matchs quand possible."
+        pairing_strategy: "Stratégie d'appariement"
+        tiebreak1: "Départage #1"
+        tiebreak2: "Départage #2"
+        save: "Enregistrer"
+        explanations:
+          pairing:
+            by_points_random_within_group: "Apparie par points; aléatoire en cas d'égalité; évite les re-matchs quand possible."
+            default: "Apparie selon les points; mélange les égalités; évite les re-matchs quand possible."
+          tiebreak:
+            none: "Aucun départage appliqué."
+            score_sum: "La somme des scores sur les parties jouées départage en cas d'égalité de points."
+            default: "Règle de départage appliquée en cas d'égalité de points."
+        saved: "Paramètres enregistrés"
+      admin:
+        actions: "Actions"
+        strategies: "Stratégies"
+      tabs:
+        bracket: "Arbre"
+        participants: "Participants"
+        admin: "Administration"
+        overview: "Vue d'ensemble"
+        rounds: "Rondes"
+        ranking: "Classement"
     state:
       draft: "Brouillon"
       registration: "Inscriptions"
@@ -85,7 +111,7 @@ fr:
     unauthorized: "Non autorisé"
     not_allowed_state: "Action non autorisée dans l'état actuel"
     draw_not_allowed: "Match nul interdit en élimination"
-    score_required: "Les deux scores sont requis"
+    cannot_advance_pending: "Tous les matchs doivent être terminés pour passer à la ronde suivante"
   elo:
     title: "ELO"
     my_current_rankings: "Mes classements ELO actuels"
