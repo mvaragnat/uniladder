@@ -251,7 +251,7 @@ class TournamentsControllerTest < ActionDispatch::IntegrationTest
          params: { email_address: users(:player_two).email_address, password: 'password' }
     patch tournament_tournament_match_path(t, match, locale: I18n.locale),
           params: { tournament_match: { a_score: 1, b_score: 0 } }
-    assert_redirected_to tournament_tournament_match_path(t, match, locale: I18n.locale)
+    assert_redirected_to tournament_path(t, locale: I18n.locale, tab: 0)
 
     # Now moving to next round should work
     delete session_path(locale: I18n.locale)
@@ -332,7 +332,7 @@ class TournamentsControllerTest < ActionDispatch::IntegrationTest
          params: { email_address: users(:player_two).email_address, password: 'password' }
     patch tournament_tournament_match_path(t, match, locale: I18n.locale),
           params: { tournament_match: { a_score: 0, b_score: 1 } }
-    assert_redirected_to tournament_tournament_match_path(t, match, locale: I18n.locale)
+    assert_redirected_to tournament_path(t, locale: I18n.locale, tab: 0)
 
     match.reload
     assert_equal 'b_win', match.result

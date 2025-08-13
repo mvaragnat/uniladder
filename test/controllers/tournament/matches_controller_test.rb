@@ -61,7 +61,7 @@ module Tournament
       post session_path(locale: I18n.locale), params: { email_address: reporter.email_address, password: 'password' }
       patch tournament_tournament_match_path(t, match, locale: I18n.locale),
             params: { tournament_match: { a_score: 5, b_score: 3 } }
-      assert_redirected_to tournament_tournament_match_path(t, match, locale: I18n.locale)
+      assert_redirected_to tournament_path(t, locale: I18n.locale, tab: 0)
 
       match.reload
       parent = match.parent_match

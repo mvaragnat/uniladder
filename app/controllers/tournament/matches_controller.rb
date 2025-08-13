@@ -41,7 +41,7 @@ module Tournament
 
         propagate_winner_to_parent!(@match)
 
-        redirect_to tournament_tournament_match_path(@tournament, @match),
+        redirect_to tournament_path(@tournament, tab: 0),
                     notice: t('tournaments.match_updated', default: 'Match updated')
       else
         flash.now[:alert] = event.errors.full_messages.to_sentence
