@@ -27,53 +27,8 @@ module Tournament
           users -= [bye_user]
         end
 
-        # Group remaining users by points and pair top-down, floating one player
-        # down when a group is odd so that the "top spot" is always filled first.
-        grouped = users.group_by { |u| points_map[u.id] || 0.0 }
-        scores_desc = grouped.keys.sort.reverse
-
-        pairs = []
-        # Ensure deterministic shuffle within each group using shared rng
-        scores_desc.each_with_index do |score, idx|
-          group = (grouped[score] || []).shuffle(random: rng)
-
-          # If this is not the last group and the group is odd, pair internally
-          # and float one leftover down to the next group to fill the top spot.
-          if group.size.odd? && idx < (scores_desc.size - 1)
-            grp_pairs, grp_leftover = pair_group(group, rng)
-            pairs.concat(grp_pairs)
-            floater = grp_leftover.first
-
-            # Find a partner in the next groups, prioritizing the immediately
-            # lower score group and avoiding repeats when possible.
-            partner = nil
-            partner_group_score = nil
-            ((idx + 1)...scores_desc.size).each do |j|
-              lower_score = scores_desc[j]
-              lower_group = grouped[lower_score] || []
-              next if lower_group.empty?
-
-              # Prefer a partner not already played; fallback to first
-              cand = lower_group.find { |u| !already_played?(floater, u) }
-              cand ||= lower_group.first
-
-              partner = cand
-              partner_group_score = lower_score
-              break
-            end
-
-            if partner
-              grouped[partner_group_score].delete(partner)
-              pairs << [floater, partner]
-            else
-              # Should not happen given even total after bye removal, but keep safe
-              grouped[score] = [] # prevent infinite loop
-            end
-          else
-            grp_pairs, = pair_group(group, rng)
-            pairs.concat(grp_pairs)
-          end
-        end
+        grouped, scores_desc = group_users_by_points(users, points_map)
+        pairs = build_pairs_across_groups(grouped, scores_desc, rng)
 
         Result.new(pairs, bye_user)
       end
@@ -147,6 +102,53 @@ module Tournament
       def seed_for_round
         # Basic deterministic seed: round count + tournament id
         (tournament.rounds.maximum(:number) || 0) + tournament.id
+      end
+
+      def group_users_by_points(users, points_map)
+        grouped = users.group_by { |u| points_map[u.id] || 0.0 }
+        scores_desc = grouped.keys.sort.reverse
+        [grouped, scores_desc]
+      end
+
+      def build_pairs_across_groups(grouped, scores_desc, rng)
+        pairs = []
+        scores_desc.each_with_index do |score, idx|
+          group = (grouped[score] || []).shuffle(random: rng)
+
+          if group.size.odd? && idx < (scores_desc.size - 1)
+            grp_pairs, grp_leftover = pair_group(group, rng)
+            pairs.concat(grp_pairs)
+
+            floater = grp_leftover.first
+            partner, partner_group_score = find_partner_for_floater(floater, grouped, scores_desc, idx)
+
+            if partner
+              grouped[partner_group_score].delete(partner)
+              pairs << [floater, partner]
+            else
+              # Should not happen given even total after bye removal, but keep safe
+              grouped[score] = []
+            end
+          else
+            grp_pairs, = pair_group(group, rng)
+            pairs.concat(grp_pairs)
+          end
+        end
+        pairs
+      end
+
+      def find_partner_for_floater(floater, grouped, scores_desc, current_idx)
+        ((current_idx + 1)...scores_desc.size).each do |j|
+          lower_score = scores_desc[j]
+          lower_group = grouped[lower_score] || []
+          next if lower_group.empty?
+
+          candidate = lower_group.find { |u| !already_played?(floater, u) }
+          candidate ||= lower_group.first
+
+          return [candidate, lower_score] if candidate
+        end
+        [nil, nil]
       end
 
       def pair_group(group_users, _rng)

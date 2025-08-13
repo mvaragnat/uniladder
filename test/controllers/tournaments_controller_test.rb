@@ -466,11 +466,12 @@ class TournamentsControllerTest < ActionDispatch::IntegrationTest
     r.matches.each do |m|
       next unless m.a_user && m.b_user
 
-      pa = points[m.a_user_id]
-      pb = points[m.b_user_id]
-      assert_not ((pa == 2.0 && pb == 0.0) || (pa == 0.0 && pb == 2.0)), 'Should not pair 2 vs 0 in this scenario'
-      has_2v2 ||= pa == 2.0 && pb == 2.0
-      has_2v1 ||= (pa == 2.0 && pb == 1.0) || (pa == 1.0 && pb == 2.0)
+      pa2 = (points[m.a_user_id].to_f * 2).round
+      pb2 = (points[m.b_user_id].to_f * 2).round
+      assert_not ((pa2 == 4 && pb2.zero?) || (pa2.zero? && pb2 == 4)),
+                 'Should not pair 2 vs 0'
+      has_2v2 ||= pa2 == 4 && pb2 == 4
+      has_2v1 ||= (pa2 == 4 && pb2 == 2) || (pa2 == 2 && pb2 == 4)
     end
     assert has_2v2, 'Expected one 2 vs 2 pairing'
     assert has_2v1, 'Expected one 2 vs 1 pairing filling top spot'

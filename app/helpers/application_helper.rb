@@ -118,7 +118,7 @@ module ApplicationHelper
           pos = positions[m.id]
           next nil unless pos
 
-          small_match_box(tournament, m, pos[:x], pos[:y], cell_w)
+          small_match_box(tournament, m, pos[:x], pos[:y], width: cell_w)
         end.compact
 
         safe_join([header_labels, elbows, boxes].flatten)
@@ -128,12 +128,12 @@ module ApplicationHelper
 
   # Render a small match box (names, optional score, winner highlighted) as used in elimination bracket.
   # Exposed to reuse in other formats (e.g., swiss/open rounds list) by calling this helper per match.
-  def small_match_box(tournament, match, pos_x, pos_y, width = 240, show_seeds: nil)
-    cell_w = width
+  def small_match_box(tournament, match, pos_x, pos_y, options = {})
+    cell_w = options[:width].presence || 240
     cell_h = 68
     seed_map = build_seed_map_for(tournament)
     admin = Current.user && tournament.creator_id == Current.user.id
-    show_seeds = tournament.elimination? if show_seeds.nil?
+    show_seeds = options.key?(:show_seeds) ? options[:show_seeds] : tournament.elimination?
 
     a_set = match.a_user_id.present?
     b_set = match.b_user_id.present?

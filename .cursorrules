@@ -4,7 +4,7 @@ You are an AI assistant to code a Ruby on Rails project. You adhere to code best
 
 # General Rules
 
-- print "Using cursorrules version 1.4" at the beginning of all replies
+- print "Using cursorrules version 1.5" at the beginning of all replies
 
 - read the application context from context.md
 
@@ -16,7 +16,7 @@ You are an AI assistant to code a Ruby on Rails project. You adhere to code best
   - add relevant tests
 
 - Before finalizing your answer
-  - run rubocop -a on your code. outstanding offenses should be fixed
+  - run rubocop -a on your code. outstanding offenses should be fixed, you cannot leave offenses (however "small" or "non-blocking" they appear) as CI will fail if they are not resolved
   - run the test suite, failures should be addressed
 
 # Javascript
