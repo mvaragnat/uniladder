@@ -363,4 +363,134 @@ class TournamentsControllerTest < ActionDispatch::IntegrationTest
     assert_includes @response.body, mine1.name
     assert_includes @response.body, mine2.name
   end
+
+  test 'admin can change strategies and they persist' do
+    post session_path(locale: I18n.locale), params: { email_address: @user.email_address, password: 'password' }
+    post tournaments_path(locale: I18n.locale), params: {
+      tournament: { name: 'Strategies', description: 'S', game_system_id: game_systems(:chess).id, format: 'swiss' }
+    }
+    t = Tournament::Tournament.order(:created_at).last
+
+    patch tournament_path(t, locale: I18n.locale), params: {
+      tournament: {
+        pairing_strategy_key: 'by_points_random_within_group',
+        tiebreak1_strategy_key: 'score_sum',
+        tiebreak2_strategy_key: 'none'
+      }
+    }
+    assert_redirected_to tournament_path(t, locale: I18n.locale, tab: 3)
+
+    t.reload
+    assert_equal 'by_points_random_within_group', t.pairing_strategy_key
+    assert_equal 'score_sum', t.tiebreak1_strategy_key
+    assert_equal 'none', t.tiebreak2_strategy_key
+  end
+
+  test 'pairings avoid repeats when possible and group by points' do
+    # Setup 4 players swiss
+    post session_path(locale: I18n.locale), params: { email_address: @user.email_address, password: 'password' }
+    post tournaments_path(locale: I18n.locale), params: {
+      tournament: { name: 'Swiss Repeat', description: 'S', game_system_id: game_systems(:chess).id, format: 'swiss' }
+    }
+    t = Tournament::Tournament.order(:created_at).last
+
+    # Create two additional users
+    p3 = User.create!(username: 'player_three', email_address: 'three@example.com', password: 'password')
+    p4 = User.create!(username: 'player_four', email_address: 'four@example.com', password: 'password')
+
+    # Register 4 players and check in
+    [users(:player_one), users(:player_two), p3, p4].each do |u|
+      delete session_path(locale: I18n.locale)
+      post session_path(locale: I18n.locale), params: { email_address: u.email_address, password: 'password' }
+      post register_tournament_path(t, locale: I18n.locale)
+      post check_in_tournament_path(t, locale: I18n.locale)
+    end
+
+    # Start tournament
+    delete session_path(locale: I18n.locale)
+    post session_path(locale: I18n.locale), params: { email_address: @user.email_address, password: 'password' }
+    post lock_registration_tournament_path(t, locale: I18n.locale)
+
+    # Round 1
+    post next_round_tournament_path(t, locale: I18n.locale)
+    r1_matches = t.rounds.order(:number).last.matches.to_a
+    assert_equal 1, t.rounds.order(:number).last.number
+
+    # Report one result so points differ (to create groups)
+    m = r1_matches.first
+    delete session_path(locale: I18n.locale)
+    post session_path(locale: I18n.locale), params: { email_address: m.a_user.email_address, password: 'password' }
+    patch tournament_tournament_match_path(t, m, locale: I18n.locale),
+          params: { tournament_match: { a_score: 1, b_score: 0 } }
+
+    # Finish the other match too
+    other = (r1_matches - [m]).first
+    delete session_path(locale: I18n.locale)
+    post session_path(locale: I18n.locale), params: { email_address: other.a_user.email_address, password: 'password' }
+    patch tournament_tournament_match_path(t, other, locale: I18n.locale),
+          params: { tournament_match: { a_score: 1, b_score: 0 } }
+
+    # Round 2 should avoid pairing the same players if possible
+    delete session_path(locale: I18n.locale)
+    post session_path(locale: I18n.locale), params: { email_address: @user.email_address, password: 'password' }
+    post next_round_tournament_path(t, locale: I18n.locale)
+
+    r2 = t.rounds.order(:number).last
+    assert_equal 2, r2.number
+
+    # For each match in R2, ensure it's not a repeat of R1 if possible
+    r2.matches.each do |m2|
+      repeated = r1_matches.any? do |m1|
+        (m1.a_user_id == m2.a_user_id && m1.b_user_id == m2.b_user_id) ||
+          (m1.a_user_id == m2.b_user_id && m1.b_user_id == m2.a_user_id)
+      end
+      assert_not repeated, 'Pairing should avoid repeats when possible'
+    end
+  end
+
+  test 'ranking uses points then score sum as tie-break' do
+    # Setup swiss with two users and one match with scores
+    post session_path(locale: I18n.locale), params: { email_address: @user.email_address, password: 'password' }
+    post tournaments_path(locale: I18n.locale), params: {
+      tournament: { name: 'Swiss Rank', description: 'S', game_system_id: game_systems(:chess).id, format: 'swiss' }
+    }
+    t = Tournament::Tournament.order(:created_at).last
+
+    # Register two users and check in
+    [users(:player_one), users(:player_two)].each do |u|
+      delete session_path(locale: I18n.locale)
+      post session_path(locale: I18n.locale), params: { email_address: u.email_address, password: 'password' }
+      post register_tournament_path(t, locale: I18n.locale)
+      post check_in_tournament_path(t, locale: I18n.locale)
+    end
+
+    # Start first round and play draw with custom scores to force tie-break
+    delete session_path(locale: I18n.locale)
+    post session_path(locale: I18n.locale), params: { email_address: @user.email_address, password: 'password' }
+    post lock_registration_tournament_path(t, locale: I18n.locale)
+    post next_round_tournament_path(t, locale: I18n.locale)
+
+    match = t.rounds.last.matches.first
+
+    # Participant reports draw but with different score sums
+    delete session_path(locale: I18n.locale)
+    post session_path(locale: I18n.locale), params: { email_address: match.a_user.email_address, password: 'password' }
+    patch tournament_tournament_match_path(t, match, locale: I18n.locale),
+          params: { tournament_match: { a_score: 3, b_score: 3, result: 'draw' } }
+
+    # Manually adjust scores on event to simulate tie-break by score sum
+    match.reload
+    event = match.game_event
+    a_part = event.game_participations.find_by(user: match.a_user)
+    b_part = event.game_participations.find_by(user: match.b_user)
+    a_part.update!(score: 10)
+    b_part.update!(score: 5)
+
+    # Visit ranking tab and ensure the higher score_sum ranks first
+    get tournament_path(t, locale: I18n.locale, tab: 2)
+    assert_response :success
+    body = @response.body
+    first_row = body.split('<tbody>')[1].split('</tbody>')[0].split('<tr>')[1]
+    assert_includes first_row, match.a_user.username
+  end
 end

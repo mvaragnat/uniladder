@@ -4,8 +4,8 @@ class TournamentsController < ApplicationController
   allow_unauthenticated_access only: %i[index show]
   before_action :authenticate!, except: %i[index show]
   before_action :set_tournament,
-                only: %i[show register unregister check_in lock_registration finalize next_round]
-  before_action :authorize_admin!, only: %i[lock_registration finalize next_round]
+                only: %i[show register unregister check_in lock_registration finalize next_round update]
+  before_action :authorize_admin!, only: %i[lock_registration finalize next_round update]
 
   def index
     # Populate Current.session/user even when authentication is not required
@@ -28,6 +28,10 @@ class TournamentsController < ApplicationController
     @active_tab_index = (params[:tab].presence || 0).to_i
     @is_registered = Current.user && @tournament.registrations.exists?(user_id: Current.user.id)
     @my_registration = Current.user && @tournament.registrations.find_by(user_id: Current.user.id)
+
+    # Expose strategies for Admin dropdowns
+    @pairing_strategies = Tournament::StrategyRegistry.pairing_strategies
+    @tiebreak_strategies = Tournament::StrategyRegistry.tiebreak_strategies
 
     standings_data = compute_standings_with_tiebreaks(@tournament)
     @standings = standings_data[:rows]
@@ -151,7 +155,7 @@ class TournamentsController < ApplicationController
     new_round = @tournament.rounds.create!(number: next_number, state: 'pending')
 
     # Generate pairings via registry strategy
-    pairing_cls = Tournament::StrategyRegistry.pairing_strategies[Tournament::StrategyRegistry.default_pairing_key].last
+    pairing_cls = Tournament::StrategyRegistry.pairing_strategies[@tournament.pairing_key].last
     pairs = pairing_cls.new(@tournament).call.pairs
     pairs.each do |a_user, b_user|
       @tournament.matches.create!(round: new_round, a_user: a_user, b_user: b_user)
@@ -171,6 +175,17 @@ class TournamentsController < ApplicationController
 
     @tournament.update!(state: 'completed')
     redirect_to tournament_path(@tournament), notice: t('tournaments.finalized', default: 'Tournament finalized')
+  end
+
+  def update
+    admin_tab_index = @tournament.elimination? ? 2 : 3
+    if @tournament.update(tournament_params)
+      redirect_to tournament_path(@tournament, tab: admin_tab_index),
+                  notice: t('tournaments.updated', default: 'Tournament updated')
+    else
+      redirect_to tournament_path(@tournament, tab: admin_tab_index),
+                  alert: @tournament.errors.full_messages.join(', ')
+    end
   end
 
   private
@@ -194,7 +209,8 @@ class TournamentsController < ApplicationController
 
   def tournament_params
     params.require(:tournament).permit(:name, :description, :game_system_id, :format, :rounds_count, :starts_at,
-                                       :ends_at)
+                                       :ends_at,
+                                       :pairing_strategy_key, :tiebreak1_strategy_key, :tiebreak2_strategy_key)
   end
 
   def can_register?
@@ -212,6 +228,28 @@ class TournamentsController < ApplicationController
       score_sum[u.id] ||= 0.0
     end
 
+    aggregate_points_and_scores(tournament, points, score_sum)
+
+    agg = { score_sum_by_user_id: score_sum }
+
+    t1 = Tournament::StrategyRegistry.tiebreak_strategies[tournament.tiebreak1_key]
+    t2 = Tournament::StrategyRegistry.tiebreak_strategies[tournament.tiebreak2_key]
+
+    rows = users.map do |u|
+      {
+        user: u,
+        points: points[u.id],
+        tiebreak1: t1.last.call(u.id, agg),
+        tiebreak2: t2.last.call(u.id, agg)
+      }
+    end
+
+    rows.sort_by! { |h| [-h[:points], -h[:tiebreak1], -h[:tiebreak2], h[:user].username] }
+
+    { rows: rows, tiebreak1_label: t1.first, tiebreak2_label: t2.first }
+  end
+
+  def aggregate_points_and_scores(tournament, points, score_sum)
     tournament.matches.includes(:a_user, :b_user, :game_event).find_each do |m|
       next unless m.a_user && m.b_user
 
@@ -234,28 +272,10 @@ class TournamentsController < ApplicationController
         points[m.b_user.id] += 0.5
       end
 
-      if a_score && b_score
-        score_sum[m.a_user.id] += a_score
-        score_sum[m.b_user.id] += b_score
-      end
+      next unless a_score && b_score
+
+      score_sum[m.a_user.id] += a_score
+      score_sum[m.b_user.id] += b_score
     end
-
-    agg = { score_sum_by_user_id: score_sum }
-
-    t1 = Tournament::StrategyRegistry.tiebreak_strategies[Tournament::StrategyRegistry.default_tiebreak1_key]
-    t2 = Tournament::StrategyRegistry.tiebreak_strategies[Tournament::StrategyRegistry.default_tiebreak2_key]
-
-    rows = users.map do |u|
-      {
-        user: u,
-        points: points[u.id],
-        tiebreak1: t1.last.call(u.id, agg),
-        tiebreak2: t2.last.call(u.id, agg)
-      }
-    end
-
-    rows.sort_by! { |h| [-h[:points], -h[:tiebreak1], -h[:tiebreak2], h[:user].username] }
-
-    { rows: rows, tiebreak1_label: t1.first, tiebreak2_label: t2.first }
   end
 end

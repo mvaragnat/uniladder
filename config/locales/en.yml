@@ -73,7 +73,8 @@ en:
       both_scores_required: "Both scores are required"
   tournaments:
     index_title: "Tournaments"
-    create_new: "Create new tournament"
+    new: 
+      create: "Create new tournament"
     open: "Open"
     index:
       accepting: "Accepting signups"
@@ -101,6 +102,27 @@ en:
       ranking: "Ranking"
       no_standings: "No results yet"
       move_to_next_round: "Move to next round"
+      standings:
+        games_played: "Games Played"
+        points: "Points"
+        score: "Score"
+      strategies:
+        explanation: "Ranking uses Points, then Tie-break #1, then Tie-break #2. Pairings avoid repeat matches when possible."
+        pairing_strategy: "Pairing strategy"
+        tiebreak1: "Tie-break #1"
+        tiebreak2: "Tie-break #2"
+        save: "Save settings"
+        explanations:
+          pairing:
+            by_points_random_within_group: "Pairs by points; random within ties; avoids repeats when possible."
+            default: "Pairs by current points; shuffles within tied groups; avoids repeats when possible."
+          tiebreak:
+            none: "No tie-break applied."
+            score_sum: "Higher total score across reported games ranks higher when points are equal."
+            default: "Tie-break rule applied when points are equal."
+      admin:
+        actions: "Actions"
+        strategies: "Strategies"
       tabs:
         bracket: "Bracket"
         participants: "Participants"
