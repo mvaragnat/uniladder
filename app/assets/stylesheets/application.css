@@ -105,6 +105,38 @@ input:focus, select:focus, textarea:focus {
 .page-header h1 { color: var(--text-strong); }
 .games-container { width: 100%; max-width: 720px; margin: 0 auto; padding: 0 1rem; }
 
+/***** Hero (Home) *****/
+.hero {
+  position: relative;
+  min-height: calc(100vh - 64px);
+  display: grid;
+  place-items: center;
+  padding: 2rem 1rem;
+  overflow: hidden;
+  background: #000;
+}
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url('/ork-wallpaper.jpg');
+  background-size: cover;
+  background-position: center;
+  opacity: 0.35;
+}
+.hero__content {
+  position: relative;
+  z-index: 1;
+  max-width: 960px;
+  width: 100%;
+  margin: 0 auto;
+  text-align: center;
+  color: #fff;
+}
+.hero-title { font-size: 2.5rem; color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+.hero-subtitle { font-size: 1.25rem; color: #e5e7eb; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+.button-row { display: inline-flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center; }
+
 /***** Cards *****/
 .card { background: #ffffff; border: 3px solid var(--gray-300); border-radius: 0.5rem; padding: 1.5rem; box-shadow: 0 1px 2px rgba(0,0,0,0.04); margin-bottom: 1.5rem; }
 .card--win { border-color: var(--green-500); }

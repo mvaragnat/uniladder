@@ -52,6 +52,10 @@ en:
     shared:
       cancel: "Cancel"
   vs: "vs"
+  home:
+    subtitle: "Tournaments and ELO rankings for any game system"
+    browse_tournaments: "Browse tournaments"
+    see_elo: "See ELO rankings"
   games:
     add_title: "Add a non-Tournament game"
     add: "Add a game"
