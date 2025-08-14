@@ -13,6 +13,53 @@ module Tournament
 
     def show; end
 
+    def new
+      unless can_add_match?
+        return redirect_back(fallback_location: tournament_path(@tournament),
+                             alert: t('tournaments.unauthorized', default: 'Not authorized'))
+      end
+
+      @game = Game::Event.new
+      # Prebuild current user participation for convenience
+      @game.game_participations.build(user: Current.user)
+    end
+
+    def create
+      unless can_add_match?
+        return redirect_back(fallback_location: tournament_path(@tournament),
+                             alert: t('tournaments.unauthorized', default: 'Not authorized'))
+      end
+
+      game = Game::Event.new(game_params.merge(played_at: Time.current))
+      if game.save
+        match = @tournament.matches.create!(
+          a_user_id: game.game_participations.first.user_id,
+          b_user_id: game.game_participations.second.user_id,
+          game_event: game,
+          result: deduce_result(game.game_participations.first.score.to_i, game.game_participations.second.score.to_i)
+        )
+
+        respond_to do |format|
+          format.turbo_stream do
+            render turbo_stream: [
+              turbo_stream.remove('no-matches-message'),
+              turbo_stream.prepend('matches-list', small_match_list_item(match)),
+              turbo_stream.replace('modal', '')
+            ]
+          end
+          format.html do
+            redirect_to tournament_path(@tournament, tab: 0),
+                        notice: t('tournaments.match_updated', default: 'Match updated')
+          end
+        end
+      else
+        respond_to do |format|
+          format.turbo_stream { render :new, status: :unprocessable_entity }
+          format.html { render :new, status: :unprocessable_entity }
+        end
+      end
+    end
+
     def update
       a_score = params.dig(:tournament_match, :a_score)
       b_score = params.dig(:tournament_match, :b_score)
@@ -97,5 +144,41 @@ module Tournament
       redirect_to tournament_tournament_match_path(@tournament, @match),
                   alert: t('tournaments.unauthorized', default: 'Not authorized')
     end
+
+    def can_add_match?
+      return false unless @tournament.open?
+      return false unless @tournament.running?
+      return false unless Current.user
+
+      # Only participants (registered) or organizer can add
+      participant_ids = @tournament.registrations.pluck(:user_id)
+      (@tournament.creator_id == Current.user.id) || participant_ids.include?(Current.user.id)
+    end
+
+    def small_match_list_item(match)
+      view_context.content_tag(:li, class: 'card', style: 'margin-bottom:0.5rem;') do
+        view_context.content_tag(:div, class: 'card-body', style: 'display:flex; justify-content:space-between;') do
+          view_context.safe_join([
+                                   "#{match.a_user.username} vs #{match.b_user.username}",
+                                   view_context.content_tag(:span, match.result),
+                                   view_context.link_to(
+                                     t('tournaments.open'),
+                                     view_context.tournament_tournament_match_path(@tournament, match),
+                                     class: 'btn'
+                                   )
+                                 ], ' ')
+        end
+      end
+    end
+
+    # rubocop:disable Rails/StrongParametersExpect
+    def game_params
+      key = params.key?(:event) ? :event : :game_event
+      params.require(key).permit(
+        :game_system_id,
+        game_participations_attributes: %i[user_id score]
+      )
+    end
+    # rubocop:enable Rails/StrongParametersExpect
   end
 end

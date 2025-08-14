@@ -51,6 +51,7 @@ en:
       fr: "Français"
     shared:
       cancel: "Cancel"
+  vs: "vs"
   games:
     add_title: "Add a non-Tournament game"
     add: "Add a game"
@@ -132,6 +133,7 @@ en:
         overview: "Overview"
         rounds: "Rounds"
         ranking: "Ranking"
+        matches: "Matches"
     state:
       draft: "Draft"
       registration: "Registration"

@@ -1,0 +1,51 @@
+<%= turbo_frame_tag "modal" do %>
+	<div class="modal-overlay">
+		<div class="modal-card">
+			<h2><%= t('tournaments.show.matches', default: 'Matches') %> — <%= @tournament.name %></h2>
+
+			<%= form_with(model: @game, url: tournament_tournament_matches_path(@tournament), scope: :game_event, data: { controller: "game-form", action: "submit->game-form#validate player-selected->game-form#showScores player-removed->game-form#toggleScores" }) do |form| %>
+				<div data-game-form-target="error" class="hidden" style="color:#dc2626;font-size:0.875rem;"></div>
+
+				<div>
+					<%= form.label :game_system_id, t('games.new.system') %>
+					<%= form.collection_select :game_system_id,
+						@tournament.game_system.class.all, :id, :name,
+						{ selected: @tournament.game_system_id } %>
+				</div>
+
+				<div data-controller="player-search">
+					<label><%= t('games.new.participants') %></label>
+					<div>
+						<input type="text"
+								 data-player-search-target="input"
+								 data-action="input->player-search#search"
+								 data-tournament-id="<%= @tournament.id %>"
+								 placeholder="<%= t('games.new.search_placeholder') %>">
+					</div>
+					<div data-player-search-target="results"></div>
+					<div data-player-search-target="selected" style="margin-top: 0.5rem;"></div>
+				</div>
+
+				<div data-game-form-target="scores" class="hidden" style="margin-top: 1rem;">
+					<%= form.fields_for :game_participations do |p_form| %>
+						<div>
+							<%= p_form.label :score, t('games.new.your_score') %>
+							<%= p_form.number_field :score, min: 0 %>
+							<%= p_form.hidden_field :user_id %>
+						</div>
+					<% end %>
+
+					<div>
+						<label><%= t('games.new.opponent_score') %></label>
+						<input type="number" min="0" name="game_event[game_participations_attributes][1][score]" />
+					</div>
+				</div>
+
+				<div style="display:flex;justify-content:flex-end;gap:0.75rem;margin-top:1rem;">
+					<%= link_to t('layouts.shared.cancel'), "#", data: { action: "click->turbo-modal#close" }, class: "btn" %>
+					<%= form.submit t('games.new.submit'), class: "btn btn-primary" %>
+				</div>
+			<% end %>
+		</div>
+	</div>
+<% end %> 

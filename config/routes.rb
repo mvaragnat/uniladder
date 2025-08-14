@@ -42,7 +42,7 @@ Rails.application.routes.draw do
 
       namespace :tournament do
         resources :rounds, only: %i[index show]
-        resources :matches, only: %i[index show update]
+        resources :matches, only: %i[index show update new create]
       end
     end
   end

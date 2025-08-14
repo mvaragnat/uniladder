@@ -11,7 +11,11 @@ export default class extends Controller {
     const query = this.inputTarget.value
     if (query.length < 2) return
 
-    fetch(`/users/search?q=${encodeURIComponent(query)}`)
+    const tId = this.inputTarget.dataset.tournamentId
+    const url = tId ? `/users/search?q=${encodeURIComponent(query)}&tournament_id=${encodeURIComponent(tId)}`
+                    : `/users/search?q=${encodeURIComponent(query)}`
+
+    fetch(url)
       .then(response => response.json())
       .then(data => this.showResults(data))
   }
