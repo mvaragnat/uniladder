@@ -34,16 +34,22 @@ module Tournament
 
       # Register and check in all three players
       post register_tournament_path(t, locale: I18n.locale)
+      f1 = Game::Faction.find_or_create_by!(game_system: t.game_system, name: 'White')
+      t.registrations.find_by(user: @creator).update!(faction: f1)
       post check_in_tournament_path(t, locale: I18n.locale)
 
       delete session_path(locale: I18n.locale)
       post session_path(locale: I18n.locale), params: { email_address: @p2.email_address, password: 'password' }
       post register_tournament_path(t, locale: I18n.locale)
+      f2 = Game::Faction.find_or_create_by!(game_system: t.game_system, name: 'Black')
+      t.registrations.find_by(user: @p2).update!(faction: f2)
       post check_in_tournament_path(t, locale: I18n.locale)
 
       delete session_path(locale: I18n.locale)
       post session_path(locale: I18n.locale), params: { email_address: @p3.email_address, password: 'password' }
       post register_tournament_path(t, locale: I18n.locale)
+      f3 = Game::Faction.find_or_create_by!(game_system: t.game_system, name: 'Third')
+      t.registrations.find_by(user: @p3).update!(faction: f3)
       post check_in_tournament_path(t, locale: I18n.locale)
 
       # Lock (build bracket with a bye for the top seed)

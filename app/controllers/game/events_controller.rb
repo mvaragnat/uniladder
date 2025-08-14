@@ -22,7 +22,7 @@ module Game
       key = params.key?(:event) ? :event : :game_event
       params.require(key).permit(
         :game_system_id,
-        game_participations_attributes: %i[user_id score]
+        game_participations_attributes: %i[user_id score faction_id]
       )
     end
     # rubocop:enable Rails/StrongParametersExpect

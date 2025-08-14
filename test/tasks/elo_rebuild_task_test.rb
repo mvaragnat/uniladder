@@ -13,10 +13,13 @@ class EloRebuildTaskTest < ActiveSupport::TestCase
   end
 
   test 'elo:rebuild reproduces online results' do
+    f1 = Game::Faction.find_or_create_by!(game_system: @system, name: 'White')
+    f2 = Game::Faction.find_or_create_by!(game_system: @system, name: 'Black')
+
     2.times do |i|
       event = Game::Event.new(game_system: @system, played_at: Time.current + i.minutes)
-      event.game_participations.build(user: @user1, score: 20 + i)
-      event.game_participations.build(user: @user2, score: 15 + i)
+      event.game_participations.build(user: @user1, score: 20 + i, faction: f1)
+      event.game_participations.build(user: @user2, score: 15 + i, faction: f2)
       event.save!
       Elo::Updater.new.update_for_event(event)
     end

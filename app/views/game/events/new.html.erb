@@ -10,7 +10,8 @@
           <%= form.label :game_system_id, t('games.new.system') %>
           <%= form.collection_select :game_system_id, 
               Game::System.all, :id, :name,
-              { prompt: t('games.new.select_system') } %>
+              { prompt: t('games.new.select_system') },
+              { data: { action: 'change->game-form#toggleScores' } } %>
         </div>
 
         <div data-controller="player-search">
@@ -25,18 +26,26 @@
           <div data-player-search-target="selected" style="margin-top: 0.5rem;"></div>
         </div>
 
-        <div data-game-form-target="scores" class="hidden" style="margin-top: 1rem;">
+        <div data-game-form-target="scores" class="hidden" style="margin-top: 1rem; display:grid; gap:0.75rem;">
           <%= form.fields_for :game_participations do |p_form| %>
             <div>
               <%= p_form.label :score, t('games.new.your_score') %>
               <%= p_form.number_field :score, min: 0 %>
               <%= p_form.hidden_field :user_id %>
             </div>
+            <div>
+              <%= p_form.label :faction_id, t('games.new.your_faction', default: 'Your faction') %>
+              <%= p_form.select :faction_id, [], { prompt: t('games.new.select_faction', default: 'Select faction') }, { data: { factionSelect: true } } %>
+            </div>
           <% end %>
 
           <div>
             <label><%= t('games.new.opponent_score') %></label>
             <input type="number" min="0" name="game_event[game_participations_attributes][1][score]" />
+          </div>
+          <div>
+            <label><%= t('games.new.opponent_faction', default: 'Opponent faction') %></label>
+            <select name="game_event[game_participations_attributes][1][faction_id]"></select>
           </div>
         </div>
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_13_170000) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_14_130020) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -59,6 +59,15 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_13_170000) do
     t.index ["tournament_id"], name: "index_game_events_on_tournament_id"
   end
 
+  create_table "game_factions", force: :cascade do |t|
+    t.bigint "game_system_id", null: false
+    t.string "name", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["game_system_id", "name"], name: "index_game_factions_on_game_system_id_and_name", unique: true
+    t.index ["game_system_id"], name: "index_game_factions_on_game_system_id"
+  end
+
   create_table "game_participations", force: :cascade do |t|
     t.bigint "game_event_id", null: false
     t.bigint "user_id", null: false
@@ -66,6 +75,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_13_170000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "score"
+    t.bigint "faction_id", null: false
+    t.index ["faction_id"], name: "index_game_participations_on_faction_id"
     t.index ["game_event_id", "user_id"], name: "index_game_participations_on_game_event_id_and_user_id", unique: true
     t.index ["game_event_id"], name: "index_game_participations_on_game_event_id"
     t.index ["user_id"], name: "index_game_participations_on_user_id"
@@ -117,6 +128,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_13_170000) do
     t.string "status", default: "pending", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "faction_id"
+    t.index ["faction_id"], name: "index_tournament_registrations_on_faction_id"
     t.index ["tournament_id", "user_id"], name: "index_tournament_registrations_on_tournament_id_and_user_id", unique: true
     t.index ["tournament_id"], name: "index_tournament_registrations_on_tournament_id"
     t.index ["user_id"], name: "index_tournament_registrations_on_user_id"
@@ -175,7 +188,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_13_170000) do
   add_foreign_key "elo_ratings", "users"
   add_foreign_key "game_events", "game_systems"
   add_foreign_key "game_events", "tournaments"
+  add_foreign_key "game_factions", "game_systems"
   add_foreign_key "game_participations", "game_events"
+  add_foreign_key "game_participations", "game_factions", column: "faction_id"
   add_foreign_key "game_participations", "users"
   add_foreign_key "sessions", "users"
   add_foreign_key "tournament_matches", "game_events"
@@ -184,6 +199,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_13_170000) do
   add_foreign_key "tournament_matches", "tournaments"
   add_foreign_key "tournament_matches", "users", column: "a_user_id"
   add_foreign_key "tournament_matches", "users", column: "b_user_id"
+  add_foreign_key "tournament_registrations", "game_factions", column: "faction_id"
   add_foreign_key "tournament_registrations", "tournaments"
   add_foreign_key "tournament_registrations", "users"
   add_foreign_key "tournament_rounds", "tournaments"

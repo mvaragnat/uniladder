@@ -1,9 +1,9 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-chess_game:
+chess_white:
   game_system: chess
-  played_at: <%= 1.day.ago %>
+  name: White
 
-go_game:
+go_black:
   game_system: go
-  played_at: <%= Time.current %>
+  name: Black 

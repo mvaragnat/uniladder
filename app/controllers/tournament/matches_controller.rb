@@ -78,8 +78,10 @@ module Tournament
         game_system: @tournament.game_system,
         played_at: Time.current
       )
-      event.game_participations.build(user: @match.a_user, score: a_score)
-      event.game_participations.build(user: @match.b_user, score: b_score)
+      a_reg = @tournament.registrations.find_by(user: @match.a_user)
+      b_reg = @tournament.registrations.find_by(user: @match.b_user)
+      event.game_participations.build(user: @match.a_user, score: a_score, faction: a_reg&.faction)
+      event.game_participations.build(user: @match.b_user, score: b_score, faction: b_reg&.faction)
 
       if event.save
         @match.game_event = event
@@ -167,7 +169,7 @@ module Tournament
     def game_params
       key = params.key?(:event) ? :event : :game_event
       params.require(key).permit(
-        game_participations_attributes: %i[user_id score]
+        game_participations_attributes: %i[user_id score faction_id]
       )
     end
     # rubocop:enable Rails/StrongParametersExpect

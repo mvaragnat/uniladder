@@ -5,6 +5,7 @@ module Game
     has_many :events, class_name: 'Game::Event', dependent: :destroy
     has_many :participations, through: :events
     has_many :players, through: :participations, source: :user
+    has_many :factions, class_name: 'Game::Faction', dependent: :destroy
 
     validates :name, presence: true, uniqueness: true
     validates :description, presence: true

@@ -3,7 +3,7 @@
 class UsersController < ApplicationController
   def search
     @users = User.where('username ILIKE ?', "%#{params[:q]}%")
-    @users = @users.where.not(id: Current.user.id)
+    @users = @users.where.not(id: Current.user.id) if Current.user
 
     if params[:tournament_id].present?
       ids = Tournament::Registration.where(tournament_id: params[:tournament_id]).pluck(:user_id)

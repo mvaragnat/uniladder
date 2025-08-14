@@ -101,6 +101,13 @@ class TournamentsController < ApplicationController
     end
 
     reg = @tournament.registrations.find_by!(user: Current.user)
+    if reg.faction_id.blank?
+      return redirect_back(
+        fallback_location: tournament_path(@tournament, tab: 1),
+        alert: t('tournaments.faction_required_to_check_in', default: 'Please select your faction before checking in')
+      )
+    end
+
     reg.update!(status: 'checked_in')
     redirect_to tournament_path(@tournament), notice: t('tournaments.checked_in', default: 'Checked in')
   end
