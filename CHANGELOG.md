@@ -57,3 +57,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enforced exactly two players per game at the model level; added distinct-players validation and auto-completion of opponent result
 - Added Stimulus `game-form` validation to block submission unless exactly one opponent is selected; added localized error message in EN/FR
 - Updated controller and system tests to cover no-players and exactly-two-players scenarios; added i18n messages for success and errors
+
+- Homepage redesign: hero with ork wallpaper background, subtitle, and buttons for browsing tournaments and seeing ELO rankings.

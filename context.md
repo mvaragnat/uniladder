@@ -74,6 +74,9 @@ Uniladder is a game tracking and ranking app. Players can track their games and 
   - A bye is recorded as a one-sided match with an immediate win and counts as 1 point in standings and as a played game.
 - Ranking tab shows standings (win=1, draw=0.5) with tie-breakers (Score Sum, then None).
 
+### Homepage
+- Hero section with background image (`public/ork-wallpaper.jpg`), localized subtitle, and buttons to browse tournaments and see ELO rankings.
+
 ### Internationalization
 - Full support for multiple languages
 - English and French translations available
