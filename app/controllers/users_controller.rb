@@ -10,7 +10,7 @@ class UsersController < ApplicationController
       @users = @users.where(id: ids)
     end
 
-    @users = @users.limit(5)
+    @users = @users.limit(10)
 
     render json: @users.map { |u| { id: u.id, username: u.username } }
   end

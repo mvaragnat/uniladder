@@ -30,7 +30,7 @@ module Tournament
                              alert: t('tournaments.unauthorized', default: 'Not authorized'))
       end
 
-      game = Game::Event.new(game_params.merge(played_at: Time.current))
+      game = Game::Event.new(game_params.merge(played_at: Time.current, game_system: @tournament.game_system))
       if game.save
         match = @tournament.matches.create!(
           a_user_id: game.game_participations.first.user_id,
@@ -43,7 +43,7 @@ module Tournament
           format.turbo_stream do
             render turbo_stream: [
               turbo_stream.remove('no-matches-message'),
-              turbo_stream.prepend('matches-list', small_match_list_item(match)),
+              turbo_stream.prepend('matches-list', svg_match_list_item(match)),
               turbo_stream.replace('modal', '')
             ]
           end
@@ -155,18 +155,10 @@ module Tournament
       (@tournament.creator_id == Current.user.id) || participant_ids.include?(Current.user.id)
     end
 
-    def small_match_list_item(match)
-      view_context.content_tag(:li, class: 'card', style: 'margin-bottom:0.5rem;') do
-        view_context.content_tag(:div, class: 'card-body', style: 'display:flex; justify-content:space-between;') do
-          view_context.safe_join([
-                                   "#{match.a_user.username} vs #{match.b_user.username}",
-                                   view_context.content_tag(:span, match.result),
-                                   view_context.link_to(
-                                     t('tournaments.open'),
-                                     view_context.tournament_tournament_match_path(@tournament, match),
-                                     class: 'btn'
-                                   )
-                                 ], ' ')
+    def svg_match_list_item(match)
+      view_context.content_tag(:li, style: 'margin:0 0 0.5rem 0; display:flex; justify-content:center;') do
+        view_context.content_tag(:svg, width: 240, height: 68) do
+          view_context.small_match_box(@tournament, match, 0, 0, width: 240, show_seeds: false)
         end
       end
     end
@@ -175,7 +167,6 @@ module Tournament
     def game_params
       key = params.key?(:event) ? :event : :game_event
       params.require(key).permit(
-        :game_system_id,
         game_participations_attributes: %i[user_id score]
       )
     end

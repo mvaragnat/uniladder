@@ -114,12 +114,10 @@
           <ul id="matches-list" style="list-style:none; padding:0;">
             <% if @matches.any? %>
               <% @matches.each do |m| %>
-                <li class="card" style="margin-bottom:0.5rem;">
-                  <div class="card-body" style="display:flex; justify-content:space-between;">
-                    <span><%= [m.a_user&.username, m.b_user&.username].compact.join(" #{t('vs', default: 'vs')} ") %></span>
-                    <span><%= m.result %></span>
-                    <%= link_to t('tournaments.open'), tournament_tournament_match_path(@tournament, m), class: 'btn' %>
-                  </div>
+                <li style="margin:0 0 0.5rem 0; display:flex; justify-content:center;">
+                  <%= content_tag :svg, width: 240, height: 68 do %>
+                    <%= small_match_box(@tournament, m, 0, 0, width: 240, show_seeds: false) %>
+                  <% end %>
                 </li>
               <% end %>
             <% else %>
@@ -328,4 +326,6 @@
       <% end %>
     <% end %>
   </div>
-</div> 
+</div>
+
+<%= turbo_frame_tag "modal" %> 

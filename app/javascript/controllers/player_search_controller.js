@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["input", "results", "selected"]
+  static targets = ["input", "results", "selected", "container"]
 
   connect() {
     this.selectedPlayers = new Set()
@@ -9,7 +9,10 @@ export default class extends Controller {
 
   search() {
     const query = this.inputTarget.value
-    if (query.length < 2) return
+    if (query.length < 1) {
+      this.resultsTarget.innerHTML = ''
+      return
+    }
 
     const tId = this.inputTarget.dataset.tournamentId
     const url = tId ? `/users/search?q=${encodeURIComponent(query)}&tournament_id=${encodeURIComponent(tId)}`
@@ -21,8 +24,16 @@ export default class extends Controller {
   }
 
   showResults(users) {
-    this.resultsTarget.innerHTML = users
+    const filtered = users
       .filter(user => !this.selectedPlayers.has(String(user.id)))
+      .slice(0, 10)
+
+    if (filtered.length === 0) {
+      this.resultsTarget.innerHTML = `<div class="card-date" style="padding:0.5rem;">${window.I18n?.t('games.no_games') || 'No results'}</div>`
+      return
+    }
+
+    this.resultsTarget.innerHTML = filtered
       .map(user => this.userTemplate(user))
       .join('')
   }
@@ -40,6 +51,9 @@ export default class extends Controller {
     this.resultsTarget.innerHTML = ''
     this.inputTarget.value = ''
 
+    // Hide selector when chosen
+    if (this.hasContainerTarget) this.containerTarget.style.display = 'none'
+
     this.element.dispatchEvent(new CustomEvent('player-selected', { bubbles: true, detail: { userId, username } }))
   }
 
@@ -47,6 +61,9 @@ export default class extends Controller {
     const { userId } = event.currentTarget.dataset
     this.selectedPlayers.delete(String(userId))
     event.currentTarget.closest('.selected-player').remove()
+
+    // Show selector again
+    if (this.hasContainerTarget) this.containerTarget.style.display = ''
 
     this.element.dispatchEvent(new CustomEvent('player-removed', { bubbles: true, detail: { userId } }))
   }

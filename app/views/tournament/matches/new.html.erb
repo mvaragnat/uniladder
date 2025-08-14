@@ -1,19 +1,13 @@
 <%= turbo_frame_tag "modal" do %>
-	<div class="modal-overlay">
+	<div class="modal-overlay" data-controller="modal">
 		<div class="modal-card">
 			<h2><%= t('tournaments.show.matches', default: 'Matches') %> — <%= @tournament.name %></h2>
 
 			<%= form_with(model: @game, url: tournament_tournament_matches_path(@tournament), scope: :game_event, data: { controller: "game-form", action: "submit->game-form#validate player-selected->game-form#showScores player-removed->game-form#toggleScores" }) do |form| %>
 				<div data-game-form-target="error" class="hidden" style="color:#dc2626;font-size:0.875rem;"></div>
 
-				<div>
-					<%= form.label :game_system_id, t('games.new.system') %>
-					<%= form.collection_select :game_system_id,
-						@tournament.game_system.class.all, :id, :name,
-						{ selected: @tournament.game_system_id } %>
-				</div>
-
-				<div data-controller="player-search">
+				<!-- Opponent selector -->
+				<div data-controller="player-search" data-player-search-target="container">
 					<label><%= t('games.new.participants') %></label>
 					<div>
 						<input type="text"
@@ -22,7 +16,7 @@
 								 data-tournament-id="<%= @tournament.id %>"
 								 placeholder="<%= t('games.new.search_placeholder') %>">
 					</div>
-					<div data-player-search-target="results"></div>
+					<div data-player-search-target="results" class="card" style="padding:0.25rem; margin-top:0.25rem; max-height: 220px; overflow:auto;"></div>
 					<div data-player-search-target="selected" style="margin-top: 0.5rem;"></div>
 				</div>
 
@@ -42,7 +36,7 @@
 				</div>
 
 				<div style="display:flex;justify-content:flex-end;gap:0.75rem;margin-top:1rem;">
-					<%= link_to t('layouts.shared.cancel'), "#", data: { action: "click->turbo-modal#close" }, class: "btn" %>
+					<%= link_to t('layouts.shared.cancel'), "#", data: { action: "click->modal#close" }, class: "btn" %>
 					<%= form.submit t('games.new.submit'), class: "btn btn-primary" %>
 				</div>
 			<% end %>
