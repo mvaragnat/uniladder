@@ -22,6 +22,11 @@ fr:
       fr: "Français"
     shared:
       cancel: "Annuler"
+  vs: "vs"
+  home:
+    subtitle: "Tournois et classements ELO pour tous les systèmes de jeu"
+    browse_tournaments: "Parcourir les tournois"
+    see_elo: "Voir les classements ELO"
   games:
     add_title: "Ajouter une partie hors Tournoi"
     add: "Ajouter"
@@ -103,6 +108,7 @@ fr:
         overview: "Vue d'ensemble"
         rounds: "Rondes"
         ranking: "Classement"
+        matches: "Matchs"
     state:
       draft: "Brouillon"
       registration: "Inscriptions"

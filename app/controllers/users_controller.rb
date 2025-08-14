@@ -3,8 +3,14 @@
 class UsersController < ApplicationController
   def search
     @users = User.where('username ILIKE ?', "%#{params[:q]}%")
-                 .where.not(id: Current.user.id)
-                 .limit(5)
+    @users = @users.where.not(id: Current.user.id)
+
+    if params[:tournament_id].present?
+      ids = Tournament::Registration.where(tournament_id: params[:tournament_id]).pluck(:user_id)
+      @users = @users.where(id: ids)
+    end
+
+    @users = @users.limit(10)
 
     render json: @users.map { |u| { id: u.id, username: u.username } }
   end
