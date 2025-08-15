@@ -54,8 +54,8 @@ module Tournament
         end
       else
         respond_to do |format|
-          format.turbo_stream { render :new, status: :unprocessable_entity }
-          format.html { render :new, status: :unprocessable_entity }
+          format.turbo_stream { render :new, status: :unprocessable_content }
+          format.html { render :new, status: :unprocessable_content }
         end
       end
     end
@@ -66,12 +66,12 @@ module Tournament
 
       unless a_score.present? && b_score.present?
         flash.now[:alert] = t('tournaments.score_required', default: 'Both scores are required')
-        return render :show, status: :unprocessable_entity
+        return render :show, status: :unprocessable_content
       end
 
       if @tournament.elimination? && a_score.to_i == b_score.to_i
         flash.now[:alert] = t('tournaments.draw_not_allowed', default: 'Draw is not allowed in elimination')
-        return render :show, status: :unprocessable_entity
+        return render :show, status: :unprocessable_content
       end
 
       event = Game::Event.new(
@@ -94,7 +94,7 @@ module Tournament
                     notice: t('tournaments.match_updated', default: 'Match updated')
       else
         flash.now[:alert] = event.errors.full_messages.to_sentence
-        render :show, status: :unprocessable_entity
+        render :show, status: :unprocessable_content
       end
     end
 

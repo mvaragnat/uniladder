@@ -45,8 +45,8 @@ module Game
     end
 
     def respond_with_create_failure(format)
-      format.turbo_stream { render :new, status: :unprocessable_entity }
-      format.html { render :new, status: :unprocessable_entity }
+      format.turbo_stream { render :new, status: :unprocessable_content }
+      format.html { render :new, status: :unprocessable_content }
     end
   end
 end

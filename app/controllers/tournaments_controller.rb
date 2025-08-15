@@ -64,7 +64,7 @@ class TournamentsController < ApplicationController
     if @tournament.save
       redirect_to tournament_path(@tournament), notice: t('tournaments.created', default: 'Tournament created')
     else
-      render :new, status: :unprocessable_entity
+      render :new, status: :unprocessable_content
     end
   end
 
@@ -207,7 +207,7 @@ class TournamentsController < ApplicationController
                       alert: @tournament.errors.full_messages.join(', ')
         end
         format.json do
-          render json: { ok: false, errors: @tournament.errors.full_messages }, status: :unprocessable_entity
+          render json: { ok: false, errors: @tournament.errors.full_messages }, status: :unprocessable_content
         end
       end
     end

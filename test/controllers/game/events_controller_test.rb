@@ -45,7 +45,7 @@ module Game
         }
       }
 
-      assert_response :unprocessable_entity
+      assert_response :unprocessable_content
     end
 
     test 'should not create game if a score is missing' do
@@ -59,7 +59,7 @@ module Game
         }
       }
 
-      assert_response :unprocessable_entity
+      assert_response :unprocessable_content
     end
 
     test 'should not create game if a faction is missing' do
@@ -73,7 +73,7 @@ module Game
         }
       }
 
-      assert_response :unprocessable_entity
+      assert_response :unprocessable_content
     end
 
     test 'should not create game without players' do
@@ -84,7 +84,7 @@ module Game
         }
       }
 
-      assert_response :unprocessable_entity
+      assert_response :unprocessable_content
     end
   end
 end
