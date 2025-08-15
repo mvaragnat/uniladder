@@ -75,7 +75,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_14_130020) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "score"
-    t.bigint "faction_id", null: false
+    t.bigint "faction_id"
     t.index ["faction_id"], name: "index_game_participations_on_faction_id"
     t.index ["game_event_id", "user_id"], name: "index_game_participations_on_game_event_id_and_user_id", unique: true
     t.index ["game_event_id"], name: "index_game_participations_on_game_event_id"

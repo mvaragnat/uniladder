@@ -25,5 +25,29 @@ module Tournament
       assert_not dup.valid?
       assert dup.errors[:user_id].present?
     end
+
+    test 'valid status values' do
+      reg = ::Tournament::Registration.new(tournament: @t, user: @user)
+
+      reg.status = 'pending'
+      assert reg.valid?
+
+      reg.status = 'checked_in'
+      assert reg.valid?
+    end
+
+    test 'invalid status values' do
+      reg = ::Tournament::Registration.new(tournament: @t, user: @user)
+
+      reg.status = 'approved'
+      assert_not reg.valid?
+      assert reg.errors[:status].present?
+      assert_includes reg.errors[:status].first, 'is not included in the list'
+
+      reg.status = 'invalid_status'
+      assert_not reg.valid?
+      assert reg.errors[:status].present?
+      assert_includes reg.errors[:status].first, 'is not included in the list'
+    end
   end
 end

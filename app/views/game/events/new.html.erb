@@ -4,56 +4,238 @@
       <h2><%= t('games.new.title') %></h2>
 
       <%= form_with(model: @game, url: game_events_path, scope: :game_event, data: { controller: "game-form", action: "submit->game-form#validate player-selected->game-form#showScores player-removed->game-form#toggleScores" }) do |form| %>
-        <div data-game-form-target="error" class="hidden" style="color:#dc2626;font-size:0.875rem;"></div>
+        <div data-game-form-target="error" class="hidden" style="color:#dc2626;font-size:0.875rem;margin-bottom:1rem;"></div>
 
-        <div>
-          <%= form.label :game_system_id, t('games.new.system') %>
+        <div class="form-group">
+          <%= form.label :game_system_id, t('games.new.system'), class: "form-label" %>
           <%= form.collection_select :game_system_id, 
               Game::System.all, :id, :name,
               { prompt: t('games.new.select_system') },
-              { data: { action: 'change->game-form#toggleScores' } } %>
+              { class: "form-select", data: { action: 'change->game-form#toggleScores' } } %>
         </div>
 
-        <div data-controller="player-search">
-          <label><%= t('games.new.participants') %></label>
-          <div>
+        <div data-controller="player-search" class="form-group">
+          <label class="form-label"><%= t('games.new.participants') %></label>
+          <div class="user-selector">
             <input type="text" 
+                   class="form-input"
                    data-player-search-target="input"
                    data-action="input->player-search#search"
                    placeholder="<%= t('games.new.search_placeholder') %>">
+            <div data-player-search-target="results" class="search-results"></div>
           </div>
-          <div data-player-search-target="results"></div>
-          <div data-player-search-target="selected" style="margin-top: 0.5rem;"></div>
+          <div data-player-search-target="selected" class="selected-players"></div>
         </div>
 
-        <div data-game-form-target="scores" class="hidden" style="margin-top: 1rem; display:grid; gap:0.75rem;">
+        <div data-game-form-target="scores" class="hidden scores-section">
           <%= form.fields_for :game_participations do |p_form| %>
-            <div>
-              <%= p_form.label :score, t('games.new.your_score') %>
-              <%= p_form.number_field :score, min: 0 %>
-              <%= p_form.hidden_field :user_id %>
-            </div>
-            <div>
-              <%= p_form.label :faction_id, t('games.new.your_faction', default: 'Your faction') %>
-              <%= p_form.select :faction_id, [], { prompt: t('games.new.select_faction', default: 'Select faction') }, { data: { factionSelect: true } } %>
+            <div class="score-group">
+              <div class="score-input">
+                <%= p_form.label :score, t('games.new.your_score'), class: "form-label" %>
+                <%= p_form.number_field :score, min: 0, class: "form-input" %>
+                <%= p_form.hidden_field :user_id %>
+              </div>
+              <div class="faction-input">
+                <%= p_form.label :faction_id, t('games.new.your_faction'), class: "form-label" %>
+                <%= p_form.select :faction_id, [], { prompt: t('games.new.select_faction') }, { class: "form-select", data: { factionSelect: true } } %>
+              </div>
             </div>
           <% end %>
 
-          <div>
-            <label><%= t('games.new.opponent_score') %></label>
-            <input type="number" min="0" name="game_event[game_participations_attributes][1][score]" />
-          </div>
-          <div>
-            <label><%= t('games.new.opponent_faction', default: 'Opponent faction') %></label>
-            <select name="game_event[game_participations_attributes][1][faction_id]"></select>
+          <div class="score-group">
+            <div class="score-input">
+              <label class="form-label"><%= t('games.new.opponent_score') %></label>
+              <input type="number" min="0" name="game_event[game_participations_attributes][1][score]" class="form-input" />
+            </div>
+            <div class="faction-input">
+              <label class="form-label"><%= t('games.new.opponent_faction') %></label>
+              <select name="game_event[game_participations_attributes][1][faction_id]" class="form-select">
+                <option value=""><%= t('games.new.select_faction') %></option>
+              </select>
+            </div>
           </div>
         </div>
 
-        <div style="display:flex;justify-content:flex-end;gap:0.75rem;margin-top:1rem;">
-          <%= link_to t('layouts.shared.cancel'), "#", data: { action: "click->turbo-modal#close" }, class: "btn" %>
+        <div class="modal-actions">
+          <%= link_to t('layouts.shared.cancel'), "#", data: { action: "click->turbo-modal#close" }, class: "btn btn-secondary" %>
           <%= form.submit t('games.new.submit'), class: "btn btn-primary" %>
         </div>
       <% end %>
     </div>
   </div>
+
+  <style>
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    
+    .modal-card {
+      background: white;
+      border-radius: 8px;
+      padding: 2rem;
+      width: 90%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    
+    .form-label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: #374151;
+    }
+    
+    .form-input, .form-select {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 1rem;
+      transition: border-color 0.2s;
+    }
+    
+    .form-input:focus, .form-select:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    
+    .user-selector {
+      position: relative;
+    }
+    
+    .search-results {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: white;
+      border: 1px solid #d1d5db;
+      border-top: none;
+      border-radius: 0 0 6px 6px;
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 10;
+    }
+    
+    .search-results:empty {
+      display: none;
+    }
+    
+    .search-results div {
+      padding: 0.75rem;
+      cursor: pointer;
+      border-bottom: 1px solid #f3f4f6;
+      transition: background-color 0.2s;
+    }
+    
+    .search-results div:hover {
+      background-color: #f9fafb;
+    }
+    
+    .search-results div:last-child {
+      border-bottom: none;
+    }
+    
+    .selected-players {
+      margin-top: 0.75rem;
+    }
+    
+    .selected-player {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #f3f4f6;
+      padding: 0.75rem;
+      border-radius: 6px;
+      margin-bottom: 0.5rem;
+    }
+    
+    .selected-player button {
+      background: none;
+      border: none;
+      color: #dc2626;
+      font-size: 1.25rem;
+      cursor: pointer;
+      padding: 0;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .selected-player button:hover {
+      color: #991b1b;
+    }
+    
+    .scores-section {
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid #e5e7eb;
+    }
+    
+    .score-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      margin-bottom: 1rem;
+    }
+    
+    .score-input, .faction-input {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid #e5e7eb;
+    }
+    
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border-radius: 6px;
+      font-weight: 600;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .btn-primary {
+      background: #3b82f6;
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background: #2563eb;
+    }
+    
+    .btn-secondary {
+      background: #6b7280;
+      color: white;
+    }
+    
+    .btn-secondary:hover {
+      background: #4b5563;
+    }
+  </style>
 <% end %> 

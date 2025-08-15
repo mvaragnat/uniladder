@@ -26,6 +26,22 @@ module Game
       assert event.valid?
     end
 
+    test 'should not save participation without faction' do
+      # Create a simple game event (won't be saved, just for the association)
+      event = Game::Event.new(game_system: @system, played_at: Time.current)
+
+      # Test that a participation without faction is invalid
+      participation = Game::Participation.new(
+        game_event: event,
+        user: @user1,
+        score: 15
+        # faction intentionally missing
+      )
+
+      assert_not participation.valid?
+      assert_includes participation.errors[:faction_id], "can't be blank"
+    end
+
     test 'requires faction' do
       system = game_systems(:chess)
       f = Game::Faction.find_or_create_by!(game_system: system, name: 'White')
