@@ -1,0 +1,51 @@
+# Game Systems and their associated factions
+# This file is used by the seed:game_systems rake task
+
+game_systems:
+  - name: "Epic Armaggeddon - FERC"
+    description: "Strategy in 6mm - French community-maintained lists"
+    factions:
+      - "Space Marines"
+      - "Imperial Guard"
+      - "Chaos Space Marines"
+      - "Eldar"
+      - "Orks"
+      - "Tyranids"
+
+  - name: "Warhammer 40k"
+    description: "The best known Games Workshop game"
+    factions:
+      - "Space Marines"
+      - "Astra Militarum"
+      - "Chaos Space Marines"
+      - "Eldar"
+      - "Dark Eldar"
+      - "Orks"
+      - "Tyranids"
+      - "Necrons"
+      - "T'au Empire"
+      - "Adeptus Mechanicus"
+
+  - name: "The Old World"
+    description: "For square bases enjoyers"
+    factions:
+      - "Empire"
+      - "Bretonnia"
+      - "Dwarfs"
+      - "High Elves"
+      - "Wood Elves"
+      - "Dark Elves"
+      - "Lizardmen"
+      - "Skaven"
+      - "Vampire Counts"
+      - "Warriors of Chaos"
+      - "Orcs & Goblins"
+
+  - name: "Trench Crusade"
+    description: "Putting the Grim back in Grimdark"
+    factions:
+      - "Iron Sultanate"
+      - "Heretic Legions"
+      - "Court of the Seven-Headed Serpent"
+      - "Trench Pilgrims"
+      - "Black Grail" 
