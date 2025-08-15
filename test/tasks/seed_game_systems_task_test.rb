@@ -6,23 +6,33 @@ require 'rake'
 class SeedGameSystemsTaskTest < ActiveSupport::TestCase
   def setup
     Rails.application.load_tasks if Rake::Task.tasks.empty?
-    
-    # Create a temporary YAML file for testing
-    @temp_config_path = Rails.root.join('tmp', 'test_game_systems.yml')
-    
-    # Clean up any existing data
+
+    # Backup the original config file if it exists
+    @config_file_path = Rails.root.join('config/game_systems.yml')
+    @backup_path = Rails.root.join('config/game_systems.yml.backup')
+
+    FileUtils.cp(@config_file_path, @backup_path) if File.exist?(@config_file_path)
+
+    # Clean up any existing data in proper order
+    Game::Participation.destroy_all
+    Game::Event.destroy_all
     Game::Faction.destroy_all
     Game::System.destroy_all
   end
 
   def teardown
-    File.delete(@temp_config_path) if File.exist?(@temp_config_path)
+    # Restore the original config file
+    if File.exist?(@backup_path)
+      FileUtils.mv(@backup_path, @config_file_path)
+    else
+      FileUtils.rm_f(@config_file_path)
+    end
+
     Rake::Task.clear # Reset rake tasks between tests
   end
 
   test 'seeds game systems and factions from YAML config' do
     create_test_config_file
-    stub_config_file_path
 
     assert_difference 'Game::System.count', 2 do
       assert_difference 'Game::Faction.count', 4 do
@@ -54,9 +64,7 @@ class SeedGameSystemsTaskTest < ActiveSupport::TestCase
 
     # Create existing system and faction
     existing_system = Game::System.create!(name: 'Chess', description: 'Old description')
-    existing_faction = Game::Faction.create!(name: 'White', game_system: existing_system)
-
-    stub_config_file_path
+    Game::Faction.create!(name: 'White', game_system: existing_system)
 
     assert_difference 'Game::System.count', 1 do # Only Go should be created
       assert_difference 'Game::Faction.count', 3 do # Black for Chess, and both for Go
@@ -80,7 +88,7 @@ class SeedGameSystemsTaskTest < ActiveSupport::TestCase
         {
           'name' => 'Chess',
           'description' => 'Classic board game',
-          'factions' => ['White', 'Black']
+          'factions' => %w[White Black]
         },
         {
           'name' => 'Go',
@@ -90,10 +98,6 @@ class SeedGameSystemsTaskTest < ActiveSupport::TestCase
       ]
     }
 
-    File.write(@temp_config_path, config_content.to_yaml)
-  end
-
-  def stub_config_file_path
-    Rails.stubs(:root).returns(Pathname.new(@temp_config_path.dirname))
+    File.write(@config_file_path, config_content.to_yaml)
   end
 end
