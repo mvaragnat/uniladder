@@ -7,33 +7,51 @@ class SeedGameSystemsTaskTest < ActiveSupport::TestCase
   def setup
     Rails.application.load_tasks if Rake::Task.tasks.empty?
 
-    # Backup the original config file if it exists
+    # Backup/prepare config file used by the rake task
     @config_file_path = Rails.root.join('config/game_systems.yml')
     @backup_path = Rails.root.join('config/game_systems.yml.backup')
-
     FileUtils.cp(@config_file_path, @backup_path) if File.exist?(@config_file_path)
 
-    # Clean up any existing data in proper order
+    # Write a minimal test config to ensure deterministic expectations
+    config_content = {
+      'game_systems' => [
+        {
+          'name' => 'Chess',
+          'description' => 'Classic board game',
+          'factions' => %w[White Black]
+        },
+        {
+          'name' => 'Go',
+          'description' => 'Ancient strategy game',
+          'factions' => ['Black Stones', 'White Stones']
+        }
+      ]
+    }
+    File.write(@config_file_path, config_content.to_yaml)
+
+    # Clean DB to avoid uniqueness conflicts between tests
     Game::Participation.destroy_all
     Game::Event.destroy_all
     Game::Faction.destroy_all
     Game::System.destroy_all
+
+    # Ensure task is runnable each time
+    Rake::Task['seed:game_systems'].reenable if Rake::Task.task_defined?('seed:game_systems')
   end
 
   def teardown
-    # Restore the original config file
+    # Restore original config
     if File.exist?(@backup_path)
       FileUtils.mv(@backup_path, @config_file_path)
     else
       FileUtils.rm_f(@config_file_path)
     end
 
-    Rake::Task.clear # Reset rake tasks between tests
+    # Reenable for next run
+    Rake::Task['seed:game_systems'].reenable if Rake::Task.task_defined?('seed:game_systems')
   end
 
   test 'seeds game systems and factions from YAML config' do
-    create_test_config_file
-
     assert_difference 'Game::System.count', 2 do
       assert_difference 'Game::Faction.count', 4 do
         Rake::Task['seed:game_systems'].invoke
@@ -60,8 +78,6 @@ class SeedGameSystemsTaskTest < ActiveSupport::TestCase
   end
 
   test 'does not duplicate existing game systems and factions' do
-    create_test_config_file
-
     # Create existing system and faction
     existing_system = Game::System.create!(name: 'Chess', description: 'Old description')
     Game::Faction.create!(name: 'White', game_system: existing_system)
@@ -78,26 +94,5 @@ class SeedGameSystemsTaskTest < ActiveSupport::TestCase
 
     # Verify existing faction was not duplicated
     assert_equal 1, existing_system.factions.where(name: 'White').count
-  end
-
-  private
-
-  def create_test_config_file
-    config_content = {
-      'game_systems' => [
-        {
-          'name' => 'Chess',
-          'description' => 'Classic board game',
-          'factions' => %w[White Black]
-        },
-        {
-          'name' => 'Go',
-          'description' => 'Ancient strategy game',
-          'factions' => ['Black Stones', 'White Stones']
-        }
-      ]
-    }
-
-    File.write(@config_file_path, config_content.to_yaml)
   end
 end

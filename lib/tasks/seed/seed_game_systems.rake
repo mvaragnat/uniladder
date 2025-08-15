@@ -1,16 +1,13 @@
 # frozen_string_literal: true
 
-namespace :seed do
-  task all: :environment do
-    Rake::Task['seed:game_systems'].invoke
-  end
+# Helper methods for seeding game systems
+module SeedGameSystemsHelper
+  def self.run_seeding
+    config_file = Rails.root.join('config/game_systems.yml')
 
-  task game_systems: :environment do
-    config_file = Rails.root.join('config', 'game_systems.yml')
-    
     unless File.exist?(config_file)
-      puts "Configuration file not found: #{config_file}"
-      puts "Please create config/game_systems.yml with your game systems and factions"
+      Rails.logger.info "Configuration file not found: #{config_file}"
+      Rails.logger.info 'Please create config/game_systems.yml with your game systems and factions'
       return
     end
 
@@ -19,25 +16,25 @@ namespace :seed do
       game_systems_data = config['game_systems']
 
       if game_systems_data.blank?
-        puts "No game systems found in configuration file"
+        Rails.logger.info 'No game systems found in configuration file'
         return
       end
 
-      puts "Seeding game systems and factions from #{config_file}..."
-      
+      Rails.logger.info "Seeding game systems and factions from #{config_file}..."
+
       game_systems_data.each do |system_data|
         seed_game_system(system_data)
       end
 
-      puts "Seeding completed successfully!"
+      Rails.logger.info 'Seeding completed successfully!'
     rescue Psych::SyntaxError => e
-      puts "Error parsing YAML file: #{e.message}"
+      Rails.logger.info "Error parsing YAML file: #{e.message}"
     rescue StandardError => e
-      puts "Error seeding game systems: #{e.message}"
+      Rails.logger.info "Error seeding game systems: #{e.message}"
     end
   end
 
-  def seed_game_system(system_data)
+  def self.seed_game_system(system_data)
     system_name = system_data['name']
     system_description = system_data['description']
     factions_data = system_data['factions'] || []
@@ -46,20 +43,20 @@ namespace :seed do
 
     # Find or create game system
     game_system = Game::System.find_by(name: system_name)
-    
+
     if game_system.blank?
       game_system = Game::System.create!(
         name: system_name,
         description: system_description
       )
-      puts "✓ Created game system: #{system_name}"
+      Rails.logger.info "✓ Created game system: #{system_name}"
     else
-      puts "→ Game system already exists: #{system_name}"
-      
+      Rails.logger.info "→ Game system already exists: #{system_name}"
+
       # Update description if it has changed
       if game_system.description != system_description && system_description.present?
         game_system.update!(description: system_description)
-        puts "  ↳ Updated description"
+        Rails.logger.info '  ↳ Updated description'
       end
     end
 
@@ -67,20 +64,30 @@ namespace :seed do
     seed_factions(game_system, factions_data)
   end
 
-  def seed_factions(game_system, factions_data)
+  def self.seed_factions(game_system, factions_data)
     return if factions_data.blank?
 
     factions_data.each do |faction_name|
       next if faction_name.blank?
 
       existing_faction = game_system.factions.find_by(name: faction_name)
-      
+
       if existing_faction.blank?
         game_system.factions.create!(name: faction_name)
-        puts "  ✓ Created faction: #{faction_name}"
+        Rails.logger.info "  ✓ Created faction: #{faction_name}"
       else
-        puts "  → Faction already exists: #{faction_name}"
+        Rails.logger.info "  → Faction already exists: #{faction_name}"
       end
     end
+  end
+end
+
+namespace :seed do
+  task all: :environment do
+    Rake::Task['seed:game_systems'].invoke
+  end
+
+  task game_systems: :environment do
+    SeedGameSystemsHelper.run_seeding
   end
 end

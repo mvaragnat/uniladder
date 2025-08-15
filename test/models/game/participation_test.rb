@@ -39,7 +39,7 @@ module Game
       )
 
       assert_not participation.valid?
-      assert_includes participation.errors[:faction_id], "can't be blank"
+      assert_includes participation.errors[:faction], 'must exist'
     end
 
     test 'requires faction' do
