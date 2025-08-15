@@ -15,6 +15,7 @@ module Game
     validate :must_have_exactly_two_players
     validate :players_must_be_distinct
     validate :both_scores_present
+    validate :both_factions_present
 
     after_commit :enqueue_elo_update, on: :create
 
@@ -53,6 +54,15 @@ module Game
       return unless participations.any? { |p| p.score.blank? }
 
       errors.add(:players, I18n.t('games.errors.both_scores_required'))
+    end
+
+    def both_factions_present
+      participations = game_participations.reject(&:marked_for_destruction?)
+      return unless participations.size == 2
+
+      return unless participations.any? { |p| p.faction_id.blank? }
+
+      errors.add(:players, I18n.t('games.errors.both_factions_required', default: 'Both players must select a faction'))
     end
 
     def enqueue_elo_update

@@ -29,7 +29,7 @@ export default class extends Controller {
       .slice(0, 10)
 
     if (filtered.length === 0) {
-      this.resultsTarget.innerHTML = `<div class="card-date" style="padding:0.5rem;">${window.I18n?.t('games.no_games') || 'No results'}</div>`
+      this.resultsTarget.innerHTML = `<div style="padding:0.75rem;color:#6b7280;">No results found</div>`
       return
     }
 
@@ -70,23 +70,21 @@ export default class extends Controller {
 
   userTemplate(user) {
     return `
-      <div class="p-2 hover:bg-gray-100 cursor-pointer"
-           data-action="click->player-search#selectPlayer"
+      <div data-action="click->player-search#selectPlayer"
            data-player-search-user-id="${user.id}"
            data-player-search-username="${user.username}">
-        ${user.username}
+        <strong>${user.username}</strong>
       </div>
     `
   }
 
   selectedPlayerTemplate(userId, username) {
     return `
-      <div class="selected-player flex items-center justify-between bg-gray-100 p-2 rounded" data-user-id="${userId}">
-        <span>${username}</span>
+      <div class="selected-player" data-user-id="${userId}">
+        <span><strong>${username}</strong> (opponent)</span>
         <button type="button"
                 data-action="click->player-search#removePlayer"
-                data-user-id="${userId}"
-                class="text-red-600 hover:text-red-800">
+                data-user-id="${userId}">
           ×
         </button>
       </div>

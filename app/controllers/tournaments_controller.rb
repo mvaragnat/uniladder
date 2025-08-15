@@ -64,7 +64,7 @@ class TournamentsController < ApplicationController
     if @tournament.save
       redirect_to tournament_path(@tournament), notice: t('tournaments.created', default: 'Tournament created')
     else
-      render :new, status: :unprocessable_entity
+      render :new, status: :unprocessable_content
     end
   end
 
@@ -101,6 +101,13 @@ class TournamentsController < ApplicationController
     end
 
     reg = @tournament.registrations.find_by!(user: Current.user)
+    if reg.faction_id.blank?
+      return redirect_back(
+        fallback_location: tournament_path(@tournament, tab: 1),
+        alert: t('tournaments.faction_required_to_check_in', default: 'Please select your faction before checking in')
+      )
+    end
+
     reg.update!(status: 'checked_in')
     redirect_to tournament_path(@tournament), notice: t('tournaments.checked_in', default: 'Checked in')
   end
@@ -200,7 +207,7 @@ class TournamentsController < ApplicationController
                       alert: @tournament.errors.full_messages.join(', ')
         end
         format.json do
-          render json: { ok: false, errors: @tournament.errors.full_messages }, status: :unprocessable_entity
+          render json: { ok: false, errors: @tournament.errors.full_messages }, status: :unprocessable_content
         end
       end
     end

@@ -6,7 +6,9 @@ module Tournament
 
     belongs_to :tournament, class_name: 'Tournament::Tournament'
     belongs_to :user
+    belongs_to :faction, class_name: 'Game::Faction', optional: true
 
     validates :user_id, uniqueness: { scope: :tournament_id }
+    validates :status, inclusion: { in: %w[pending checked_in] }
   end
 end

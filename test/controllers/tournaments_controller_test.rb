@@ -79,10 +79,37 @@ class TournamentsControllerTest < ActionDispatch::IntegrationTest
     t = Tournament::Tournament.order(:created_at).last
 
     post register_tournament_path(t, locale: I18n.locale)
+    f = Game::Faction.find_or_create_by!(game_system: t.game_system, name: 'White')
+    t.registrations.find_by(user: @user).update!(faction: f)
     post lock_registration_tournament_path(t, locale: I18n.locale)
 
     post check_in_tournament_path(t, locale: I18n.locale)
     assert_redirected_to tournament_path(t, locale: I18n.locale)
+  end
+
+  test 'cannot check-in without faction set' do
+    # Sign in and create tournament
+    post session_path(locale: I18n.locale), params: { email_address: @user.email_address, password: 'password' }
+    post tournaments_path(locale: I18n.locale), params: {
+      tournament: { name: 'Faction Check', description: 'X', game_system_id: game_systems(:chess).id, format: 'open' }
+    }
+    t = Tournament::Tournament.order(:created_at).last
+
+    # Register (no faction yet)
+    post register_tournament_path(t, locale: I18n.locale)
+
+    # Attempt check-in should be blocked
+    post check_in_tournament_path(t, locale: I18n.locale)
+    assert_redirected_to tournament_path(t, locale: I18n.locale, tab: 1)
+
+    # Now set faction and allow check-in
+    f = Game::Faction.find_or_create_by!(game_system: t.game_system, name: 'White')
+    reg = t.registrations.find_by(user: @user)
+    reg.update!(faction: f)
+
+    post check_in_tournament_path(t, locale: I18n.locale)
+    assert_redirected_to tournament_path(t, locale: I18n.locale)
+    assert_equal 'checked_in', reg.reload.status
   end
 
   test 'admin-only and state guards on admin actions' do
@@ -124,12 +151,16 @@ class TournamentsControllerTest < ActionDispatch::IntegrationTest
 
     # Creator registers and checks in
     post register_tournament_path(t, locale: I18n.locale)
+    f = Game::Faction.find_or_create_by!(game_system: t.game_system, name: 'White')
+    t.registrations.find_by(user: @user).update!(faction: f)
     post check_in_tournament_path(t, locale: I18n.locale)
 
     # p2 registers and checks in
     delete session_path(locale: I18n.locale)
     post session_path(locale: I18n.locale), params: { email_address: p2.email_address, password: 'password' }
     post register_tournament_path(t, locale: I18n.locale)
+    f2 = Game::Faction.find_or_create_by!(game_system: t.game_system, name: 'Black')
+    t.registrations.find_by(user: p2).update!(faction: f2)
     post check_in_tournament_path(t, locale: I18n.locale)
 
     # Lock triggers tree generation
@@ -222,11 +253,15 @@ class TournamentsControllerTest < ActionDispatch::IntegrationTest
 
     # Register and check in two players
     post register_tournament_path(t, locale: I18n.locale)
+    f1 = Game::Faction.find_or_create_by!(game_system: t.game_system, name: 'White')
+    t.registrations.find_by(user: @user).update!(faction: f1)
     post check_in_tournament_path(t, locale: I18n.locale)
     delete session_path(locale: I18n.locale)
     post session_path(locale: I18n.locale),
          params: { email_address: users(:player_two).email_address, password: 'password' }
     post register_tournament_path(t, locale: I18n.locale)
+    f2 = Game::Faction.find_or_create_by!(game_system: t.game_system, name: 'Black')
+    t.registrations.find_by(user: users(:player_two)).update!(faction: f2)
     post check_in_tournament_path(t, locale: I18n.locale)
 
     # Lock and start first round
@@ -274,12 +309,16 @@ class TournamentsControllerTest < ActionDispatch::IntegrationTest
          } }
     t = Tournament::Tournament.order(:created_at).last
     post register_tournament_path(t, locale: I18n.locale)
+    f1 = Game::Faction.find_or_create_by!(game_system: t.game_system, name: 'White')
+    t.registrations.find_by(user: @user).update!(faction: f1)
     post check_in_tournament_path(t, locale: I18n.locale)
 
     delete session_path(locale: I18n.locale)
     post session_path(locale: I18n.locale),
          params: { email_address: users(:player_two).email_address, password: 'password' }
     post register_tournament_path(t, locale: I18n.locale)
+    f2 = Game::Faction.find_or_create_by!(game_system: t.game_system, name: 'Black')
+    t.registrations.find_by(user: users(:player_two)).update!(faction: f2)
     post check_in_tournament_path(t, locale: I18n.locale)
 
     delete session_path(locale: I18n.locale)
@@ -311,12 +350,16 @@ class TournamentsControllerTest < ActionDispatch::IntegrationTest
          } }
     t = Tournament::Tournament.order(:created_at).last
     post register_tournament_path(t, locale: I18n.locale)
+    f1 = Game::Faction.find_or_create_by!(game_system: t.game_system, name: 'White')
+    t.registrations.find_by(user: @user).update!(faction: f1)
     post check_in_tournament_path(t, locale: I18n.locale)
 
     delete session_path(locale: I18n.locale)
     post session_path(locale: I18n.locale),
          params: { email_address: users(:player_two).email_address, password: 'password' }
     post register_tournament_path(t, locale: I18n.locale)
+    f2 = Game::Faction.find_or_create_by!(game_system: t.game_system, name: 'Black')
+    t.registrations.find_by(user: users(:player_two)).update!(faction: f2)
     post check_in_tournament_path(t, locale: I18n.locale)
 
     delete session_path(locale: I18n.locale)
@@ -356,6 +399,8 @@ class TournamentsControllerTest < ActionDispatch::IntegrationTest
       delete session_path(locale: I18n.locale)
       post session_path(locale: I18n.locale), params: { email_address: u.email_address, password: 'password' }
       post register_tournament_path(t, locale: I18n.locale)
+      f = Game::Faction.find_or_create_by!(game_system: t.game_system, name: "F-#{u.username}")
+      t.registrations.find_by(user: u).update!(faction: f)
       post check_in_tournament_path(t, locale: I18n.locale)
     end
 
@@ -420,6 +465,8 @@ class TournamentsControllerTest < ActionDispatch::IntegrationTest
       delete session_path(locale: I18n.locale)
       post session_path(locale: I18n.locale), params: { email_address: u.email_address, password: 'password' }
       post register_tournament_path(t, locale: I18n.locale)
+      f = Game::Faction.find_or_create_by!(game_system: t.game_system, name: "F-#{u.username}")
+      t.registrations.find_by(user: u).update!(faction: f)
       post check_in_tournament_path(t, locale: I18n.locale)
     end
 
@@ -495,6 +542,8 @@ class TournamentsControllerTest < ActionDispatch::IntegrationTest
       delete session_path(locale: I18n.locale)
       post session_path(locale: I18n.locale), params: { email_address: u.email_address, password: 'password' }
       post register_tournament_path(t, locale: I18n.locale)
+      f = Game::Faction.find_or_create_by!(game_system: t.game_system, name: "F-#{u.username}")
+      t.registrations.find_by(user: u).update!(faction: f)
       post check_in_tournament_path(t, locale: I18n.locale)
     end
 
@@ -556,6 +605,8 @@ class TournamentsControllerTest < ActionDispatch::IntegrationTest
       delete session_path(locale: I18n.locale)
       post session_path(locale: I18n.locale), params: { email_address: u.email_address, password: 'password' }
       post register_tournament_path(t, locale: I18n.locale)
+      f = Game::Faction.find_or_create_by!(game_system: t.game_system, name: "F-#{u.username}")
+      t.registrations.find_by(user: u).update!(faction: f)
       post check_in_tournament_path(t, locale: I18n.locale)
     end
 

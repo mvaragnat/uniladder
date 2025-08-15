@@ -14,7 +14,7 @@ class RegistrationsController < ApplicationController
       start_new_session_for(@user)
       redirect_to dashboard_path, notice: t('auth.registration.welcome')
     else
-      render :new, status: :unprocessable_entity
+      render :new, status: :unprocessable_content
     end
   end
 

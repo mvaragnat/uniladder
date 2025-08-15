@@ -20,9 +20,10 @@ Rails.application.routes.draw do
     # Dashboard
     resource :dashboard, only: :show
 
-    # Game events
+    # Game events and factions
     namespace :game do
       resources :events, only: %i[new create]
+      resources :factions, only: %i[index]
     end
 
     # Users search (used by player search UI)
@@ -43,6 +44,7 @@ Rails.application.routes.draw do
       namespace :tournament do
         resources :rounds, only: %i[index show]
         resources :matches, only: %i[index show update new create]
+        resources :registrations, only: %i[update]
       end
     end
   end

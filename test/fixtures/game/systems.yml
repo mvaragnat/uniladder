@@ -1,11 +1,9 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 chess:
-  id: 1
   name: Chess
   description: A classic board game
 
 go:
-  id: 2
   name: Go
   description: An ancient board game

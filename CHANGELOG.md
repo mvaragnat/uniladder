@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2025-01-18]
+
+### Added
+- **Factions System**: Complete faction management for games and tournaments
+  - Each game system can have multiple factions (e.g., White/Black for Chess)
+  - Game participations require faction selection - games cannot be submitted without both players selecting factions
+  - Tournament registrations support optional faction selection
+  - Players cannot check-in to tournaments without selecting a faction
+  - Tournament participants tab includes faction column with dropdown for selection
+  - Players can modify their own faction, organizers can modify any participant's faction
+  - Full UI integration with validation and error messages
+  - Comprehensive test coverage for all faction-related functionality
+
 ## [2025-08-13]
 - Swiss: Fix pairing to fill the top spot first when score groups are odd, preventing 2 vs 0 pairings when a 2 vs 1 and 1 vs 0 are possible.
 - Swiss: Implement deterministic bye assignment for odd participant counts (random among lowest points, avoid repeating same player), recorded as a free win and shown in UI.

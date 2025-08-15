@@ -10,12 +10,14 @@ module Elo
       @user2 = users(:player_two)
       @calc = Elo::Calculator.new
       @updater = Elo::Updater.new(calculator: @calc)
+      @f1 = Game::Faction.find_or_create_by!(game_system: @system, name: 'White')
+      @f2 = Game::Faction.find_or_create_by!(game_system: @system, name: 'Black')
     end
 
     def create_event(score1:, score2:)
       event = Game::Event.new(game_system: @system, played_at: Time.current)
-      event.game_participations.build(user: @user1, score: score1)
-      event.game_participations.build(user: @user2, score: score2)
+      event.game_participations.build(user: @user1, score: score1, faction: @f1)
+      event.game_participations.build(user: @user2, score: score2, faction: @f2)
       event.save!
       event
     end

@@ -8,12 +8,15 @@ class GamesControllerTest < ActionDispatch::IntegrationTest
     @system = game_systems(:chess)
     @opponent = users(:player_two)
     post session_path, params: { email_address: @user.email_address, password: 'password' }
+
+    @f1 = Game::Faction.find_or_create_by!(game_system: @system, name: 'White')
+    @f2 = Game::Faction.find_or_create_by!(game_system: @system, name: 'Black')
   end
 
   test 'should get new game form' do
     get new_game_event_path
     assert_response :success
-    assert_select 'h2', I18n.t('games.new.title')
+    assert_select 'h2', text: I18n.t('games.new.title')
   end
 
   test 'should create game' do
@@ -22,8 +25,8 @@ class GamesControllerTest < ActionDispatch::IntegrationTest
         game_event: {
           game_system_id: @system.id,
           game_participations_attributes: [
-            { user_id: @user.id, score: 21 },
-            { user_id: @opponent.id, score: 18 }
+            { user_id: @user.id, score: 21, faction_id: @f1.id },
+            { user_id: @opponent.id, score: 18, faction_id: @f2.id }
           ]
         }
       }
@@ -40,7 +43,7 @@ class GamesControllerTest < ActionDispatch::IntegrationTest
       }
     }
 
-    assert_response :unprocessable_entity
+    assert_response :unprocessable_content
   end
 
   test 'should not create game if a score is missing' do
@@ -48,13 +51,13 @@ class GamesControllerTest < ActionDispatch::IntegrationTest
       game_event: {
         game_system_id: @system.id,
         game_participations_attributes: [
-          { user_id: @user.id, score: 21 },
-          { user_id: @opponent.id }
+          { user_id: @user.id, score: 21, faction_id: @f1.id },
+          { user_id: @opponent.id, faction_id: @f2.id }
         ]
       }
     }
 
-    assert_response :unprocessable_entity
+    assert_response :unprocessable_content
   end
 
   test 'should not create game without players' do
@@ -65,6 +68,6 @@ class GamesControllerTest < ActionDispatch::IntegrationTest
       }
     }
 
-    assert_response :unprocessable_entity
+    assert_response :unprocessable_content
   end
 end

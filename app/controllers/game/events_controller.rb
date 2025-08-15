@@ -22,7 +22,7 @@ module Game
       key = params.key?(:event) ? :event : :game_event
       params.require(key).permit(
         :game_system_id,
-        game_participations_attributes: %i[user_id score]
+        game_participations_attributes: %i[user_id score faction_id]
       )
     end
     # rubocop:enable Rails/StrongParametersExpect
@@ -45,8 +45,8 @@ module Game
     end
 
     def respond_with_create_failure(format)
-      format.turbo_stream { render :new, status: :unprocessable_entity }
-      format.html { render :new, status: :unprocessable_entity }
+      format.turbo_stream { render :new, status: :unprocessable_content }
+      format.html { render :new, status: :unprocessable_content }
     end
   end
 end

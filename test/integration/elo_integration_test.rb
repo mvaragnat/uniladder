@@ -29,6 +29,8 @@ class EloIntegrationTest < ActionDispatch::IntegrationTest
     # Creator registers and checks in
     post register_tournament_path(t, locale: I18n.locale)
     assert_response :redirect
+    f = Game::Faction.find_or_create_by!(game_system: t.game_system, name: 'White')
+    t.registrations.find_by(user: @creator).update!(faction: f)
     post check_in_tournament_path(t, locale: I18n.locale)
     assert_response :redirect
 
@@ -38,6 +40,8 @@ class EloIntegrationTest < ActionDispatch::IntegrationTest
     assert_response :redirect
     post register_tournament_path(t, locale: I18n.locale)
     assert_response :redirect
+    f2 = Game::Faction.find_or_create_by!(game_system: t.game_system, name: 'Black')
+    t.registrations.find_by(user: @player2).update!(faction: f2)
     post check_in_tournament_path(t, locale: I18n.locale)
     assert_response :redirect
 

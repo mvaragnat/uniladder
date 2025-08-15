@@ -13,6 +13,13 @@ Uniladder is a game tracking and ranking app. Players can track their games and 
 - Represents a game system (e.g., Chess, Go, Magic: The Gathering)
 - Has many game events
 - Has many players through game events
+- Has many factions
+
+### Game::Faction
+- Represents a faction/side within a game system (e.g., White/Black for Chess)
+- Belongs to a game system
+- Has many game participations
+- Required for all game participations
 
 ### Game::Event
 - Represents a single game played
@@ -25,7 +32,7 @@ Uniladder is a game tracking and ranking app. Players can track their games and 
   - Root entity for a competition. Attributes: `name`, `description`, `creator_id`, `game_system_id`, `format` (open|swiss|elimination), `rounds_count` (for Swiss), `starts_at`, `ends_at`, `state` (draft|registration|running|completed), `settings`.
   - Associations: `has_many :registrations` (participants), `has_many :rounds`, `has_many :matches`.
 - `Tournament::Registration`
-  - Join between a `Tournament::Tournament` and a `User` with optional `seed` (Elo snapshot) and `status` (`pending|approved|checked_in`).
+  - Join between a `Tournament::Tournament` and a `User` with optional `seed` (Elo snapshot), `status` (`pending|approved|checked_in`), and optional `faction_id`.
   - Unique per (tournament, user).
 - `Tournament::Round`
   - Represents a numbered round within a tournament (`number`, `state`), mainly used by Swiss/Open formats.
@@ -51,6 +58,15 @@ Uniladder is a game tracking and ranking app. Players can track their games and 
 - Use ViewComponent for modular game display
 - Exactly two players are required for each game (current user + one opponent). Front-end prevents submission and back-end validates this rule.
 
+### Factions System
+- Each game system can define multiple factions (e.g., White/Black for Chess, different armies for war games)
+- Every game participation must include a faction selection - games cannot be submitted without both players selecting their factions
+- Tournament registrations support optional faction selection, but players cannot check-in without choosing a faction
+- Tournament participants view includes a faction column with dropdown selection for each player
+- Players can modify their own faction; tournament organizers can modify any participant's faction
+- Comprehensive validation ensures data integrity across games and tournaments
+- Full internationalization support with English and French translations
+
 ### Tournaments
 - Create and browse tournaments by game system and format (open, swiss, elimination)
 - Register/unregister and check-in to tournaments
@@ -58,21 +74,15 @@ Uniladder is a game tracking and ranking app. Players can track their games and 
 - Admin actions for the tournament creator: lock registration, generate pairings, close round, finalize
 - Tournament games integrate with Elo the same way as casual games
 
-#### Elimination Bracket (current)
+#### Elimination Bracket
 - On lock, elimination tournaments generate a full bracket tree using `Tournament::BracketBuilder` (Elo-based seeding, power-of-two sizing, byes to top seeds).
 - Tree is modeled via `Tournament::Match` with `parent_match_id` and `child_slot`.
-- Bracket UI renders from the tree; “Open” link appears only when both players are assigned and the viewer is a participant or the organizer.
+- Bracket UI renders from the tree; "Open" link appears only when both players are assigned and the viewer is a participant or the organizer.
 
-#### Swiss/Open Tournaments (current)
-- Rounds progress via a single “Move to next round” action that closes the current round, validates all matches are reported, and creates next-round pairings (checked-in players if any, otherwise all registrants).
-- Pairing strategy `by_points_random_within_group`:
-  - Players are grouped by their current points. Within each group, order is randomized but repeat pairings are avoided when possible.
-  - When a group has an odd number of players, we “fill the top spot first”: we pair as many players as possible inside the group and float the leftover down to the next group to be paired there, cascading as needed.
-  - This prevents creating pairings like 2 points vs 0 points when a 2 vs 1 and 1 vs 0 arrangement is possible.
-- Odd number of participants: one player receives a bye for the round.
-  - The bye is randomly picked among the players with the fewest points, avoiding assigning a bye to the same player twice in the same tournament when possible. If all players in the lowest group already received a bye, the selection escalates to the next group above.
-  - A bye is recorded as a one-sided match with an immediate win and counts as 1 point in standings and as a played game.
-- Ranking tab shows standings (win=1, draw=0.5) with tie-breakers (Score Sum, then None).
+#### Swiss/Open Tournaments
+Swiss/Open tournaments run in rounds. Closing a round validates all results and generates the next-round pairings from checked-in players (or all registrants if none are checked in). Pairings group players by current points and draw opponents within each group while avoiding repeats when possible. If there is an odd number of players, one player receives a bye for the round, recorded as an immediate win and counted as a played game; byes are assigned among the lowest-scoring eligible players and not given to the same player twice when possible.
+
+Standings award 1 point for a win and 0.5 for a draw. The ranking view lists players by points with tie-breakers applied (Score Sum, then none).
 
 ### Homepage
 - Hero section with background image (`public/ork-wallpaper.jpg`), localized subtitle, and buttons to browse tournaments and see ELO rankings.

@@ -54,8 +54,8 @@ module Tournament
         end
       else
         respond_to do |format|
-          format.turbo_stream { render :new, status: :unprocessable_entity }
-          format.html { render :new, status: :unprocessable_entity }
+          format.turbo_stream { render :new, status: :unprocessable_content }
+          format.html { render :new, status: :unprocessable_content }
         end
       end
     end
@@ -66,20 +66,22 @@ module Tournament
 
       unless a_score.present? && b_score.present?
         flash.now[:alert] = t('tournaments.score_required', default: 'Both scores are required')
-        return render :show, status: :unprocessable_entity
+        return render :show, status: :unprocessable_content
       end
 
       if @tournament.elimination? && a_score.to_i == b_score.to_i
         flash.now[:alert] = t('tournaments.draw_not_allowed', default: 'Draw is not allowed in elimination')
-        return render :show, status: :unprocessable_entity
+        return render :show, status: :unprocessable_content
       end
 
       event = Game::Event.new(
         game_system: @tournament.game_system,
         played_at: Time.current
       )
-      event.game_participations.build(user: @match.a_user, score: a_score)
-      event.game_participations.build(user: @match.b_user, score: b_score)
+      a_reg = @tournament.registrations.find_by(user: @match.a_user)
+      b_reg = @tournament.registrations.find_by(user: @match.b_user)
+      event.game_participations.build(user: @match.a_user, score: a_score, faction: a_reg&.faction)
+      event.game_participations.build(user: @match.b_user, score: b_score, faction: b_reg&.faction)
 
       if event.save
         @match.game_event = event
@@ -92,7 +94,7 @@ module Tournament
                     notice: t('tournaments.match_updated', default: 'Match updated')
       else
         flash.now[:alert] = event.errors.full_messages.to_sentence
-        render :show, status: :unprocessable_entity
+        render :show, status: :unprocessable_content
       end
     end
 
@@ -167,7 +169,7 @@ module Tournament
     def game_params
       key = params.key?(:event) ? :event : :game_event
       params.require(key).permit(
-        game_participations_attributes: %i[user_id score]
+        game_participations_attributes: %i[user_id score faction_id]
       )
     end
     # rubocop:enable Rails/StrongParametersExpect

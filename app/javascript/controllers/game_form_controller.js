@@ -47,6 +47,15 @@ export default class extends Controller {
       return
     }
 
+    // Require factions for both
+    const myFaction = form.querySelector('select[name="game_event[game_participations_attributes][0][faction_id]"]')?.value
+    const oppFaction = form.querySelector('select[name="game_event[game_participations_attributes][1][faction_id]"]')?.value
+    if (!myFaction || !oppFaction) {
+      event.preventDefault()
+      this.showError(window.I18n?.t('games.errors.both_factions_required') || 'Both players must select a faction')
+      return
+    }
+
     this.hideError()
   }
 

@@ -40,6 +40,9 @@ fr:
       participants: "Ajouter des participants"
       search_placeholder: "Rechercher des joueurs par nom"
       submit: "Créer la partie"
+      your_faction: "Votre faction"
+      opponent_faction: "Faction de l'adversaire"
+      select_faction: "Sélectionnez une faction"
     participants: "Participants"
     no_games: "Aucune partie jouée"
     create:
@@ -47,6 +50,7 @@ fr:
     errors:
       exactly_two_players: "Vous devez sélectionner exactement deux joueurs (vous et un adversaire)"
       both_scores_required: "Les deux scores sont requis"
+      both_factions_required: "Les deux joueurs doivent sélectionner une faction"
   tournaments:
     index_title: "Tournois"
     new: 
@@ -118,6 +122,13 @@ fr:
     not_allowed_state: "Action non autorisée dans l'état actuel"
     draw_not_allowed: "Match nul interdit en élimination"
     cannot_advance_pending: "Tous les matchs doivent être terminés pour passer à la ronde suivante"
+    faction_required_to_check_in: "Veuillez sélectionner votre faction avant l'enregistrement"
+    registration_updated: "Inscription mise à jour"
+    errors:
+      already_registered: "Vous êtes déjà inscrit"
+      registration_closed: "Les inscriptions sont fermées"
+      cannot_unregister: "Impossible de se désinscrire de ce tournoi"
+      status_invalid: "doit être pending ou checked_in"
   elo:
     title: "ELO"
     my_current_rankings: "Mes classements ELO actuels"
