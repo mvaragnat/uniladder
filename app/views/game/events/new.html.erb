@@ -9,7 +9,7 @@
         <div class="form-group">
           <%= form.label :game_system_id, t('games.new.system'), class: "form-label" %>
           <%= form.collection_select :game_system_id, 
-              Game::System.all, :id, :name,
+              Game::System.all.sort_by(&:localized_name), :id, :localized_name,
               { prompt: t('games.new.select_system') },
               { class: "form-select", data: { action: 'change->game-form#toggleScores' } } %>
         </div>

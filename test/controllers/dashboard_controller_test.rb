@@ -24,7 +24,7 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
     get dashboard_path(locale: I18n.locale)
     assert_response :success
     assert_select '#games-list'
-    assert_select 'h3', /Game of\s*#{Regexp.escape(game_events(:chess_game).game_system.name)}/
+    assert_select 'h3', /Game of\s*#{Regexp.escape(game_events(:chess_game).game_system.localized_name)}/
   end
 
   test 'should show dashboard in French when authenticated' do

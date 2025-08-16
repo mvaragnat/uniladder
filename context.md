@@ -66,6 +66,7 @@ Uniladder is a game tracking and ranking app. Players can track their games and 
 - Players can modify their own faction; tournament organizers can modify any participant's faction
 - Comprehensive validation ensures data integrity across games and tournaments
 - Full internationalization support with English and French translations
+- Game systems and factions are localized via `config/game_systems.yml` which now contains `en`/`fr` entries for `name`, `description`, and each faction. Database stores the default (English) values; views resolve display through `Game::System#localized_name` and `Game::Faction#localized_name` using `en` by default with `fr` fallback.
 
 ### Tournaments
 - Create and browse tournaments by game system and format (open, swiss, elimination)

@@ -14,7 +14,7 @@ class EloController < ApplicationController
   private
 
   def load_systems
-    Game::System.order(:name)
+    Game::System.all.sort_by(&:localized_name)
   end
 
   def selected_system(systems)

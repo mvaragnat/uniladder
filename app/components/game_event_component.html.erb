@@ -7,7 +7,7 @@ end %>
 <% opp_change = EloChange.find_by(game_event: @event, user: opponent_participation&.user) %>
 <div class="card <%= outcome_class %>">
   <div class="card-header">
-    <h3><%= t('games.game_of') %> <%= @event.game_system.name %></h3>
+    <h3><%= t('games.game_of') %> <%= @event.game_system.localized_name %></h3>
     <p class="card-date"><%= l(@event.played_at, format: :card) %></p>
   </div>
 

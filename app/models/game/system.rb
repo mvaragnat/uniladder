@@ -11,5 +11,12 @@ module Game
 
     validates :name, presence: true, uniqueness: true
     validates :description, presence: true
+
+    def localized_name(locale = I18n.locale)
+      translations = Game::Localization.find_system_translations(name)
+      return name unless translations
+
+      Game::Localization.localized(translations, locale) || name
+    end
   end
 end

@@ -14,7 +14,7 @@ class DashboardTest < ApplicationSystemTestCase
     visit dashboard_path
 
     within('.bg-white.rounded-lg.shadow') do
-      assert_text @game.game_system.name
+      assert_text @game.game_system.localized_name
       assert_text I18n.l(@game.played_at, format: :long)
       assert_text @other_user.username
 
