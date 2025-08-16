@@ -4,6 +4,7 @@ ENV['RAILS_ENV'] ||= 'test'
 require_relative '../config/environment'
 require 'rails/test_help'
 require 'view_component/test_helpers'
+require 'devise'
 
 module ActiveSupport
   class TestCase
@@ -26,6 +27,7 @@ end
 module ActionDispatch
   class IntegrationTest
     include ActiveJob::TestHelper
+    include Devise::Test::IntegrationHelpers
 
     setup do
       ActiveJob::Base.queue_adapter = :test

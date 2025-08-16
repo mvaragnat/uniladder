@@ -14,7 +14,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
 
   test 'should redirect to dashboard when logged in' do
     user = users(:player_one)
-    post session_path, params: { email_address: user.email_address, password: 'password' }
+    sign_in user
 
     get root_path
     assert_redirected_to dashboard_path(locale: I18n.locale)

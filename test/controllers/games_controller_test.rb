@@ -7,7 +7,7 @@ class GamesControllerTest < ActionDispatch::IntegrationTest
     @user = users(:player_one)
     @system = game_systems(:chess)
     @opponent = users(:player_two)
-    post session_path, params: { email_address: @user.email_address, password: 'password' }
+    sign_in @user
 
     @f1 = Game::Faction.find_or_create_by!(game_system: @system, name: 'White')
     @f2 = Game::Faction.find_or_create_by!(game_system: @system, name: 'Black')

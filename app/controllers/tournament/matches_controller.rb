@@ -2,7 +2,7 @@
 
 module Tournament
   class MatchesController < ApplicationController
-    before_action :authenticate!
+    before_action :authenticate_user!
     before_action :set_tournament
     before_action :set_match, only: %i[show update]
     before_action :authorize_update!, only: %i[update]
@@ -100,9 +100,7 @@ module Tournament
 
     private
 
-    def authenticate!
-      redirect_to new_session_path unless Current.user
-    end
+    # Devise provides authentication; Current.user is set at ApplicationController
 
     def set_tournament
       @tournament = ::Tournament::Tournament.find(params[:tournament_id])

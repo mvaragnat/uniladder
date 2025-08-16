@@ -1,6 +1,12 @@
 # Changelog
 
 ## 2025-08-16
+- Replace custom authentication with Devise
+  - Added `devise` gem and configured `User` model
+  - Migrated `users` to Devise columns; dropped `sessions` table and legacy `email_address`/`password_digest`
+  - Replaced custom `Authentication` concern with Devise filters
+  - Updated routes, controllers, views, ActionCable connection, and tests
+  - Kept i18n messages consistent in EN/FR
 - Add localization support for game systems and factions
   - `config/game_systems.yml` now supports `en`/`fr` translations for system names, descriptions, and factions
   - Seeding uses English by default and falls back to French when English is missing

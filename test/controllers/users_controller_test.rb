@@ -5,7 +5,7 @@ require 'test_helper'
 class UsersControllerTest < ActionDispatch::IntegrationTest
   setup do
     @user = users(:player_one)
-    post session_path, params: { email_address: @user.email_address, password: 'password' }
+    sign_in @user
   end
 
   test 'should search users' do

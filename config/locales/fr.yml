@@ -6,10 +6,6 @@ fr:
     signup: "S'inscrire"
     logout: "Se déconnecter"
     password:
-      reset_sent: "Instructions de réinitialisation envoyées (si l'utilisateur existe)"
-      reset_success: "Mot de passe réinitialisé"
-      reset_mismatch: "Les mots de passe ne correspondent pas"
-      reset_invalid: "Le lien de réinitialisation est invalide ou a expiré"
       reset_subject: "Réinitialisez votre mot de passe"
     sessions:
       try_later: "Réessayez plus tard"

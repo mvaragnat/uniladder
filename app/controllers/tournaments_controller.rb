@@ -1,15 +1,15 @@
 # frozen_string_literal: true
 
 class TournamentsController < ApplicationController
-  allow_unauthenticated_access only: %i[index show]
-  before_action :authenticate!, except: %i[index show]
+  skip_before_action :authenticate_user!, only: %i[index show]
   before_action :set_tournament,
                 only: %i[show register unregister check_in lock_registration finalize next_round update]
   before_action :authorize_admin!, only: %i[lock_registration finalize next_round update]
 
   def index
     # Populate Current.session/user even when authentication is not required
-    authenticated?
+    # Populate Current.user for guest pages
+    Current.user = current_user
 
     scope = ::Tournament::Tournament.includes(:game_system, :creator).order(created_at: :desc)
     @my_tournaments = Current.user ? scope.where(creator: Current.user) : scope.none
@@ -20,7 +20,7 @@ class TournamentsController < ApplicationController
 
   def show
     # Populate Current.session/user for guest-access pages
-    authenticated?
+    Current.user = current_user
 
     @rounds = @tournament.rounds.includes(matches: %i[a_user b_user]).order(:number)
     @registrations = @tournament.registrations.includes(:user)
@@ -216,7 +216,7 @@ class TournamentsController < ApplicationController
   private
 
   def authenticate!
-    redirect_to new_session_path unless Current.user
+    redirect_to new_user_session_path unless Current.user
   end
 
   def set_tournament
