@@ -47,6 +47,7 @@ Uniladder is a game tracking and ranking app. Players can track their games and 
 - Devise-based authentication (email/password)
 - Registration, login/logout, password reset
 - `current_user` (Devise) mirrored to `Current.user` for app usage
+ - Custom login and signup pages styled with `AuthCardComponent`, following app-wide layout and localization
 
 ### Game Management
 - Create new games with multiple participants

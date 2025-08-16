@@ -28,25 +28,38 @@
 #       enabled: "ON"
 
 en:
+  app:
+    name: "Eloleague"
+    description: "Eloleague"
   hello: "Hello"
-  welcome: "Welcome to Uniladder"
+  welcome: "Welcome to Eloleague"
   auth:
     login: "Login"
     signup: "Sign Up"
     logout: "Logout"
+    login_subtitle: "Sign in to your account to continue"
+    signup_subtitle: "Create your Eloleague account"
     password:
       reset_subject: "Reset your password"
     sessions:
       try_later: "Try again later"
       invalid_credentials: "Try another email address or password"
     registration:
-      welcome: "Welcome to Uniladder!"
+      welcome: "Welcome to Eloleague!"
   layouts:
     language:
       en: "English"
       fr: "Français"
     shared:
       cancel: "Cancel"
+  devise:
+    sessions:
+      remember_me: "Remember me"
+    shared:
+      links:
+        forgot_your_password: "Forgot your password?"
+        sign_in: "Already have an account?"
+        sign_up: "Don't have an account?"
   vs: "vs"
   home:
     subtitle: "Tournaments and ELO rankings for any game system"
