@@ -11,8 +11,8 @@ class EloIntegrationTest < ActionDispatch::IntegrationTest
 
   test 'tournament registration, lock, pairing and result reporting' do
     # Creator signs in and creates a swiss tournament
-    post session_path(locale: I18n.locale), params: { email_address: @creator.email_address, password: 'password' }
-    assert_response :redirect
+    sign_in @creator
+    # sign_in does not issue a request; no response to assert here
 
     post tournaments_path(locale: I18n.locale), params: {
       tournament: {
@@ -35,8 +35,8 @@ class EloIntegrationTest < ActionDispatch::IntegrationTest
     assert_response :redirect
 
     # Another player registers and checks in
-    delete session_path(locale: I18n.locale)
-    post session_path(locale: I18n.locale), params: { email_address: @player2.email_address, password: 'password' }
+    sign_out @creator
+    sign_in @player2
     assert_response :redirect
     post register_tournament_path(t, locale: I18n.locale)
     assert_response :redirect
@@ -46,8 +46,8 @@ class EloIntegrationTest < ActionDispatch::IntegrationTest
     assert_response :redirect
 
     # Creator locks registration and starts round (pairings)
-    delete session_path(locale: I18n.locale)
-    post session_path(locale: I18n.locale), params: { email_address: @creator.email_address, password: 'password' }
+    sign_out @player2
+    sign_in @creator
     post lock_registration_tournament_path(t, locale: I18n.locale)
     assert_response :redirect
     post next_round_tournament_path(t, locale: I18n.locale)
@@ -57,16 +57,16 @@ class EloIntegrationTest < ActionDispatch::IntegrationTest
     assert_not_nil match
 
     # Non-participant cannot report
-    stranger = User.create!(username: 'stranger', email_address: 'stranger@example.com', password: 'password')
-    delete session_path(locale: I18n.locale)
-    post session_path(locale: I18n.locale), params: { email_address: stranger.email_address, password: 'password' }
+    stranger = User.create!(username: 'stranger', email: 'stranger@example.com', password: 'password')
+    sign_out @creator
+    sign_in stranger
     patch tournament_tournament_match_path(t, match, locale: I18n.locale),
           params: { tournament_match: { a_score: 1, b_score: 0 } }
     assert_redirected_to tournament_tournament_match_path(t, match, locale: I18n.locale)
 
     # Participant can report
-    delete session_path(locale: I18n.locale)
-    post session_path(locale: I18n.locale), params: { email_address: @player2.email_address, password: 'password' }
+    sign_out stranger
+    sign_in @player2
     patch tournament_tournament_match_path(t, match, locale: I18n.locale),
           params: { tournament_match: { a_score: 1, b_score: 0 } }
     assert_redirected_to tournament_path(t, locale: I18n.locale, tab: 0)
@@ -83,8 +83,8 @@ class EloIntegrationTest < ActionDispatch::IntegrationTest
     match.reload
     assert_equal 'a_win', match.result
 
-    delete session_path(locale: I18n.locale)
-    post session_path(locale: I18n.locale), params: { email_address: @creator.email_address, password: 'password' }
+    sign_out @player2
+    sign_in @creator
     patch tournament_tournament_match_path(t, match, locale: I18n.locale),
           params: { tournament_match: { a_score: 0, b_score: 1 } }
     assert_redirected_to tournament_path(t, locale: I18n.locale, tab: 0)

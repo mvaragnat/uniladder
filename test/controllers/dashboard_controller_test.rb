@@ -5,13 +5,13 @@ require 'test_helper'
 class DashboardControllerTest < ActionDispatch::IntegrationTest
   setup do
     @user = users(:player_one)
-    post session_path(locale: I18n.locale), params: { email_address: @user.email_address, password: 'password' }
+    sign_in @user
   end
 
   test 'should redirect to login when not authenticated' do
-    delete session_path(locale: I18n.locale)
+    sign_out @user
     get dashboard_path(locale: I18n.locale)
-    assert_redirected_to new_session_path(locale: I18n.locale)
+    assert_redirected_to new_user_session_path(locale: I18n.locale)
   end
 
   test 'should show dashboard when authenticated' do

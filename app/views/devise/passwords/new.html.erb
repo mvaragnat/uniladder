@@ -1,0 +1,16 @@
+<%= render(AuthCardComponent.new(title: t('auth.password.reset'), subtitle: t('auth.password.reset_subtitle'))) do %>
+  <%= render 'devise/shared/error_messages', resource: resource %>
+  <%= form_with model: resource, as: resource_name, url: password_path(resource_name), data: { turbo: true } do |f| %>
+    <div>
+      <%= f.label :email, User.human_attribute_name(:email) %>
+      <%= f.email_field :email, autofocus: true, autocomplete: 'email' %>
+    </div>
+
+    <div style="margin-top:1rem; display:flex; gap:.5rem; align-items:center;">
+      <%= f.submit t('auth.password.send_instructions'), class: 'btn btn-primary' %>
+      <%= link_to t('devise.shared.links.sign_in', default: 'Already have an account?'), new_session_path(resource_name), class: 'btn btn-inverse' %>
+    </div>
+  <% end %>
+<% end %>
+
+

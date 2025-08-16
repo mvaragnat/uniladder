@@ -8,11 +8,6 @@ class TournamentAdminStrategiesIntegrationTest < ActionDispatch::IntegrationTest
     @system = game_systems(:chess)
   end
 
-  def sign_in(user)
-    post session_path(locale: I18n.locale), params: { email_address: user.email_address, password: 'password' }
-    assert_response :redirect
-  end
-
   test 'elimination admin: no pairing, tie-breaks present' do
     sign_in(@creator)
 
@@ -25,7 +20,7 @@ class TournamentAdminStrategiesIntegrationTest < ActionDispatch::IntegrationTest
     get tournament_path(t, locale: I18n.locale, tab: 2)
     assert_response :success
 
-    assert_not_includes @response.body, 'name=\'tournament[pairing_strategy_key]\''
+    assert_not_includes @response.body, "name='tournament[pairing_strategy_key]'"
     assert_includes @response.body, 'name="tournament[tiebreak1_strategy_key]"'
     assert_includes @response.body, 'name="tournament[tiebreak2_strategy_key]"'
   end
@@ -42,7 +37,7 @@ class TournamentAdminStrategiesIntegrationTest < ActionDispatch::IntegrationTest
     get tournament_path(t, locale: I18n.locale, tab: 3)
     assert_response :success
 
-    assert_not_includes @response.body, 'name=\'tournament[pairing_strategy_key]\''
+    assert_not_includes @response.body, "name='tournament[pairing_strategy_key]'"
     assert_includes @response.body, 'name="tournament[tiebreak1_strategy_key]"'
     assert_includes @response.body, 'name="tournament[tiebreak2_strategy_key]"'
   end

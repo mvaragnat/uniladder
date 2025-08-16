@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class EloController < ApplicationController
-  allow_unauthenticated_access
+  skip_before_action :authenticate_user!
 
   def index
     @systems = load_systems

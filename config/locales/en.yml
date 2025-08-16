@@ -28,29 +28,44 @@
 #       enabled: "ON"
 
 en:
+  app:
+    name: "Eloleague"
+    description: "Eloleague"
   hello: "Hello"
-  welcome: "Welcome to Uniladder"
+  welcome: "Welcome to Eloleague"
   auth:
     login: "Login"
     signup: "Sign Up"
     logout: "Logout"
+    login_subtitle: "Sign in to your account to continue"
+    signup_subtitle: "Create your Eloleague account"
     password:
-      reset_sent: "Password reset instructions sent (if user with that email address exists)"
-      reset_success: "Password has been reset"
-      reset_mismatch: "Passwords did not match"
-      reset_invalid: "Password reset link is invalid or has expired"
+      reset: "Reset password"
+      reset_subtitle: "Enter your email to receive reset instructions"
+      send_instructions: "Send reset instructions"
+      change: "Change password"
+      change_subtitle: "Choose a new password"
+      change_button: "Update password"
       reset_subject: "Reset your password"
     sessions:
       try_later: "Try again later"
       invalid_credentials: "Try another email address or password"
     registration:
-      welcome: "Welcome to Uniladder!"
+      welcome: "Welcome to Eloleague!"
   layouts:
     language:
       en: "English"
       fr: "Français"
     shared:
       cancel: "Cancel"
+  devise:
+    sessions:
+      remember_me: "Remember me"
+    shared:
+      links:
+        forgot_your_password: "Forgot your password?"
+        sign_in: "Already have an account?"
+        sign_up: "Don't have an account?"
   vs: "vs"
   home:
     subtitle: "Tournaments and ELO rankings for any game system"

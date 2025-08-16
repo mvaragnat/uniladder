@@ -12,7 +12,7 @@ class TournamentBracketBuilderTest < ActiveSupport::TestCase
     (1..count).map do |i|
       User.create!(
         username: "u#{i}_#{SecureRandom.hex(2)}",
-        email_address: "u#{i}_#{SecureRandom.hex(2)}@example.com",
+        email: "u#{i}_#{SecureRandom.hex(2)}@example.com",
         password: 'password'
       )
     end

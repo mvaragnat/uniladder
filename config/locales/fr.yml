@@ -1,27 +1,50 @@
 fr:
+  app:
+    name: "Eloleague"
+    description: "Eloleague"
+  errors:
+    messages:
+      required: 'must exist'
   hello: "Bonjour"
-  welcome: "Bienvenue sur Uniladder"
+  welcome: "Bienvenue sur Eloleague"
   auth:
     login: "Connexion"
     signup: "S'inscrire"
     logout: "Se déconnecter"
+    login_subtitle: "Connectez-vous pour continuer"
+    signup_subtitle: "Créez votre compte Eloleague"
     password:
-      reset_sent: "Instructions de réinitialisation envoyées (si l'utilisateur existe)"
-      reset_success: "Mot de passe réinitialisé"
-      reset_mismatch: "Les mots de passe ne correspondent pas"
-      reset_invalid: "Le lien de réinitialisation est invalide ou a expiré"
+      reset: "Réinitialiser le mot de passe"
+      reset_subtitle: "Saisissez votre email pour recevoir les instructions"
+      send_instructions: "Envoyer les instructions"
+      change: "Changer le mot de passe"
+      change_subtitle: "Choisissez un nouveau mot de passe"
+      change_button: "Mettre à jour le mot de passe"
       reset_subject: "Réinitialisez votre mot de passe"
     sessions:
       try_later: "Réessayez plus tard"
       invalid_credentials: "Vérifiez votre email ou mot de passe"
     registration:
-      welcome: "Bienvenue sur Uniladder !"
+      welcome: "Bienvenue sur Eloleague !"
   layouts:
     language:
       en: "English"
       fr: "Français"
     shared:
       cancel: "Annuler"
+  devise:
+    sessions:
+      remember_me: "Se souvenir de moi"
+      signed_out: "Vous êtes déconnecté"
+    failure:
+      already_authenticated: "Vous êtes déjà connecté"
+    passwords:
+      send_instructions: "Vous recevrez un email avec les instructions de réinitialisation dans quelques minutes."
+    shared:
+      links:
+        forgot_your_password: "Mot de passe oublié ?"
+        sign_in: "Vous avez déjà un compte ?"
+        sign_up: "Vous n'avez pas de compte ?"
   vs: "vs"
   home:
     subtitle: "Tournois et classements ELO pour tous les systèmes de jeu"

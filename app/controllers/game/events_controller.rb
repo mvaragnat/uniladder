@@ -2,6 +2,7 @@
 
 module Game
   class EventsController < ApplicationController
+    before_action :authenticate_user!
     def new
       @game = Event.new
       @game.game_participations.build(user: Current.user)

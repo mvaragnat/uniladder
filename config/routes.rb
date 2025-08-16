@@ -2,17 +2,10 @@
 
 Rails.application.routes.draw do
   scope '(:locale)', locale: /en|fr/ do
+    devise_for :users, controllers: { sessions: 'users/sessions' }
     root to: 'pages#home'
 
-    # Sessions & registrations
-    resource :session, only: %i[new create destroy]
-    resources :registrations, only: %i[new create]
-    # Helper used by UI (home page links)
-    get  'sign_up', to: 'registrations#new',   as: :sign_up
-    post 'sign_up', to: 'registrations#create'
-
-    # Password reset
-    resources :passwords, only: %i[new create edit update], param: :token
+    # Devise handles sessions/registrations/passwords
 
     # Elo
     get 'elo', to: 'elo#index', as: :elo
