@@ -1,4 +1,7 @@
 fr:
+  errors:
+    messages:
+      required: 'must exist'
   hello: "Bonjour"
   welcome: "Bienvenue sur Uniladder"
   auth:
