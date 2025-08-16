@@ -27,4 +27,14 @@ class AuthPagesTest < ApplicationSystemTestCase
 
     assert_current_path root_path
   end
+
+  test 'password reset page renders and sends instructions' do
+    visit new_user_password_path
+    assert_text I18n.t('auth.password.reset')
+
+    fill_in User.human_attribute_name(:email), with: users(:player_one).email
+    click_on I18n.t('auth.password.send_instructions')
+
+    assert_text I18n.t('devise.passwords.send_instructions')
+  end
 end

@@ -40,6 +40,12 @@ en:
     login_subtitle: "Sign in to your account to continue"
     signup_subtitle: "Create your Eloleague account"
     password:
+      reset: "Reset password"
+      reset_subtitle: "Enter your email to receive reset instructions"
+      send_instructions: "Send reset instructions"
+      change: "Change password"
+      change_subtitle: "Choose a new password"
+      change_button: "Update password"
       reset_subject: "Reset your password"
     sessions:
       try_later: "Try again later"

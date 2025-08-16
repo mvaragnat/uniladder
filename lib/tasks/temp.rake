@@ -8,12 +8,6 @@ namespace :temp do
     8.times do |i|
       user_number = i + 2
 
-      # user = User.create!(
-      #   username: "user#{user_number}",
-      #   email_address: "user#{user_number}@test.com",
-      #   password: "password#{user_number}",
-      #   name: "User #{user_number}"
-      # )
       user = User.find(user_number)
 
       Tournament::Registration.create!(

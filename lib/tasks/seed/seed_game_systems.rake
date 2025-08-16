@@ -111,10 +111,6 @@ module SeedGameSystemsHelper
 end
 
 namespace :seed do
-  task all: :environment do
-    Rake::Task['seed:game_systems'].invoke
-  end
-
   task game_systems: :environment do
     SeedGameSystemsHelper.run_seeding
   end

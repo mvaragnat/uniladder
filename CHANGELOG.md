@@ -1,6 +1,7 @@
 ## 2025-08-16
 
 - Customize Devise login and signup pages to match app styling using a reusable `AuthCardComponent`. Added localized labels, error rendering, and ensured Devise controllers inherit `ApplicationController` for consistent layout and locale. Added system tests for auth pages.
+- Style Devise password reset and change pages with `AuthCardComponent` for consistency with login/signup, added EN/FR locales, and added a system test for requesting reset instructions.
 
 # Changelog
 

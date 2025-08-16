@@ -14,6 +14,12 @@ fr:
     login_subtitle: "Connectez-vous pour continuer"
     signup_subtitle: "Créez votre compte Eloleague"
     password:
+      reset: "Réinitialiser le mot de passe"
+      reset_subtitle: "Saisissez votre email pour recevoir les instructions"
+      send_instructions: "Envoyer les instructions"
+      change: "Changer le mot de passe"
+      change_subtitle: "Choisissez un nouveau mot de passe"
+      change_button: "Mettre à jour le mot de passe"
       reset_subject: "Réinitialisez votre mot de passe"
     sessions:
       try_later: "Réessayez plus tard"
@@ -29,8 +35,11 @@ fr:
   devise:
     sessions:
       remember_me: "Se souvenir de moi"
+      signed_out: "Vous êtes déconnecté"
     failure:
       already_authenticated: "Vous êtes déjà connecté"
+    passwords:
+      send_instructions: "Vous recevrez un email avec les instructions de réinitialisation dans quelques minutes."
     shared:
       links:
         forgot_your_password: "Mot de passe oublié ?"
