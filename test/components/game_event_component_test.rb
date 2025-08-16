@@ -12,7 +12,7 @@ class GameEventComponentTest < ViewComponent::TestCase
 
   test 'renders game system name' do
     render_inline(@component)
-    assert_text @game.game_system.name
+    assert_text @game.game_system.localized_name
   end
 
   test 'renders game date' do

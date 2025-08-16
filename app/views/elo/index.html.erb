@@ -7,7 +7,7 @@
     <div class="card-body">
       <%= form_with url: elo_path, method: :get, local: true do %>
         <%= select_tag :game_system_id,
-                       options_from_collection_for_select(@systems, :id, :name, @system&.id),
+                       options_from_collection_for_select(@systems.sort_by(&:localized_name), :id, :localized_name, @system&.id),
                        include_blank: t('elo.select_system'),
                        onchange: 'this.form.submit()' %>
       <% end %>
@@ -18,7 +18,7 @@
     <div class="card">
       <div class="card-header">
         <h3><%= t('elo.standings') %></h3>
-        <p class="card-date"><%= @system&.name %></p>
+        <p class="card-date"><%= @system&.localized_name %></p>
       </div>
       <div class="card-body">
         <table style="width:100%; border-collapse: collapse;">
@@ -48,7 +48,7 @@
     <% @events.each do |event| %>
       <div class="card">
         <div class="card-header">
-          <h3><%= t('games.game_of') %> <%= event.game_system.name %></h3>
+          <h3><%= t('games.game_of') %> <%= event.game_system.localized_name %></h3>
           <p class="card-date"><%= l(event.played_at, format: :card) %></p>
         </div>
         <div class="card-body">

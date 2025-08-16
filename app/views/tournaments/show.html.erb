@@ -1,6 +1,6 @@
 <div class="games-container">
   <h1><%= @tournament.name %></h1>
-  <p class="card-date"><%= @tournament.game_system.name %> · <%= @tournament.format %> · <strong><%= @tournament.state_label %></strong></p>
+  <p class="card-date"><%= @tournament.game_system.localized_name %> · <%= @tournament.format %> · <strong><%= @tournament.state_label %></strong></p>
   <p class="card-date"><%= t('tournaments.show.organizer', default: 'Organizer') %>: <%= @tournament.creator.username %></p>
 
   <div style="margin:1rem 0; display:flex; flex-direction:column; gap:0.5rem;">
@@ -142,10 +142,10 @@
                     <% can_edit = (Current.user && (Current.user.id == r.user_id || Current.user.id == @tournament.creator_id)) %>
                     <% if can_edit %>
                       <%= form_with(model: r, url: tournament_tournament_registration_path(@tournament, r), method: :patch, scope: :tournament_registration) do |f| %>
-                        <%= f.select :faction_id, Game::Faction.where(game_system_id: @tournament.game_system_id).order(:name).map { |fa| [fa.name, fa.id] }, { include_blank: t('tournaments.show.select_faction', default: 'Select faction') }, { onchange: 'this.form.submit()' } %>
+                        <%= f.select :faction_id, Game::Faction.where(game_system_id: @tournament.game_system_id).to_a.sort_by { |fa| fa.localized_name(I18n.locale) }.map { |fa| [fa.localized_name(I18n.locale), fa.id] }, { include_blank: t('tournaments.show.select_faction', default: 'Select faction') }, { onchange: 'this.form.submit()' } %>
                       <% end %>
                     <% else %>
-                      <span class="card-date"><%= r.faction&.name || t('tournaments.show.no_faction', default: 'No faction') %></span>
+                      <span class="card-date"><%= r.faction&.localized_name || t('tournaments.show.no_faction', default: 'No faction') %></span>
                     <% end %>
                   </div>
                   <div class="card-date" style="text-align:right;"><%= r.status %></div>
@@ -268,10 +268,10 @@
                     <% can_edit = (Current.user && (Current.user.id == r.user_id || Current.user.id == @tournament.creator_id)) %>
                     <% if can_edit %>
                       <%= form_with(model: r, url: tournament_tournament_registration_path(@tournament, r), method: :patch, scope: :tournament_registration) do |f| %>
-                        <%= f.select :faction_id, Game::Faction.where(game_system_id: @tournament.game_system_id).order(:name).map { |fa| [fa.name, fa.id] }, { include_blank: t('tournaments.show.select_faction', default: 'Select faction') }, { onchange: 'this.form.submit()' } %>
+                        <%= f.select :faction_id, Game::Faction.where(game_system_id: @tournament.game_system_id).to_a.sort_by { |fa| fa.localized_name(I18n.locale) }.map { |fa| [fa.localized_name(I18n.locale), fa.id] }, { include_blank: t('tournaments.show.select_faction', default: 'Select faction') }, { onchange: 'this.form.submit()' } %>
                       <% end %>
                     <% else %>
-                      <span class="card-date"><%= r.faction&.name || t('tournaments.show.no_faction', default: 'No faction') %></span>
+                      <span class="card-date"><%= r.faction&.localized_name || t('tournaments.show.no_faction', default: 'No faction') %></span>
                     <% end %>
                   </div>
                   <div class="card-date" style="text-align:right;"><%= r.status %></div>

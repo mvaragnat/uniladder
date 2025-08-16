@@ -1,5 +1,12 @@
 # Changelog
 
+## 2025-08-16
+- Add localization support for game systems and factions
+  - `config/game_systems.yml` now supports `en`/`fr` translations for system names, descriptions, and factions
+  - Seeding uses English by default and falls back to French when English is missing
+  - Views and dropdowns show localized names via `localized_name`
+# Changelog
+
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),

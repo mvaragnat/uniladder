@@ -5,6 +5,8 @@ module SeedGameSystemsHelper
   def self.run_seeding
     config_file = Rails.root.join('config/game_systems.yml')
 
+    Rails.logger.info 'Seeding game systems from config/game_systems.yml'
+
     unless File.exist?(config_file)
       Rails.logger.info "Configuration file not found: #{config_file}"
       Rails.logger.info 'Please create config/game_systems.yml with your game systems and factions'
@@ -34,9 +36,34 @@ module SeedGameSystemsHelper
     end
   end
 
+  # Extract a localized value from a string or a hash of locales
+  # - Prefers English ('en'), falls back to French ('fr'), then any present value
+  def self.localized_value(value)
+    return value if value.is_a?(String)
+    return value['en'] if value.is_a?(Hash) && value['en'].present?
+    return value['fr'] if value.is_a?(Hash) && value['fr'].present?
+
+    value.is_a?(Hash) ? value.values.compact.first : nil
+  end
+
+  def self.extract_name(entry)
+    case entry
+    when String
+      entry
+    when Hash
+      # Can be { 'en' => 'Name', 'fr' => 'Nom' } or { 'name' => { 'en' => 'Name', 'fr' => 'Nom' } }
+      if entry.key?('name')
+        localized_value(entry['name'])
+      else
+        localized_value(entry)
+      end
+    end
+  end
+
   def self.seed_game_system(system_data)
-    system_name = system_data['name']
-    system_description = system_data['description']
+    # Support both legacy mono-lingual strings and new localized hashes
+    system_name = extract_name(system_data['name'])
+    system_description = localized_value(system_data['description'])
     factions_data = system_data['factions'] || []
 
     return if system_name.blank?
@@ -67,7 +94,8 @@ module SeedGameSystemsHelper
   def self.seed_factions(game_system, factions_data)
     return if factions_data.blank?
 
-    factions_data.each do |faction_name|
+    factions_data.each do |faction_entry|
+      faction_name = extract_name(faction_entry)
       next if faction_name.blank?
 
       existing_faction = game_system.factions.find_by(name: faction_name)

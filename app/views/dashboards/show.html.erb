@@ -39,7 +39,7 @@
             <ul style="list-style:none; padding-left:0; margin:0;">
               <% @elo_ratings.each do |er| %>
                 <li style="display:flex; justify-content:space-between; padding:0.25rem 0; border-bottom:1px solid var(--gray-300);">
-                  <span><%= er.game_system.name %></span>
+                  <span><%= er.game_system.localized_name %></span>
                   <strong><%= er.rating %></strong>
                 </li>
               <% end %>

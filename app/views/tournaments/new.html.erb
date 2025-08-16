@@ -14,7 +14,7 @@
         </div>
         <div>
           <%= f.label :game_system_id, t('tournaments.new.game_system') %>
-          <%= f.collection_select :game_system_id, Game::System.order(:name), :id, :name, include_blank: t('games.new.select_system') %>
+          <%= f.collection_select :game_system_id, Game::System.all.sort_by(&:localized_name), :id, :localized_name, include_blank: t('games.new.select_system') %>
         </div>
         <div>
           <%= f.label :format, t('tournaments.new.format') %>
