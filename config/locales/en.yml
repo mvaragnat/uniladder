@@ -100,6 +100,19 @@ en:
     index_title: "Tournaments"
     new: 
       create: "Create new tournament"
+      title: "New tournament"
+      name: "Name"
+      description: "Description"
+      game_system: "Game system"
+      format: "Format"
+      rounds_count: "Rounds"
+      starts_at: "Starts at"
+      ends_at: "Ends at"
+      datetime_placeholder: "YYYY-MM-DD HH:MM"
+    formats:
+      open: "Open"
+      swiss: "Swiss"
+      elimination: "Elimination"
     open: "Open"
     index:
       accepting: "Accepting signups"

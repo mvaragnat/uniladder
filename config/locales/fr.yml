@@ -5,6 +5,7 @@ fr:
   errors:
     messages:
       required: 'must exist'
+      inclusion: 'is not included in the list'
   hello: "Bonjour"
   welcome: "Bienvenue sur Eloleague"
   auth:
@@ -79,6 +80,19 @@ fr:
     index_title: "Tournois"
     new: 
       create: "Créer un nouveau tournoi"
+      title: "Nouveau tournoi"
+      name: "Nom"
+      description: "Description"
+      game_system: "Système de jeu"
+      format: "Format"
+      rounds_count: "Nombre de rondes"
+      starts_at: "Début"
+      ends_at: "Fin"
+      datetime_placeholder: "AAAA-MM-JJ HH:MM"
+    formats:
+      open: "Open"
+      swiss: "Suisse"
+      elimination: "Élimination"
     open: "Ouvrir"
     index:
       accepting: "Inscriptions ouvertes"
