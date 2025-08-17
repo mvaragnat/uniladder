@@ -36,11 +36,6 @@ fr:
   devise:
     sessions:
       remember_me: "Se souvenir de moi"
-      signed_out: "Vous êtes déconnecté"
-    failure:
-      already_authenticated: "Vous êtes déjà connecté"
-    passwords:
-      send_instructions: "Vous recevrez un email avec les instructions de réinitialisation dans quelques minutes."
     shared:
       links:
         forgot_your_password: "Mot de passe oublié ?"
@@ -160,6 +155,7 @@ fr:
     not_allowed_state: "Action non autorisée dans l'état actuel"
     draw_not_allowed: "Match nul interdit en élimination"
     cannot_advance_pending: "Tous les matchs doivent être terminés pour passer à la ronde suivante"
+    faction_required_hint: "Veuillez sélectionner votre faction dans l'onglet Participants avant le check-in."
     faction_required_to_check_in: "Veuillez sélectionner votre faction avant l'enregistrement"
     registration_updated: "Inscription mise à jour"
     errors:
