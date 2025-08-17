@@ -68,6 +68,7 @@ en:
         sign_up: "Don't have an account?"
   vs: "vs"
   home:
+    link: "My Dashboard"
     subtitle: "Tournaments and ELO rankings for any game system"
     browse_tournaments: "Browse tournaments"
     see_elo: "See ELO rankings"
@@ -176,7 +177,7 @@ en:
       cannot_unregister: "Cannot unregister from this tournament"
       status_invalid: "must be pending or checked_in"
   elo:
-    title: "ELO"
+    title: "ELO Rankings"
     my_current_rankings: "My current ELO rankings"
     standings: "Standings"
     player: "Player"

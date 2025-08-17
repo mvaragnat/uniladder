@@ -47,6 +47,7 @@ fr:
         sign_up: "Vous n'avez pas de compte ?"
   vs: "vs"
   home:
+    link: "Mon Dashboard"
     subtitle: "Tournois et classements ELO pour tous les systèmes de jeu"
     browse_tournaments: "Parcourir les tournois"
     see_elo: "Voir les classements ELO"
@@ -153,7 +154,7 @@ fr:
       cannot_unregister: "Impossible de se désinscrire de ce tournoi"
       status_invalid: "doit être pending ou checked_in"
   elo:
-    title: "ELO"
+    title: "Classements ELO"
     my_current_rankings: "Mes classements ELO actuels"
     standings: "Classement"
     player: "Joueur"

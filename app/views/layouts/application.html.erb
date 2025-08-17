@@ -24,9 +24,8 @@
 
   <body>
     <nav class="site-nav">
-      <%= link_to "🪜", root_path, class: "brand", title: "Home", aria: { label: "Home" } %>
       <% if user_signed_in? %>
-        <%= link_to "My Dashboard", dashboard_path, class: "brand" %>
+        <%= link_to t('home.link'), dashboard_path, class: "brand" %>
       <% end %>
       <%= link_to "ELO", elo_path, class: "brand" %>
       <%= link_to t('tournaments.index_title'), tournaments_path, class: "brand" %>
