@@ -1,0 +1,26 @@
+<!-- Bracket panel -->
+<div data-tabs-target="panel">
+  <div class="card" style="margin-bottom:0.75rem;">
+    <div class="card-body">
+      <%= render_svg_bracket(tournament, rounds) %>
+    </div>
+  </div>
+  </div>
+
+<!-- Participants panel -->
+<div data-tabs-target="panel" style="display:none;">
+  <%= render 'participants', registrations: registrations, tournament: tournament %>
+</div>
+
+<% if tournament.creator == Current.user %>
+  <!-- Admin panel -->
+  <div data-tabs-target="panel" style="display:none;">
+    <div class="card">
+      <div class="card-body" style="display:flex; flex-direction:column; gap:1rem;">
+        <%= render 'admin_actions', tournament: tournament, can_move_to_next_round: can_move_to_next_round, move_block_reason: move_block_reason %>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+
