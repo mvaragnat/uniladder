@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 class ApplicationController < ActionController::Base
-  
   # Prevent CSRF attacks by raising an exception.
   # For APIs, you may want to use :null_session instead.
   # MUST BE THE FIRST IN THE BEFORE_ACTION STACK
@@ -49,7 +48,7 @@ class ApplicationController < ActionController::Base
   end
 
   def storable_location?
-    !user_signed_in? && request.referer.present? && request.format.html? && !request.xhr? && request.get?
+    !user_signed_in? && request.referer.present? && request.format.html? && !request.xhr?
   end
 
   protected

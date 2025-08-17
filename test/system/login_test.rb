@@ -12,7 +12,7 @@ class LoginTest < ApplicationSystemTestCase
   teardown do
     ActionController::Base.allow_forgery_protection = @previous_forgery_setting
   end
-  
+
   test 'user can sign in' do
     visit new_user_session_path(locale: I18n.locale)
 
