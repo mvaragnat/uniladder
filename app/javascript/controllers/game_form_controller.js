@@ -2,6 +2,14 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   static targets = ["error", "scores"]
+  static values = { factionsUrl: String }
+
+  connect() {
+    const systemSelect = this.element.querySelector('select[name="game_event[game_system_id]"]')
+    if (systemSelect && systemSelect.value) {
+      this.loadFactions({ currentTarget: systemSelect })
+    }
+  }
 
   validate(event) {
     const form = this.element
@@ -57,6 +65,59 @@ export default class extends Controller {
     }
 
     this.hideError()
+  }
+
+  async loadFactions(event) {
+    const systemSelect = event?.currentTarget || this.element.querySelector('select[name="game_event[game_system_id]"]')
+    const systemId = systemSelect?.value
+
+    const factionSelects = Array.from(this.element.querySelectorAll('[data-faction-select="true"]'))
+
+    if (!systemId) {
+      factionSelects.forEach(select => this.populateSelect(select, []))
+      this.toggleScores()
+      return
+    }
+
+    try {
+      const url = `${this.factionsUrlValue}?game_system_id=${encodeURIComponent(systemId)}`
+      const response = await fetch(url, { headers: { Accept: "application/json" }, credentials: "same-origin" })
+      if (!response.ok) throw new Error("Network error")
+      const factions = await response.json()
+      factionSelects.forEach(select => this.populateSelect(select, factions))
+    } catch (_e) {
+      factionSelects.forEach(select => this.populateSelect(select, []))
+    } finally {
+      this.toggleScores()
+    }
+  }
+
+  populateSelect(select, factions) {
+    const prompt = select.querySelector('option[value=""]')?.textContent || (window.I18n?.t('games.new.select_faction') || 'Select faction')
+    const previous = select.value
+
+    // Reset options
+    select.innerHTML = ''
+    const placeholder = document.createElement('option')
+    placeholder.value = ''
+    placeholder.textContent = prompt
+    select.appendChild(placeholder)
+
+    factions.forEach(f => {
+      const option = document.createElement('option')
+      option.value = String(f.id)
+      option.textContent = f.name
+      select.appendChild(option)
+    })
+
+    if (factions.some(f => String(f.id) === previous)) {
+      select.value = previous
+    } else {
+      select.value = ''
+    }
+
+    // Trigger change for dependent UI, if any
+    select.dispatchEvent(new Event('change', { bubbles: true }))
   }
 
   showScores() {

@@ -3,7 +3,7 @@
     <div class="modal-card">
       <h2><%= t('games.new.title') %></h2>
 
-      <%= form_with(model: @game, url: game_events_path, scope: :game_event, data: { controller: "game-form", action: "submit->game-form#validate player-selected->game-form#showScores player-removed->game-form#toggleScores" }) do |form| %>
+      <%= form_with(model: @game, url: game_events_path, scope: :game_event, data: { controller: "game-form", action: "submit->game-form#validate player-selected->game-form#showScores player-removed->game-form#toggleScores", game_form_factions_url_value: game_factions_path(locale: I18n.locale) }) do |form| %>
         <div data-game-form-target="error" class="hidden" style="color:#dc2626;font-size:0.875rem;margin-bottom:1rem;"></div>
 
         <div class="form-group">
@@ -11,7 +11,7 @@
           <%= form.collection_select :game_system_id, 
               Game::System.all.sort_by(&:localized_name), :id, :localized_name,
               { prompt: t('games.new.select_system') },
-              { class: "form-select", data: { action: 'change->game-form#toggleScores' } } %>
+              { class: "form-select", data: { action: 'change->game-form#loadFactions' } } %>
         </div>
 
         <div data-controller="player-search" class="form-group">
@@ -37,7 +37,7 @@
               </div>
               <div class="faction-input">
                 <%= p_form.label :faction_id, t('games.new.your_faction'), class: "form-label" %>
-                <%= p_form.select :faction_id, [], { prompt: t('games.new.select_faction') }, { class: "form-select", data: { factionSelect: true } } %>
+                <%= p_form.select :faction_id, [], { prompt: t('games.new.select_faction') }, { class: "form-select", data: { faction_select: true } } %>
               </div>
             </div>
           <% end %>
@@ -49,7 +49,7 @@
             </div>
             <div class="faction-input">
               <label class="form-label"><%= t('games.new.opponent_faction') %></label>
-              <select name="game_event[game_participations_attributes][1][faction_id]" class="form-select">
+              <select name="game_event[game_participations_attributes][1][faction_id]" class="form-select" data-faction-select="true">
                 <option value=""><%= t('games.new.select_faction') %></option>
               </select>
             </div>
