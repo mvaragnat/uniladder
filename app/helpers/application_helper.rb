@@ -35,7 +35,7 @@ module ApplicationHelper
 
     # Layout constants
     cell_w = 240
-    cell_h = 68
+    cell_h = 88
     col_gap = 120
     row_gap = 36
     padding = 24
@@ -130,10 +130,8 @@ module ApplicationHelper
   # Exposed to reuse in other formats (e.g., swiss/open rounds list) by calling this helper per match.
   def small_match_box(tournament, match, pos_x, pos_y, options = {})
     cell_w = options[:width].presence || 240
-    cell_h = 68
-    seed_map = build_seed_map_for(tournament)
+    cell_h = 88
     admin = Current.user && tournament.creator_id == Current.user.id
-    show_seeds = options.key?(:show_seeds) ? options[:show_seeds] : tournament.elimination?
 
     a_set = match.a_user_id.present?
     b_set = match.b_user_id.present?
@@ -155,16 +153,13 @@ module ApplicationHelper
                'TBD'
              end
 
-    a_seed = if show_seeds && match.a_user_id && seed_map[match.a_user_id]
-               "(S#{seed_map[match.a_user_id]})"
-             else
-               ''
-             end
-    b_seed = if show_seeds && match.b_user_id && seed_map[match.b_user_id]
-               "(S#{seed_map[match.b_user_id]})"
-             else
-               ''
-             end
+    a_faction = match.a_user_id ? faction_label_for_user(tournament, match.a_user) : nil
+    b_faction = match.b_user_id ? faction_label_for_user(tournament, match.b_user) : nil
+
+    a_label = truncate(a_name, length: 24)
+    b_label = truncate(b_name, length: 24)
+    a_faction_label = a_faction.present? ? truncate(a_faction, length: 24) : nil
+    b_faction_label = b_faction.present? ? truncate(b_faction, length: 24) : nil
 
     if match.game_event_id
       pa = match.game_event.game_participations.find_by(user: match.a_user)
@@ -191,18 +186,31 @@ module ApplicationHelper
     parts = [
       content_tag(:rect, nil, x: pos_x, y: pos_y, width: cell_w, height: cell_h, rx: 10, ry: 10,
                               fill: '#ffffff', stroke: '#e5e7eb', 'stroke-width': 3),
-      content_tag(:text, [a_name, a_seed].compact_blank.join(' '), x: pos_x + 14, y: pos_y + 26,
-                                                                   style: a_style, 'font-size': 14),
-      content_tag(:text, [b_name, b_seed].compact_blank.join(' '), x: pos_x + 14, y: pos_y + 50,
-                                                                   style: b_style, 'font-size': 14),
-      content_tag(:text, score_text, x: pos_x + cell_w - 14, y: pos_y + 38, 'text-anchor': 'end',
-                                     'font-size': 14, fill: '#6b7280')
-    ]
+      # Score or Pending aligned to the top-right
+      content_tag(:text, score_text, x: pos_x + cell_w - 14, y: pos_y + 22, 'text-anchor': 'end',
+                                     'font-size': 14, fill: '#6b7280'),
+      # Top player username
+      content_tag(:text, a_label, x: pos_x + 14, y: pos_y + 26,
+                                  style: a_style, 'font-size': 14),
+      # Top player faction (smaller, grey)
+      (if a_faction_label
+         content_tag(:text, a_faction_label, x: pos_x + 14, y: pos_y + 42,
+                                             'font-size': 12, fill: '#6b7280')
+       end),
+      # Bottom player username
+      content_tag(:text, b_label, x: pos_x + 14, y: pos_y + 64,
+                                  style: b_style, 'font-size': 14),
+      # Bottom player faction (smaller, grey)
+      (if b_faction_label
+         content_tag(:text, b_faction_label, x: pos_x + 14, y: pos_y + 80,
+                                             'font-size': 12, fill: '#6b7280')
+       end)
+    ].compact
 
     if link
       parts << content_tag(
         :a,
-        content_tag(:text, t('tournaments.open'), x: pos_x + cell_w - 14, y: pos_y + 60, 'text-anchor': 'end',
+        content_tag(:text, t('tournaments.open'), x: pos_x + cell_w - 14, y: pos_y + cell_h - 8, 'text-anchor': 'end',
                                                   'font-size': 12, fill: '#2563eb'),
         href: link
       )
@@ -230,5 +238,21 @@ module ApplicationHelper
     end
     seeded.sort_by! { |(_id, rating)| -rating }
     seeded.to_h { |uid, rating| [uid, seeded.index([uid, rating]) + 1] }
+  end
+
+  def registration_faction_map_for(tournament)
+    registration_cache = Thread.current[:registration_faction_map_cache] ||= {}
+    registration_cache[tournament.id] ||= tournament.registrations
+                                                    .includes(:faction)
+                                                    .each_with_object({}) do |reg, acc|
+      acc[reg.user_id] = reg.faction&.localized_name(I18n.locale)
+    end
+    registration_cache[tournament.id]
+  end
+
+  def faction_label_for_user(tournament, user)
+    return nil unless user
+
+    registration_faction_map_for(tournament)[user.id]
   end
 end
