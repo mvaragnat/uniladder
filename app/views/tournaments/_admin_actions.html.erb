@@ -1,0 +1,36 @@
+<section>
+  <h3 style="margin:0 0 0.25rem 0; font-size:1rem; font-weight:600;">
+    <%= t('tournaments.show.admin.actions', default: 'Actions') %>
+  </h3>
+  <div style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
+    <% if tournament.registrations_open? %>
+      <span class="card-date" style="font-style:normal;"><%= t('tournaments.show.lock_warning') %></span>
+      <%= button_to t('tournaments.show.lock_registration'), lock_registration_tournament_path(tournament), method: :post, class: 'btn' %>
+    <% end %>
+
+    <% if tournament.running? %>
+      <%# Only show next-round button section where relevant; open/swiss admin uses this, elimination too %>
+      <% if can_move_to_next_round %>
+        <%= button_to t('tournaments.show.move_to_next_round', default: 'Move to next round'), next_round_tournament_path(tournament), method: :post, class: 'btn btn-primary' %>
+      <% else %>
+        <button class="btn" disabled title="<%= move_block_reason %>"><%= t('tournaments.show.move_to_next_round', default: 'Move to next round') %></button>
+        <% if move_block_reason %>
+          <span class="card-date" style="font-style:normal;"><%= move_block_reason %></span>
+        <% end %>
+      <% end %>
+
+      <%= button_to t('tournaments.show.finalize'), finalize_tournament_path(tournament), method: :post, class: 'btn' %>
+    <% end %>
+  </div>
+
+  <%# For Swiss/Open, keep strategies partial under admin; for elimination, we skip it per request %>
+  <% unless tournament.elimination? %>
+    <div style="flex-basis:100%; height:1px;"></div>
+    <div style="width:100%;">
+      <p class="card-date" style="font-style:normal;"><%= t('tournaments.show.strategies.explanation', default: 'Ranking uses Points, then Tie-break #1, then Tie-break #2. Pairings avoid repeat matches when possible.') %></p>
+      <%= render 'strategy_settings', show_pairing: !tournament.open? %>
+    </div>
+  <% end %>
+</section>
+
+

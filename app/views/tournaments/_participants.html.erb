@@ -1,0 +1,28 @@
+<div class="card">
+  <div class="card-body">
+    <div style="display:grid; grid-template-columns: 1fr 1fr auto; column-gap:1rem; row-gap:0.25rem; align-items:center;">
+      <% registrations.each do |r| %>
+        <div><%= r.user.username %></div>
+        <div>
+          <% can_edit = (Current.user && (Current.user.id == r.user_id || Current.user.id == tournament.creator_id)) %>
+          <% if can_edit %>
+            <%= form_with(model: r, url: tournament_tournament_registration_path(tournament, r), method: :patch, scope: :tournament_registration) do |f| %>
+              <%= f.select :faction_id,
+                           Game::Faction.where(game_system_id: tournament.game_system_id)
+                             .to_a
+                             .sort_by { |fa| fa.localized_name(I18n.locale) }
+                             .map { |fa| [fa.localized_name(I18n.locale), fa.id] },
+                           { include_blank: t('tournaments.show.select_faction', default: 'Select faction') },
+                           { onchange: 'this.form.submit()' } %>
+            <% end %>
+          <% else %>
+            <span class="card-date"><%= r.faction&.localized_name || t('tournaments.show.no_faction', default: 'No faction') %></span>
+          <% end %>
+        </div>
+        <div class="card-date" style="text-align:right;"><%= r.status %></div>
+      <% end %>
+    </div>
+  </div>
+  </div>
+
+

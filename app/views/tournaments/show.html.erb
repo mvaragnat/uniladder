@@ -62,15 +62,7 @@
 
       <!-- Participants panel -->
       <div data-tabs-target="panel" style="display:none;">
-        <div class="card">
-          <div class="card-body">
-            <ul style="list-style:none; padding:0;">
-              <% @registrations.each do |r| %>
-                <li><%= r.user.username %> (<%= r.status %>)</li>
-              <% end %>
-            </ul>
-          </div>
-        </div>
+        <%= render 'participants', registrations: @registrations, tournament: @tournament %>
       </div>
 
       <% if @tournament.creator == Current.user %>
@@ -78,28 +70,7 @@
         <div data-tabs-target="panel" style="display:none;">
           <div class="card">
             <div class="card-body" style="display:flex; flex-direction:column; gap:1rem;">
-              <section>
-                <h3 style="margin:0 0 0.25rem 0; font-size:1rem; font-weight:600;">
-                  <%= t('tournaments.show.admin.actions', default: 'Actions') %>
-                </h3>
-                <div style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
-                  <% if @tournament.registrations_open? %>
-                    <span class="card-date" style="font-style:normal;"><%= t('tournaments.show.lock_warning') %></span>
-                    <%= button_to t('tournaments.show.lock_registration'), lock_registration_tournament_path(@tournament), method: :post, class: 'btn' %>
-                  <% end %>
-
-                  <% if @tournament.running? %>
-                    <%= button_to t('tournaments.show.finalize'), finalize_tournament_path(@tournament), method: :post, class: 'btn' %>
-                  <% end %>
-                </div>
-              </section>
-
-              <section>
-                <h3 style="margin:0 0 0.25rem 0; font-size:1rem; font-weight:600;">
-                  <%= t('tournaments.show.admin.strategies', default: 'Strategies') %>
-                </h3>
-                <%= render 'strategy_settings', show_pairing: false %>
-              </section>
+              <%= render 'admin_actions', tournament: @tournament, can_move_to_next_round: @can_move_to_next_round, move_block_reason: @move_block_reason %>
             </div>
           </div>
         </div>
@@ -133,26 +104,7 @@
 
         <!-- Participants panel -->
         <div data-tabs-target="panel" style="display:none;">
-          <div class="card">
-            <div class="card-body">
-              <div style="display:grid; grid-template-columns: 1fr 1fr auto; column-gap:1rem; row-gap:0.25rem; align-items:center;">
-                <% @registrations.each do |r| %>
-                  <div><%= r.user.username %></div>
-                  <div>
-                    <% can_edit = (Current.user && (Current.user.id == r.user_id || Current.user.id == @tournament.creator_id)) %>
-                    <% if can_edit %>
-                      <%= form_with(model: r, url: tournament_tournament_registration_path(@tournament, r), method: :patch, scope: :tournament_registration) do |f| %>
-                        <%= f.select :faction_id, Game::Faction.where(game_system_id: @tournament.game_system_id).to_a.sort_by { |fa| fa.localized_name(I18n.locale) }.map { |fa| [fa.localized_name(I18n.locale), fa.id] }, { include_blank: t('tournaments.show.select_faction', default: 'Select faction') }, { onchange: 'this.form.submit()' } %>
-                      <% end %>
-                    <% else %>
-                      <span class="card-date"><%= r.faction&.localized_name || t('tournaments.show.no_faction', default: 'No faction') %></span>
-                    <% end %>
-                  </div>
-                  <div class="card-date" style="text-align:right;"><%= r.status %></div>
-                <% end %>
-              </div>
-            </div>
-          </div>
+          <%= render 'participants', registrations: @registrations, tournament: @tournament %>
         </div>
 
         <!-- Ranking panel -->
@@ -194,36 +146,7 @@
           <div data-tabs-target="panel" style="display:none;">
             <div class="card">
               <div class="card-body" style="display:flex; flex-direction:column; gap:1rem;">
-                <section>
-                  <h3 style="margin:0 0 0.25rem 0; font-size:1rem; font-weight:600;">
-                    <%= t('tournaments.show.admin.actions', default: 'Actions') %>
-                  </h3>
-                  <div style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
-                    <% if @tournament.registrations_open? %>
-                      <span class="card-date" style="font-style:normal;"><%= t('tournaments.show.lock_warning') %></span>
-                      <%= button_to t('tournaments.show.lock_registration'), lock_registration_tournament_path(@tournament), method: :post, class: 'btn' %>
-                    <% end %>
-
-                    <% if @tournament.running? %>
-                      <% if @can_move_to_next_round %>
-                        <%= button_to t('tournaments.show.move_to_next_round', default: 'Move to next round'), next_round_tournament_path(@tournament), method: :post, class: 'btn btn-primary' %>
-                      <% else %>
-                        <button class="btn" disabled title="<%= @move_block_reason %>"><%= t('tournaments.show.move_to_next_round', default: 'Move to next round') %></button>
-                        <% if @move_block_reason %>
-                          <span class="card-date" style="font-style:normal;"><%= @move_block_reason %></span>
-                        <% end %>
-                      <% end %>
-
-                      <%= button_to t('tournaments.show.finalize'), finalize_tournament_path(@tournament), method: :post, class: 'btn' %>
-                    <% end %>
-
-                    <div style="flex-basis:100%; height:1px;"></div>
-                    <div style="width:100%;">
-                      <p class="card-date" style="font-style:normal;"><%= t('tournaments.show.strategies.explanation', default: 'Ranking uses Points, then Tie-break #1, then Tie-break #2. Pairings avoid repeat matches when possible.') %></p>
-                      <%= render 'strategy_settings', show_pairing: false %>
-                    </div>
-                  </div>
-                </section>
+                <%= render 'admin_actions', tournament: @tournament, can_move_to_next_round: @can_move_to_next_round, move_block_reason: @move_block_reason %>
               </div>
             </div>
           </div>
@@ -271,26 +194,7 @@
 
         <!-- Participants panel -->
         <div data-tabs-target="panel" style="display:none;">
-          <div class="card">
-            <div class="card-body">
-              <div style="display:grid; grid-template-columns: 1fr 1fr auto; column-gap:1rem; row-gap:0.25rem; align-items:center;">
-                <% @registrations.each do |r| %>
-                  <div><%= r.user.username %></div>
-                  <div>
-                    <% can_edit = (Current.user && (Current.user.id == r.user_id || Current.user.id == @tournament.creator_id)) %>
-                    <% if can_edit %>
-                      <%= form_with(model: r, url: tournament_tournament_registration_path(@tournament, r), method: :patch, scope: :tournament_registration) do |f| %>
-                        <%= f.select :faction_id, Game::Faction.where(game_system_id: @tournament.game_system_id).to_a.sort_by { |fa| fa.localized_name(I18n.locale) }.map { |fa| [fa.localized_name(I18n.locale), fa.id] }, { include_blank: t('tournaments.show.select_faction', default: 'Select faction') }, { onchange: 'this.form.submit()' } %>
-                      <% end %>
-                    <% else %>
-                      <span class="card-date"><%= r.faction&.localized_name || t('tournaments.show.no_faction', default: 'No faction') %></span>
-                    <% end %>
-                  </div>
-                  <div class="card-date" style="text-align:right;"><%= r.status %></div>
-                <% end %>
-              </div>
-            </div>
-          </div>
+          <%= render 'participants', registrations: @registrations, tournament: @tournament %>
         </div>
 
         <!-- Ranking panel -->
@@ -332,37 +236,7 @@
           <div data-tabs-target="panel" style="display:none;">
             <div class="card">
               <div class="card-body" style="display:flex; flex-direction:column; gap:1rem;">
-                <section>
-                  <h3 style="margin:0 0 0.25rem 0; font-size:1rem; font-weight:600;">
-                    <%= t('tournaments.show.admin.actions', default: 'Actions') %>
-                  </h3>
-                  <div style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
-                    <% if @tournament.registrations_open? %>
-                      <span class="card-date" style="font-style:normal;"><%= t('tournaments.show.lock_warning') %></span>
-                      <%= button_to t('tournaments.show.lock_registration'), lock_registration_tournament_path(@tournament), method: :post, class: 'btn' %>
-                    <% end %>
-
-                    <% if @tournament.running? %>
-                      <% if @can_move_to_next_round %>
-                        <%= button_to t('tournaments.show.move_to_next_round', default: 'Move to next round'), next_round_tournament_path(@tournament), method: :post, class: 'btn btn-primary' %>
-                      <% else %>
-                        <button class="btn" disabled title="<%= @move_block_reason %>"><%= t('tournaments.show.move_to_next_round', default: 'Move to next round') %></button>
-                        <% if @move_block_reason %>
-                          <span class="card-date" style="font-style:normal;"><%= @move_block_reason %></span>
-                        <% end %>
-                      <% end %>
-
-                      <%= button_to t('tournaments.show.finalize'), finalize_tournament_path(@tournament), method: :post, class: 'btn' %>
-                    <% end %>
-                  </div>
-                </section>
-
-                <section>
-                  <h3 style="margin:0 0 0.25rem 0; font-size:1rem; font-weight:600;">
-                    <%= t('tournaments.show.admin.strategies', default: 'Strategies') %>
-                  </h3>
-                  <%= render 'strategy_settings', show_pairing: !@tournament.open? %>
-                </section>
+                <%= render 'admin_actions', tournament: @tournament, can_move_to_next_round: @can_move_to_next_round, move_block_reason: @move_block_reason %>
               </div>
             </div>
           </div>
