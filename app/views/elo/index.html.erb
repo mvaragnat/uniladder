@@ -5,6 +5,7 @@
 
   <div class="card">
     <div class="card-body">
+      <h3><%= t('elo.game_systems') %></h3>
       <%= form_with url: elo_path, method: :get, local: true do %>
         <%= select_tag :game_system_id,
                        options_from_collection_for_select(@systems.sort_by(&:localized_name), :id, :localized_name, @system&.id),

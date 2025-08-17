@@ -1,0 +1,62 @@
+<!-- Rounds panel with inner round tabs -->
+<div data-tabs-target="panel">
+  <div data-controller="tabs">
+    <div style="display:flex; gap:0.5rem; margin-bottom:0.75rem; flex-wrap:wrap;">
+      <% rounds.each_with_index do |round, idx| %>
+        <a href="#"
+           data-action="click->tabs#select"
+           data-index="<%= idx %>"
+           data-tabs-target="tab"
+           class="btn <%= idx == 0 ? 'btn-primary' : '' %>"
+           aria-selected="<%= idx == 0 ? 'true' : 'false' %>">
+          <%= t('tournaments.show.round_label', n: round.number) %>
+        </a>
+      <% end %>
+    </div>
+
+    <% rounds.each_with_index do |round, idx| %>
+      <div data-tabs-target="panel" style="<%= idx == 0 ? '' : 'display:none;' %>">
+        <div class="card">
+          <div class="card-body">
+            <% if round.matches.any? %>
+              <ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:0.5rem;">
+                <% round.matches.each do |m| %>
+                  <li style="margin:0; display:flex; justify-content:center;">
+                    <%= content_tag :svg, width: 240, height: 68 do %>
+                      <%= small_match_box(tournament, m, 0, 0, width: 240, show_seeds: false) %>
+                    <% end %>
+                  </li>
+                <% end %>
+              </ul>
+            <% else %>
+              <p class="card-date"><%= t('tournaments.show.no_matches', default: 'No matches yet') %></p>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<!-- Participants panel -->
+<div data-tabs-target="panel" style="display:none;">
+  <%= render 'participants', registrations: registrations, tournament: tournament %>
+</div>
+
+<!-- Ranking panel -->
+<div data-tabs-target="panel" style="display:none;">
+  <%= render 'ranking_table', standings: standings, tournament: tournament %>
+</div>
+
+<% if tournament.creator == Current.user %>
+  <!-- Admin panel -->
+  <div data-tabs-target="panel" style="display:none;">
+    <div class="card">
+      <div class="card-body" style="display:flex; flex-direction:column; gap:1rem;">
+        <%= render 'admin_actions', tournament: tournament, can_move_to_next_round: can_move_to_next_round, move_block_reason: move_block_reason %>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+

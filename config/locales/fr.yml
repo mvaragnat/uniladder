@@ -5,6 +5,7 @@ fr:
   errors:
     messages:
       required: 'must exist'
+      inclusion: 'is not included in the list'
   hello: "Bonjour"
   welcome: "Bienvenue sur Eloleague"
   auth:
@@ -35,11 +36,6 @@ fr:
   devise:
     sessions:
       remember_me: "Se souvenir de moi"
-      signed_out: "Vous êtes déconnecté"
-    failure:
-      already_authenticated: "Vous êtes déjà connecté"
-    passwords:
-      send_instructions: "Vous recevrez un email avec les instructions de réinitialisation dans quelques minutes."
     shared:
       links:
         forgot_your_password: "Mot de passe oublié ?"
@@ -47,6 +43,7 @@ fr:
         sign_up: "Vous n'avez pas de compte ?"
   vs: "vs"
   home:
+    link: "Mon Dashboard"
     subtitle: "Tournois et classements ELO pour tous les systèmes de jeu"
     browse_tournaments: "Parcourir les tournois"
     see_elo: "Voir les classements ELO"
@@ -78,6 +75,19 @@ fr:
     index_title: "Tournois"
     new: 
       create: "Créer un nouveau tournoi"
+      title: "Nouveau tournoi"
+      name: "Nom"
+      description: "Description"
+      game_system: "Système de jeu"
+      format: "Format"
+      rounds_count: "Nombre de rondes"
+      starts_at: "Début"
+      ends_at: "Fin"
+      datetime_placeholder: "AAAA-MM-JJ HH:MM"
+    formats:
+      open: "Open"
+      swiss: "Suisse"
+      elimination: "Élimination"
     open: "Ouvrir"
     index:
       accepting: "Inscriptions ouvertes"
@@ -145,6 +155,7 @@ fr:
     not_allowed_state: "Action non autorisée dans l'état actuel"
     draw_not_allowed: "Match nul interdit en élimination"
     cannot_advance_pending: "Tous les matchs doivent être terminés pour passer à la ronde suivante"
+    faction_required_hint: "Veuillez sélectionner votre faction dans l'onglet Participants avant le check-in."
     faction_required_to_check_in: "Veuillez sélectionner votre faction avant l'enregistrement"
     registration_updated: "Inscription mise à jour"
     errors:
@@ -153,7 +164,8 @@ fr:
       cannot_unregister: "Impossible de se désinscrire de ce tournoi"
       status_invalid: "doit être pending ou checked_in"
   elo:
-    title: "ELO"
+    title: "Classements ELO"
+    game_systems: "Jeu"
     my_current_rankings: "Mes classements ELO actuels"
     standings: "Classement"
     player: "Joueur"

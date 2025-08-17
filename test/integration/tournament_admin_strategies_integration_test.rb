@@ -21,8 +21,8 @@ class TournamentAdminStrategiesIntegrationTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     assert_not_includes @response.body, "name='tournament[pairing_strategy_key]'"
-    assert_includes @response.body, 'name="tournament[tiebreak1_strategy_key]"'
-    assert_includes @response.body, 'name="tournament[tiebreak2_strategy_key]"'
+    assert_not_includes @response.body, 'name="tournament[tiebreak1_strategy_key]"'
+    assert_not_includes @response.body, 'name="tournament[tiebreak2_strategy_key]"'
   end
 
   test 'open admin: no pairing, tie-breaks present' do

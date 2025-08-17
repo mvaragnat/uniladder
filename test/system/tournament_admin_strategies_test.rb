@@ -22,7 +22,7 @@ class TournamentAdminStrategiesTest < ApplicationSystemTestCase
     fill_in 'tournament[description]', with: 'X'
     select @system.name, from: 'tournament[game_system_id]'
     select 'elimination', from: 'tournament[format]'
-    click_on I18n.t('tournaments.create_new', default: 'Create new tournament'), match: :first
+    click_on I18n.t('tournaments.new.create', default: 'Create new tournament'), match: :first
 
     # Redirected to show
     assert_text 'Elim T'
@@ -45,7 +45,7 @@ class TournamentAdminStrategiesTest < ApplicationSystemTestCase
     fill_in 'tournament[description]', with: 'Y'
     select @system.name, from: 'tournament[game_system_id]'
     select 'open', from: 'tournament[format]'
-    click_on I18n.t('tournaments.create_new', default: 'Create new tournament'), match: :first
+    click_on I18n.t('tournaments.new.create', default: 'Create new tournament'), match: :first
 
     assert_text 'Open T'
 
@@ -63,7 +63,7 @@ class TournamentAdminStrategiesTest < ApplicationSystemTestCase
     fill_in 'tournament[description]', with: 'Z'
     select @system.name, from: 'tournament[game_system_id]'
     select 'swiss', from: 'tournament[format]'
-    click_on I18n.t('tournaments.create_new', default: 'Create new tournament'), match: :first
+    click_on I18n.t('tournaments.new.create', default: 'Create new tournament'), match: :first
 
     assert_text 'Swiss T'
 

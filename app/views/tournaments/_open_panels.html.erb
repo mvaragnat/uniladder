@@ -1,0 +1,47 @@
+<!-- Matches panel for Open format -->
+<div data-tabs-target="panel">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+    <h3 style="margin:0;"><%= t('tournaments.show.matches', default: 'Matches') %></h3>
+    <% if tournament.running? && (is_registered || (tournament.creator == Current.user)) %>
+      <%= link_to t('games.add'), new_tournament_tournament_match_path(tournament), class: "btn btn-primary", data: { turbo_frame: "modal" } %>
+    <% end %>
+  </div>
+  <ul id="matches-list" style="list-style:none; padding:0;">
+    <% if matches.any? %>
+      <% matches.each do |m| %>
+        <li style="margin:0 0 0.5rem 0; display:flex; justify-content:center;">
+          <%= content_tag :svg, width: 240, height: 68 do %>
+            <%= small_match_box(tournament, m, 0, 0, width: 240, show_seeds: false) %>
+          <% end %>
+        </li>
+      <% end %>
+    <% else %>
+      <div id="no-matches-message" class="card">
+        <p class="card-date"><%= t('tournaments.show.no_matches', default: 'No matches yet') %></p>
+      </div>
+    <% end %>
+  </ul>
+</div>
+
+<!-- Participants panel -->
+<div data-tabs-target="panel" style="display:none;">
+  <%= render 'participants', registrations: registrations, tournament: tournament %>
+  </div>
+
+<!-- Ranking panel -->
+<div data-tabs-target="panel" style="display:none;">
+  <%= render 'ranking_table', standings: standings, tournament: tournament %>
+</div>
+
+<% if tournament.creator == Current.user %>
+  <!-- Admin panel -->
+  <div data-tabs-target="panel" style="display:none;">
+    <div class="card">
+      <div class="card-body" style="display:flex; flex-direction:column; gap:1rem;">
+        <%= render 'admin_actions', tournament: tournament, can_move_to_next_round: can_move_to_next_round, move_block_reason: move_block_reason %>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+
