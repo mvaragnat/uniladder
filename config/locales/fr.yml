@@ -165,6 +165,7 @@ fr:
       status_invalid: "doit être pending ou checked_in"
   elo:
     title: "Classements ELO"
+    game_systems: "Jeu"
     my_current_rankings: "Mes classements ELO actuels"
     standings: "Classement"
     player: "Joueur"
