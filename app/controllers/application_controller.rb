@@ -1,8 +1,14 @@
 # frozen_string_literal: true
 
 class ApplicationController < ActionController::Base
+  # Prevent CSRF attacks by raising an exception.
+  # For APIs, you may want to use :null_session instead.
+  # MUST BE THE FIRST IN THE BEFORE_ACTION STACK
+  protect_from_forgery with: :exception
+
   # Must run before Devise's authenticate_user! so we can remember where to go back
-  prepend_before_action :store_user_location!, if: :storable_location?
+  before_action :store_user_location!, if: :storable_location?
+
   before_action :authenticate_user!, unless: :devise_controller?
   before_action :set_locale
   before_action :set_current_user
@@ -42,7 +48,7 @@ class ApplicationController < ActionController::Base
   end
 
   def storable_location?
-    !user_signed_in? && request.referer.present? && request.format.html? && !request.xhr? && !request.get?
+    !user_signed_in? && request.referer.present? && request.format.html? && !request.xhr?
   end
 
   protected
