@@ -33,6 +33,18 @@ fr:
       fr: "Français"
     shared:
       cancel: "Annuler"
+  footer:
+    made_by_html: "Fait par %{name} avec %{heart}. Un bug, une suggestion, un nouveau jeu à ajouter ?"
+    contact_title: "Un bug, une suggestion, un nouveau jeu à ajouter ?"
+    contact_cta: "Écrivez-moi"
+  contact:
+    form:
+      subject: "Objet"
+      content: "Message"
+      submit: "Envoyer"
+    create:
+      success: "Merci ! Votre message a été envoyé."
+      failure: "Veuillez corriger les erreurs."
   devise:
     sessions:
       remember_me: "Se souvenir de moi"

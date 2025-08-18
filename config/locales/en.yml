@@ -62,6 +62,18 @@ en:
       fr: "Français"
     shared:
       cancel: "Cancel"
+  footer:
+    made_by_html: "Made by %{name} with %{heart}. A bug, a suggestion, a new game to add?"
+    contact_title: "A bug, a suggestion, a new game to add?"
+    contact_cta: "Send me a message"
+  contact:
+    form:
+      subject: "Subject"
+      content: "Message"
+      submit: "Send"
+    create:
+      success: "Thanks! Your message has been sent."
+      failure: "Please fix the errors below."
   devise:
     sessions:
       remember_me: "Remember me"

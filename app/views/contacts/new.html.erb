@@ -1,0 +1,24 @@
+<div class="games-container">
+  <div class="page-header">
+    <h1><%= t('footer.contact_title', name: 'Marquis', heart: '❤️').html_safe %></h1>
+  </div>
+
+  <div class="card">
+    <%= form_with model: @contact, url: contacts_path do |f| %>
+      <div>
+        <%= f.label :subject, t('contact.form.subject') %>
+        <%= f.text_field :subject %>
+      </div>
+
+      <div>
+        <%= f.label :content, t('contact.form.content') %>
+        <%= f.text_area :content, rows: 8 %>
+      </div>
+
+      <div style="margin-top:1rem;">
+        <%= f.submit t('contact.form.submit'), class: 'btn btn-primary' %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
