@@ -26,4 +26,10 @@ class ContactsControllerTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_entity
     assert_not_nil flash[:alert]
   end
+
+  test 'requires login' do
+    sign_out @user
+    get new_contact_path(locale: I18n.default_locale)
+    assert_response :redirect
+  end
 end
