@@ -3,6 +3,11 @@
 require 'test_helper'
 
 class ContactsControllerTest < ActionDispatch::IntegrationTest
+  setup do
+    @user = users(:player_one)
+    sign_in @user
+  end
+  
   test 'should get new' do
     get new_contact_path(locale: I18n.default_locale)
     assert_response :success

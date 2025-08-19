@@ -11,7 +11,7 @@ class ContactsController < ApplicationController
 
     if @contact.valid?
       ContactMailer.notify(
-        subject: @contact.subject, 
+        subject: @contact.subject,
         content: @contact.content,
         from: @contact.username
       ).deliver_now
