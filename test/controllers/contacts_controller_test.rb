@@ -14,9 +14,14 @@ class ContactsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'should post create and redirect with notice' do
-    assert_emails 1 do
+    mail = Minitest::Mock.new
+    mail.expect(:deliver_now, true)
+
+    ContactMailer.stub :notify, mail do
       post contacts_path(locale: I18n.default_locale), params: { contact: { subject: 'Hello', content: 'World' } }
     end
+
+    mail.verify
     assert_redirected_to root_path(locale: I18n.default_locale)
     assert_not_nil flash[:notice]
   end
