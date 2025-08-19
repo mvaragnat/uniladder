@@ -63,6 +63,22 @@ main { flex: 1 0 auto; }
 }
 .site-nav .spacer { margin-left: auto; }
 
+/* Keep long emails tidy */
+.user-email { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Mobile nav adjustments */
+@media (max-width: 640px) {
+  .site-nav {
+    flex-wrap: wrap;
+    gap: 0.5rem 0.75rem;
+    padding: 0.5rem 0.75rem;
+  }
+  .site-nav .brand { font-size: 1.05rem; }
+  .user-email { font-size: 0.875rem; max-width: 70vw; }
+  /* Force right-side items to the next line on small screens */
+  .site-nav .spacer { flex-basis: 100%; margin-left: 0; }
+}
+
 /***** Form Controls *****/
 input[type="text"], input[type="email"], input[type="password"], input[type="number"], select, textarea {
   width: 100%;
