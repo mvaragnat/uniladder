@@ -31,6 +31,9 @@
       <%= link_to t('tournaments.index_title'), tournaments_path, class: "brand" %>
       <span class="spacer"></span>
       <% if user_signed_in? %>
+        <span class="user-email" style="font-weight:600; margin-right: .75rem; color: var(--text-muted);">
+          <%= current_user&.email %>
+        </span>
         <%= link_to t('auth.logout', default: 'Logout'), destroy_user_session_path, data: { turbo_method: :delete }, class: "brand" %>
       <% else %>
         <%= link_to t('auth.login', default: 'Sign in'), new_user_session_path, class: "brand" %>
@@ -59,5 +62,6 @@
       <% end %>
       <%= yield %>
     </main>
+    <%= render FooterComponent.new %>
   </body>
 </html>

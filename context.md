@@ -102,3 +102,12 @@ Standings award 1 point for a win and 0.5 for a draw. The ranking view lists pla
 - Hotwire for dynamic interactions
 - Stimulus for JavaScript functionality
 - Responsive design with Tailwind CSS 
+
+### Footer & Contact
+- A global footer appears on all pages: "Made by Marquis with ❤️. A bug, a suggestion, a new game to add? Write me"
+- The "Write me" link opens a one-page contact form with subject and message fields
+- Submitting the form sends an email to the configured personal address using Gmail SMTP
+- Config via ENV:
+  - `GMAIL_USERNAME`: Gmail username
+  - `GMAIL_PASSWORD`: Gmail app password
+  - `CONTACT_TO_EMAIL`: Personal recipient address

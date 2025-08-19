@@ -1,7 +1,9 @@
-## 2025-08-16
+## 2025-08-18
 
-- Customize Devise login and signup pages to match app styling using a reusable `AuthCardComponent`. Added localized labels, error rendering, and ensured Devise controllers inherit `ApplicationController` for consistent layout and locale. Added system tests for auth pages.
-- Style Devise password reset and change pages with `AuthCardComponent` for consistency with login/signup, added EN/FR locales, and added a system test for requesting reset instructions.
+- Add footer rendered on all pages with localized copy and link to a contact page
+- Display current user's email next to the logout link in the top navigation
+- Implement contact form (subject + message) sending an email via Gmail SMTP (ENV: `GMAIL_USERNAME`, `GMAIL_PASSWORD`, `CONTACT_TO_EMAIL`)
+- Localized contact UI in EN/FR, added basic validations
 
 # Changelog
 

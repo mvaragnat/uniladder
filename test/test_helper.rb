@@ -5,6 +5,7 @@ require_relative '../config/environment'
 require 'rails/test_help'
 require 'view_component/test_helpers'
 require 'devise'
+require 'minitest/mock'
 
 module ActiveSupport
   class TestCase

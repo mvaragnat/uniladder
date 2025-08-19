@@ -23,6 +23,9 @@ Rails.application.routes.draw do
     get 'users/search', to: 'users#search', as: :users_search
     resources :users, only: %i[index]
 
+    # Contact
+    resources :contacts, only: %i[new create]
+
     # Tournaments
     resources :tournaments do
       member do
