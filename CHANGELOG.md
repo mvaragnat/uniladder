@@ -2,7 +2,7 @@
 
 - Add footer rendered on all pages with localized copy and link to a contact page
 - Display current user's email next to the logout link in the top navigation
-- Implement contact form (subject + message) sending an email via Gmail SMTP (ENV: `GMAIL_USERNAME`, `GMAIL_PASSWORD`, `GMAIL_FROM_EMAIL`, `CONTACT_TO_EMAIL`)
+- Implement contact form (subject + message) sending an email via Gmail SMTP (ENV: `GMAIL_USERNAME`, `GMAIL_PASSWORD`, `CONTACT_TO_EMAIL`)
 - Localized contact UI in EN/FR, added basic validations
 
 # Changelog

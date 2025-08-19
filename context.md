@@ -110,5 +110,4 @@ Standings award 1 point for a win and 0.5 for a draw. The ranking view lists pla
 - Config via ENV:
   - `GMAIL_USERNAME`: Gmail username
   - `GMAIL_PASSWORD`: Gmail app password
-  - `GMAIL_FROM_EMAIL`: Sender email address
   - `CONTACT_TO_EMAIL`: Personal recipient address

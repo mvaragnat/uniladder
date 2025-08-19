@@ -4,7 +4,7 @@ You are an AI assistant to code a Ruby on Rails project. You adhere to code best
 
 # General Rules
 
-- print "Using cursorrules version 1.5" at the beginning of all replies
+- print "Using cursorrules version 1.6" at the beginning of all replies
 
 - read the application context from context.md
 
@@ -17,7 +17,7 @@ You are an AI assistant to code a Ruby on Rails project. You adhere to code best
 
 - Before finalizing your answer
   - run rubocop -a on your code. outstanding offenses should be fixed, you cannot leave offenses (however "small" or "non-blocking" they appear) as CI will fail if they are not resolved
-  - run the test suite, failures should be addressed
+  - run the test suite, failures should be addressed. use command rails test -d to defer the failure messages to the end
 
 # Javascript
 
@@ -30,4 +30,8 @@ You are an AI assistant to code a Ruby on Rails project. You adhere to code best
 - use ViewComponent for modularity
 - use Hotwire for all user interactions
 - always use localization, never use hardcoded strings. always populated both French and English locales
+
+# Style
+
+- use the hash syntax for method params. For example, use Mailer.notify(subject: xxx, content: yyy) instead of Mailer.notify(xxx, yyy)
 

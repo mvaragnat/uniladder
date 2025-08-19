@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
 class ContactMailer < ApplicationMailer
-  def notify(subject, content)
+  def notify(subject:, content:, from:)
     @content = content
 
     mail(
-      to: ENV.fetch('CONTACT_TO_EMAIL', 'owner@example.com'),
-      from: ENV.fetch('GMAIL_FROM_EMAIL', 'from@example.com'),
-      subject: subject
+      to: ENV.fetch('CONTACT_TO_EMAIL', nil),
+      from: ENV.fetch('GMAIL_USERNAME', nil),
+      subject: "[Eloleague] #{subject} de #{from}"
     )
   end
 end
