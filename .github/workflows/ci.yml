@@ -50,4 +50,4 @@ jobs:
         run: bin/rubocop
 
       - name: Run tests
-        run: bin/rails test
+        run: bin/rails test -d
