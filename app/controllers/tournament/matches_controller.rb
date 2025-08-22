@@ -63,6 +63,8 @@ module Tournament
     def update
       a_score = params.dig(:tournament_match, :a_score)
       b_score = params.dig(:tournament_match, :b_score)
+      a_secondary = params.dig(:tournament_match, :a_secondary_score)
+      b_secondary = params.dig(:tournament_match, :b_secondary_score)
 
       unless a_score.present? && b_score.present?
         flash.now[:alert] = t('tournaments.score_required', default: 'Both scores are required')
@@ -80,8 +82,10 @@ module Tournament
       )
       a_reg = @tournament.registrations.find_by(user: @match.a_user)
       b_reg = @tournament.registrations.find_by(user: @match.b_user)
-      event.game_participations.build(user: @match.a_user, score: a_score, faction: a_reg&.faction)
-      event.game_participations.build(user: @match.b_user, score: b_score, faction: b_reg&.faction)
+      event.game_participations.build(user: @match.a_user, score: a_score, secondary_score: a_secondary,
+                                      faction: a_reg&.faction)
+      event.game_participations.build(user: @match.b_user, score: b_score, secondary_score: b_secondary,
+                                      faction: b_reg&.faction)
 
       if event.save
         @match.game_event = event
@@ -167,7 +171,7 @@ module Tournament
     def game_params
       key = params.key?(:event) ? :event : :game_event
       params.require(key).permit(
-        game_participations_attributes: %i[user_id score faction_id]
+        game_participations_attributes: %i[user_id score secondary_score faction_id]
       )
     end
     # rubocop:enable Rails/StrongParametersExpect

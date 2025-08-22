@@ -186,6 +186,7 @@ input:focus, select:focus, textarea:focus {
 
 /* Auth tweaks */
 .text-muted { color: var(--text-muted); }
+.text-light { font-weight: 400 !important;}
 
 /***** Flash *****/
 .flash-container { width: 100%; max-width: 720px; margin: 0.75rem auto 0; padding: 0 1rem; }

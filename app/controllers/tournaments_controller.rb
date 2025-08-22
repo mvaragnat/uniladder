@@ -246,6 +246,7 @@ class TournamentsController < ApplicationController
   def compute_standings_with_tiebreaks(tournament)
     points = Hash.new(0.0)
     score_sum = Hash.new(0.0)
+    secondary_score_sum = Hash.new(0.0)
 
     users = tournament.registrations.includes(:user).map(&:user)
     users.each do |u|
@@ -253,9 +254,9 @@ class TournamentsController < ApplicationController
       score_sum[u.id] ||= 0.0
     end
 
-    aggregate_points_and_scores(tournament, points, score_sum)
+    aggregate_points_and_scores(tournament, points, score_sum, secondary_score_sum)
 
-    agg = { score_sum_by_user_id: score_sum }
+    agg = { score_sum_by_user_id: score_sum, secondary_score_sum_by_user_id: secondary_score_sum }
 
     t1 = Tournament::StrategyRegistry.tiebreak_strategies[tournament.tiebreak1_key]
     t2 = Tournament::StrategyRegistry.tiebreak_strategies[tournament.tiebreak2_key]
@@ -274,7 +275,7 @@ class TournamentsController < ApplicationController
     { rows: rows, tiebreak1_label: t1.first, tiebreak2_label: t2.first }
   end
 
-  def aggregate_points_and_scores(tournament, points, score_sum)
+  def aggregate_points_and_scores(tournament, points, score_sum, secondary_score_sum)
     tournament.matches.includes(:a_user, :b_user, :game_event).find_each do |m|
       if bye_win_for_single_participant?(m)
         apply_bye_points(points, m)
@@ -285,11 +286,14 @@ class TournamentsController < ApplicationController
 
       apply_normal_result_points(points, m)
 
-      a_score, b_score = extract_scores(m)
+      a_score, b_score, a_secondary, b_secondary = extract_scores(m)
       next unless a_score && b_score
 
       score_sum[m.a_user.id] += a_score
       score_sum[m.b_user.id] += b_score
+
+      secondary_score_sum[m.a_user.id] += a_secondary || 0.0
+      secondary_score_sum[m.b_user.id] += b_secondary || 0.0
     end
   end
 
@@ -319,10 +323,10 @@ class TournamentsController < ApplicationController
   end
 
   def extract_scores(match)
-    return [nil, nil] unless match.game_event
+    return [nil, nil, nil, nil] unless match.game_event
 
     a_part = match.game_event.game_participations.find_by(user: match.a_user)
     b_part = match.game_event.game_participations.find_by(user: match.b_user)
-    [a_part&.score.to_f, b_part&.score.to_f]
+    [a_part&.score.to_f, b_part&.score.to_f, a_part&.secondary_score.to_f, b_part&.secondary_score.to_f]
   end
 end

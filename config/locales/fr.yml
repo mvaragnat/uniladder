@@ -68,7 +68,9 @@ fr:
       system: "Système de jeu"
       select_system: "Sélectionner un système de jeu"
       your_score: "Votre score"
+      secondary_score: "Score secondaire"
       opponent_score: "Score de l'adversaire"
+      opponent_secondary_score: "Score secondaire de l'adversaire"
       participants: "Ajouter des participants"
       search_placeholder: "Rechercher des joueurs par nom"
       submit: "Créer la partie"
@@ -83,6 +85,7 @@ fr:
       exactly_two_players: "Vous devez sélectionner exactement deux joueurs (vous et un adversaire)"
       both_scores_required: "Les deux scores sont requis"
       both_factions_required: "Les deux joueurs doivent sélectionner une faction"
+    secondary_score_short: "Points"
   tournaments:
     index_title: "Tournois"
     new: 
@@ -117,6 +120,7 @@ fr:
       lock_and_generate: "Fermer et générer l'arbre du tournoi"
       finalize: "Finaliser"
       organizer: "Organisateur"
+      secondary_score_short: "Points"
       pending: "En attente"
       bye: "Exempt"
       round_label: "Ronde %{n}"
@@ -137,6 +141,13 @@ fr:
         pairing_strategy: "Stratégie d'appariement"
         tiebreak1: "Départage #1"
         tiebreak2: "Départage #2"
+        names:
+          pairing:
+            by_points_random_within_group: "Par points (aléatoire dans les égalités)"
+          tiebreak:
+            none: "Aucun"
+            score_sum: "Somme des scores"
+            secondary_score_sum: "Somme des scores secondaires"
         save: "Enregistrer"
         explanations:
           pairing:
@@ -145,6 +156,7 @@ fr:
           tiebreak:
             none: "Aucun départage appliqué."
             score_sum: "La somme des scores sur les parties jouées départage en cas d'égalité de points."
+            secondary_score_sum: "Somme des scores secondaires sur les parties jouées."
             default: "Règle de départage appliquée en cas d'égalité de points."
         saved: "Paramètres enregistrés"
       admin:

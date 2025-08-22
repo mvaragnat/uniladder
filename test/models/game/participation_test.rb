@@ -21,9 +21,23 @@ module Game
 
     test 'should be valid when both scores present' do
       event = Game::Event.new(game_system: @system, played_at: Time.current)
-      event.game_participations.build(user: @user1, score: 21, faction: @f1)
-      event.game_participations.build(user: @user2, score: 18, faction: @f2)
+      event.game_participations.build(user: @user1, score: 21, secondary_score: 5, faction: @f1)
+      event.game_participations.build(user: @user2, score: 18, secondary_score: 3, faction: @f2)
       assert event.valid?
+    end
+
+    test 'secondary score can be nil or non-negative' do
+      event = Game::Event.new(game_system: @system, played_at: Time.current)
+      p1 = event.game_participations.build(user: @user1, score: 10, faction: @f1)
+      event.game_participations.build(user: @user2, score: 9, faction: @f2)
+      assert event.valid?
+
+      p1.secondary_score = -1
+      assert_not p1.valid?
+      p1.secondary_score = 0
+      assert p1.valid?
+      p1.secondary_score = 7
+      assert p1.valid?
     end
 
     test 'should not save participation without faction' do

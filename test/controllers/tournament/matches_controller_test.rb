@@ -2,6 +2,54 @@
 
 require 'test_helper'
 
+class TournamentMatchesControllerTest < ActionDispatch::IntegrationTest
+  setup do
+    @user = users(:player_one)
+    @opponent = users(:player_two)
+    @system = game_systems(:chess)
+    sign_in @user
+    post tournaments_path(locale: I18n.locale), params: {
+      tournament: { name: 'Open M', description: 'S', game_system_id: @system.id, format: 'open' }
+    }
+    @tournament = Tournament::Tournament.order(:created_at).last
+    post register_tournament_path(@tournament, locale: I18n.locale)
+    f1 = Game::Faction.find_or_create_by!(game_system: @system, name: 'White')
+    @tournament.registrations.find_by(user: @user).update!(faction: f1)
+
+    sign_out @user
+    sign_in @opponent
+    post register_tournament_path(@tournament, locale: I18n.locale)
+    f2 = Game::Faction.find_or_create_by!(game_system: @system, name: 'Black')
+    @tournament.registrations.find_by(user: @opponent).update!(faction: f2)
+
+    sign_out @opponent
+    sign_in @tournament.creator
+    post lock_registration_tournament_path(@tournament, locale: I18n.locale)
+  end
+
+  test 'update accepts secondary scores' do
+    # Create a swiss-like pairing by creating a round and a match with the two players
+    r = @tournament.rounds.create!(number: 1, state: 'pending')
+    m = @tournament.matches.create!(round: r, a_user: @user, b_user: @opponent)
+
+    sign_out @tournament.creator
+    sign_in @user
+    patch tournament_tournament_match_path(@tournament, m, locale: I18n.locale),
+          params: { tournament_match: { a_score: 1, b_score: 1, a_secondary_score: 10, b_secondary_score: 5 } }
+
+    assert_redirected_to tournament_path(@tournament, locale: I18n.locale, tab: 0)
+    m.reload
+    assert_equal 'draw', m.result
+    assert_not_nil m.game_event
+    a = m.game_event.game_participations.find_by(user: @user)
+    b = m.game_event.game_participations.find_by(user: @opponent)
+    assert_equal 10, a.secondary_score
+    assert_equal 5, b.secondary_score
+  end
+end
+
+# frozen_string_literal: true
+
 module Tournament
   class MatchesControllerTest < ActionDispatch::IntegrationTest
     def setup

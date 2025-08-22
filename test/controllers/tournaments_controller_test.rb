@@ -633,4 +633,46 @@ class TournamentsControllerTest < ActionDispatch::IntegrationTest
     first_row = body.split('<tbody>')[1].split('</tbody>')[0].split('<tr>')[1]
     assert_includes first_row, match.a_user.username
   end
+
+  test 'ranking can use secondary score sum as tie-break' do
+    sign_in @user
+    post tournaments_path(locale: I18n.locale), params: {
+      tournament: { name: 'Open TB2', description: 'S', game_system_id: game_systems(:chess).id, format: 'open' }
+    }
+    t = Tournament::Tournament.order(:created_at).last
+
+    # Choose secondary score sum as primary tiebreak
+    patch tournament_path(t, locale: I18n.locale),
+          params: { tournament: { tiebreak1_strategy_key: 'secondary_score_sum' } }
+    assert_redirected_to tournament_path(t, locale: I18n.locale, tab: 3)
+
+    # Register players and check-in
+    [users(:player_one), users(:player_two)].each do |u|
+      sign_out @user
+      sign_in u
+      post register_tournament_path(t, locale: I18n.locale)
+      f = Game::Faction.find_or_create_by!(game_system: t.game_system, name: "F-#{u.username}")
+      t.registrations.find_by(user: u).update!(faction: f)
+      post check_in_tournament_path(t, locale: I18n.locale)
+    end
+
+    sign_out @user
+    sign_in @user
+    post lock_registration_tournament_path(t, locale: I18n.locale)
+
+    # Create an open match with an event capturing secondary scores and a draw for equal points
+    event = Game::Event.new(game_system: t.game_system, played_at: Time.current)
+    event.game_participations.build(user: users(:player_one), score: 3, secondary_score: 10,
+                                    faction: Game::Faction.find_or_create_by!(game_system: t.game_system, name: 'F-A'))
+    event.game_participations.build(user: users(:player_two), score: 3, secondary_score: 5,
+                                    faction: Game::Faction.find_or_create_by!(game_system: t.game_system, name: 'F-B'))
+    assert event.save!, event.errors.full_messages.to_sentence
+    t.matches.create!(a_user: users(:player_one), b_user: users(:player_two), game_event: event, result: 'draw')
+
+    get tournament_path(t, locale: I18n.locale, tab: 2)
+    assert_response :success
+    body = @response.body
+    first_row = body.split('<tbody>')[1].split('</tbody>')[0].split('<tr>')[1]
+    assert_includes first_row, users(:player_one).username
+  end
 end
