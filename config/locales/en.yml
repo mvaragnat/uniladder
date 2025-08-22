@@ -97,7 +97,9 @@ en:
       system: "Game System"
       select_system: "Select a game system"
       your_score: "Your score"
+      secondary_score: "Secondary score"
       opponent_score: "Opponent score"
+      opponent_secondary_score: "Opponent secondary score"
       participants: "Add participants"
       search_placeholder: "Search players by username"
       submit: "Create game"
@@ -112,6 +114,7 @@ en:
       exactly_two_players: "You must select exactly two players (you and one opponent)"
       both_scores_required: "Both scores are required"
       both_factions_required: "Both players must select a faction"
+    secondary_score_short: "Points"
   tournaments:
     index_title: "Tournaments"
     new: 
@@ -146,6 +149,7 @@ en:
       lock_and_generate: "Lock registration and generate tournament tree"
       finalize: "Finalize"
       organizer: "Organizer"
+      secondary_score_short: "Points"
       pending: "Pending"
       bye: "Bye"
       round_label: "Round %{n}"
@@ -166,6 +170,13 @@ en:
         pairing_strategy: "Pairing strategy"
         tiebreak1: "Tie-break #1"
         tiebreak2: "Tie-break #2"
+        names:
+          pairing:
+            by_points_random_within_group: "By Points (random within ties)"
+          tiebreak:
+            none: "None"
+            score_sum: "Score sum"
+            secondary_score_sum: "Secondary score sum"
         save: "Save settings"
         explanations:
           pairing:
@@ -174,6 +185,7 @@ en:
           tiebreak:
             none: "No tie-break applied."
             score_sum: "Higher total score across reported games ranks higher when points are equal."
+            secondary_score_sum: "Sum of secondary scores across reported games."
             default: "Tie-break rule applied when points are equal."
         saved: "Settings saved"
       admin:

@@ -20,7 +20,7 @@
         <div><%= t('tournaments.show.strategies.pairing_strategy', default: 'Pairing strategy') %></div>
         <div>
           <%= select_tag 'tournament[pairing_strategy_key]',
-                          options_for_select(@pairing_strategies.map { |k, v| [v.first, k] }, @tournament.pairing_key),
+                          options_for_select(@pairing_strategies.map { |k, v| [t("tournaments.show.strategies.names.pairing.#{k}", default: v.first), k] }, @tournament.pairing_key),
                           class: 'input', style: 'width:100%;',
                           data: { action: 'change->strategy#changed', field: 'pairing_strategy_key' } %>
         </div>
@@ -34,7 +34,7 @@
       <div><%= t('tournaments.show.strategies.tiebreak1', default: 'Tie-break #1') %></div>
       <div>
         <%= select_tag 'tournament[tiebreak1_strategy_key]',
-                        options_for_select(@tiebreak_strategies.map { |k, v| [v.first, k] }, @tournament.tiebreak1_key),
+                        options_for_select(@tiebreak_strategies.map { |k, v| [t("tournaments.show.strategies.names.tiebreak.#{k}", default: v.first), k] }, @tournament.tiebreak1_key),
                         class: 'input', style: 'width:100%;',
                         data: { action: 'change->strategy#changed', field: 'tiebreak1_strategy_key' } %>
       </div>
@@ -47,7 +47,7 @@
       <div><%= t('tournaments.show.strategies.tiebreak2', default: 'Tie-break #2') %></div>
       <div>
         <%= select_tag 'tournament[tiebreak2_strategy_key]',
-                        options_for_select(@tiebreak_strategies.map { |k, v| [v.first, k] }, @tournament.tiebreak2_key),
+                        options_for_select(@tiebreak_strategies.map { |k, v| [t("tournaments.show.strategies.names.tiebreak.#{k}", default: v.first), k] }, @tournament.tiebreak2_key),
                         class: 'input', style: 'width:100%;',
                         data: { action: 'change->strategy#changed', field: 'tiebreak2_strategy_key' } %>
       </div>

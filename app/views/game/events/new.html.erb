@@ -33,6 +33,8 @@
               <div class="score-input">
                 <%= p_form.label :score, t('games.new.your_score'), class: "form-label" %>
                 <%= p_form.number_field :score, min: 0, class: "form-input" %>
+                <%= p_form.label :secondary_score, t('games.new.secondary_score', default: 'Secondary score'), class: "form-label text-light", style: 'margin-top:0.25rem;' %>
+                <%= p_form.number_field :secondary_score, min: 0, class: "form-input" %>
                 <%= p_form.hidden_field :user_id %>
               </div>
               <div class="faction-input">
@@ -46,6 +48,8 @@
             <div class="score-input">
               <label class="form-label"><%= t('games.new.opponent_score') %></label>
               <input type="number" min="0" name="game_event[game_participations_attributes][1][score]" class="form-input" />
+              <label class="form-label text-light" style="margin-top:0.25rem;"><%= t('games.new.opponent_secondary_score', default: 'Opponent secondary score') %></label>
+              <input type="number" min="0" name="game_event[game_participations_attributes][1][secondary_score]" class="form-input" />
             </div>
             <div class="faction-input">
               <label class="form-label"><%= t('games.new.opponent_faction') %></label>

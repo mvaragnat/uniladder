@@ -21,7 +21,14 @@ end %>
           <div class="card-date">(<%= my_change.rating_before %> → <%= my_change.rating_after %>)</div>
         <% end %>
       </div>
-      <div class="score"><%= [my&.score, opp&.score].compact.join(' - ') %></div>
+      <div class="score">
+        <%= [my&.score, opp&.score].compact.join(' - ') %>
+        <% if my&.secondary_score.present? || opp&.secondary_score.present? %>
+          <div class="card-date" style="text-align:center;">
+            <%= t('games.secondary_score_short', default: 'TB') %>: <%= my&.secondary_score || 0 %> - <%= opp&.secondary_score || 0 %>
+          </div>
+        <% end %>
+      </div>
       <div class="player" style="text-align: right;">
         <%= opp&.user&.username %>
         <% if opp_change %>

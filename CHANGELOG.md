@@ -1,3 +1,9 @@
+## 2025-08-22
+
+- Add secondary score support for games and tournament matches
+- New tie-break strategy: Secondary score sum for Swiss/Open standings
+- Update forms and views to capture/display secondary score (compact on tournament pages)
+
 ## 2025-08-18
 
 - Add footer rendered on all pages with localized copy and link to a contact page

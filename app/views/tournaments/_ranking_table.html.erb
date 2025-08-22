@@ -8,7 +8,7 @@
             <th style="text-align:left; padding:0.25rem 0;"><%= t('elo.player') %></th>
             <th style="text-align:right; padding:0.25rem 0;"><%= t('tournaments.show.standings.games_played', default: 'Games Played') %></th>
             <th style="text-align:right; padding:0.25rem 0;"><%= t('tournaments.show.standings.points', default: 'Points') %></th>
-            <th style="text-align:right; padding:0.25rem 0;"><%= t('tournaments.show.standings.score', default: 'Score') %></th>
+            <th style="text-align:right; padding:0.25rem 0;"><%= @tiebreak1_label || t('tournaments.show.standings.score', default: 'Score') %></th>
           </tr>
         </thead>
         <tbody>

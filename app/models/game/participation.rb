@@ -7,6 +7,7 @@ module Game
     belongs_to :faction, class_name: 'Game::Faction'
 
     validates :score, presence: true
+    validates :secondary_score, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
     validates :user_id, uniqueness: { scope: :game_event_id }
   end
 end

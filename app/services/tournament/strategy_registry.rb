@@ -16,7 +16,10 @@ module Tournament
     def tiebreak_strategies
       {
         'none' => ['None', ->(_uid, _agg) { 0.0 }],
-        'score_sum' => ['Score sum', ->(uid, agg) { agg[:score_sum_by_user_id][uid] || 0.0 }]
+        'score_sum' => ['Score sum', ->(uid, agg) { agg[:score_sum_by_user_id][uid] || 0.0 }],
+        'secondary_score_sum' => ['Secondary score sum', lambda { |uid, agg|
+          agg[:secondary_score_sum_by_user_id][uid] || 0.0
+        }]
       }
     end
 

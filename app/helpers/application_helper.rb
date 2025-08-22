@@ -167,6 +167,7 @@ module ApplicationHelper
       a_style = pa&.score.to_i > pb&.score.to_i ? 'font-weight:700; fill:#16a34a;' : ''
       b_style = pb&.score.to_i > pa&.score.to_i ? 'font-weight:700; fill:#16a34a;' : ''
       score_text = "#{pa&.score} - #{pb&.score}"
+      # For open format listing, we may show secondary below or omit to reduce clutter. Keep compact here.
       link = nil
     else
       a_style = ''
